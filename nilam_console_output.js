@@ -168,7 +168,8 @@ async function doBook(book,idx,total){
   var txts=allTxt();
   if(txts[0])setVal(txts[0],book.summary);
   if(txts[1])setVal(txts[1],book.review);
-  clickStar(5);
+  var stars=Math.floor(Math.random()*3)+3;
+  if(clickStar(stars)){log('  [OK] Rating: '+stars+' bintang');}else{log('  [!] Rating tak jumpa');}
   await sleep(DELAY);await checkPause();
 
   log('-> Seterusnya');await clickNext();await sleep(DELAY*4);
@@ -177,21 +178,39 @@ async function doBook(book,idx,total){
   log('Step 3: Menunggu popup...');
   for(var a=0;a<30;a++){
     if(!running)break;await sleep(DELAY*2);
+    // Scan entire page for duplicate text
+    var pageText=document.body.innerText||document.body.textContent||'';
+    if(/duplicate entry/i.test(pageText)){
+      log('DUPLIKAT (page scan) - skip');
+      swalClick('ok');swalClick();
+      var allB=document.querySelectorAll('button');for(var z=0;z<allB.length;z++){var bTxt=(allB[z].innerText||'').trim().toLowerCase();if(bTxt==='ok'||bTxt==='tutup'||bTxt==='close'){forceClick(allB[z]);break;}}
+      await sleep(DELAY*2);return{ok:false,title:book.title,dup:true};
+    }
+    // Check visible buttons for Pasti/Ya
     var btns=document.querySelectorAll('button,a,[role=button]');
     var bi;for(bi=0;bi<btns.length;bi++){
       if(!vis(btns[bi]))continue;
       var bt=(btns[bi].innerText||btns[bi].textContent||'').trim().toLowerCase();
       if(bt==='pasti'||bt==='ya'||bt==='confirm'){
         log('  -> Tekan: '+btns[bi].textContent.trim());
-        forceClick(btns[bi]);await sleep(DELAY*5);break;
+        forceClick(btns[bi]);await sleep(DELAY*5);
+        // Check immediately after Pasti click for duplicate
+        var afterText=document.body.innerText||'';
+        if(/duplicate entry/i.test(afterText)){
+          log('DUPLIKAT (selepas Pasti) - skip');
+          await sleep(DELAY);swalClick('ok');swalClick();
+          var allB2=document.querySelectorAll('button');for(var z2=0;z2<allB2.length;z2++){var bTxt2=(allB2[z2].innerText||'').trim().toLowerCase();if(bTxt2==='ok'||bTxt2==='tutup'){forceClick(allB2[z2]);break;}}
+          await sleep(DELAY*2);return{ok:false,title:book.title,dup:true};
+        }
+        break;
       }
     }
     var sw=swalText();
-    if(sw)log('  [popup] '+sw.substring(0,80));
+    if(sw)log('  [popup] '+sw.substring(0,100));
     if(/berjaya|success|disimpan|tahniah/i.test(sw)){log('BERJAYA!');swalClick('ok');swalClick();return{ok:true,title:book.title};}
-    if(/duplicate|pendua|sudah wujud|already exist|telah wujud|rekod sama|entry.*exist/i.test(sw)){log('DUPLIKAT - skip');swalClick('ok');swalClick();forceClick(document.querySelector('.swal2-confirm'));await sleep(DELAY*2);return{ok:false,title:book.title,dup:true};}
+    if(/duplicate|pendua|sudah wujud|already exist|telah wujud|entry/i.test(sw)){log('DUPLIKAT - skip');swalClick('ok');swalClick();forceClick(document.querySelector('.swal2-confirm'));await sleep(DELAY*2);return{ok:false,title:book.title,dup:true};}
     if(/gagal|error|ralat|fail/i.test(sw)){
-      if(/duplicate|pendua|entry/i.test(sw)){log('DUPLIKAT (dalam error) - skip');swalClick('ok');swalClick();await sleep(DELAY*2);return{ok:false,title:book.title,dup:true};}
+      if(/duplicate|pendua|entry/i.test(sw)){log('DUPLIKAT (error) - skip');swalClick('ok');swalClick();await sleep(DELAY*2);return{ok:false,title:book.title,dup:true};}
       err('GAGAL: '+sw);swalClick();return{ok:false,title:book.title};}
     if(clickBtn('simpan')||clickBtn('hantar')||clickBtn('submit')||clickBtn('selesai')){log('  -> Klik simpan/hantar');await sleep(DELAY*4);continue;}
     if(clickBtn('seterusnya')){await sleep(DELAY*3);continue;}
