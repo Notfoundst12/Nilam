@@ -1,4 +1,4 @@
-// NILAM Auto-Fill v6.0
+// NILAM Auto-Fill v6.1
 // 1117 buku SEBENAR dari Google Books. Auto-delete yang dah guna.
 // Mobile-friendly, touch draggable, purple glassmorphism UI.
 (async()=>{
@@ -7,17 +7,12 @@
 let BOOKS = __BOOKS_JSON__;
 const LIB_URL='https://cdn.jsdelivr.net/gh/Notfoundst12/Nilam@53face1/books_library.json';
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
-let DELAY=500,running=false,paused=false;
+let DELAY=600,running=false,paused=false;
 
 const UK='__nilam_used__';
 const getUsed=()=>{try{return JSON.parse(localStorage.getItem(UK))||[];}catch{return[];}};
 const addUsed=t=>{const u=getUsed();if(!u.includes(t)){u.push(t);localStorage.setItem(UK,JSON.stringify(u));}};
 const resetUsed=()=>localStorage.removeItem(UK);
-
-const SK='__nilam6__';
-const ldSt=()=>{try{return JSON.parse(sessionStorage.getItem(SK));}catch{return null;}};
-const svSt=(i,r)=>sessionStorage.setItem(SK,JSON.stringify({i,r}));
-const clSt=()=>sessionStorage.removeItem(SK);
 
 const pLog=m=>{const el=document.getElementById('np-log');if(!el)return;
   const t=new Date().toLocaleTimeString('ms-MY',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
@@ -114,7 +109,7 @@ function makeUI(){
       <h3>NILAM Auto-Fill</h3>
     </div>
     <div class="nh-right">
-      <span class="nv">v6.0</span>
+      <span class="nv">v6.1</span>
       <button class="nx" id="np-min" title="Minimize">&#x2212;</button>
     </div>
   </div>
@@ -135,8 +130,8 @@ function makeUI(){
       </div>
       <div class="nc-row">
         <label>Delay</label>
-        <input type="range" id="np-delay" min="200" max="2000" value="500" step="100">
-        <span class="val" id="np-dval">500ms</span>
+        <input type="range" id="np-delay" min="200" max="2000" value="600" step="100">
+        <span class="val" id="np-dval">600ms</span>
       </div>
     </div>
     <div class="np" id="np-prog">
@@ -265,7 +260,12 @@ async function doBook(book,idx,total){
   await fillDD('bahasa',book.languageLabel,1);await sleep(DELAY);
 
   log('Klik Seterusnya...');
-  for(let i=0;i<3;i++){ if(clickT('seterusnya'))break; await sleep(600); }
+  let clickedSeterusnya = false;
+  for(let i=0;i<6;i++){ 
+    if(clickT('seterusnya')){ clickedSeterusnya = true; break; }
+    await sleep(600); 
+  }
+  if (!clickedSeterusnya) wrn('Butang Seterusnya tidak dijumpai (Step 1)');
   await sleep(DELAY*3);await checkPause();
 
   log('Step 2: Rumusan & Pengajaran');
@@ -280,27 +280,64 @@ async function doBook(book,idx,total){
   if(clickStar(5))log('  Rating: 5 bintang');else wrn('  Rating: tidak dijumpai');
   await sleep(DELAY);await checkPause();
 
-  log('Klik Seterusnya...');clickT('seterusnya');await sleep(DELAY*3);
+  log('Klik Seterusnya...');
+  clickedSeterusnya = false;
+  for(let i=0;i<6;i++){ 
+    if(clickT('seterusnya')){ clickedSeterusnya = true; break; }
+    await sleep(600); 
+  }
+  if (!clickedSeterusnya) wrn('Butang Seterusnya tidak dijumpai (Step 2)');
+  await sleep(DELAY*4);
 
-  for(let a=0;a<10;a++){
-    if(!running)break;await sleep(DELAY*2);
+  // Step 3: Wait for confirmation dialogs and save buttons
+  for(let a=0;a<20;a++){ // Wait up to 20 cycles (approx 10-15 seconds)
+    if(!running)break;
+    await sleep(DELAY*2);
+    
     const sw=swalTxt();
-    if(/berjaya|success|disimpan|tahniah/i.test(sw)){log('BERJAYA!');swalClick('ok');swalClick();addUsed(book.title);updateInfo();return{ok:true,title:book.title,note:sw};}
-    if(/pasti|pastikan|confirm|sahkan|adakah|pengesahan|ya|yakin/i.test(sw)){
-      log('  Klik PASTI...');
-      if(!swalClick('pasti')) if(!swalClick('ya')) if(!swalClick('confirm')) swalClick();
-      await sleep(DELAY*5);
-      const sw2=swalTxt();if(/berjaya|success|disimpan|tahniah/i.test(sw2)){log('BERJAYA!');swalClick('ok');swalClick();addUsed(book.title);updateInfo();return{ok:true,title:book.title,note:sw2};}continue;
+    if(/berjaya|success|disimpan|tahniah/i.test(sw)){
+      log('BERJAYA!');swalClick('ok');swalClick();
+      addUsed(book.title);updateInfo();
+      return{ok:true,title:book.title,note:sw};
     }
-    if(/gagal|error|ralat|fail/i.test(sw)){err(`GAGAL: ${sw}`);swalClick();return{ok:false,title:book.title,note:sw};}
-    if(clickT('simpan')||clickT('hantar')||clickT('submit')||clickT('selesai')||clickT('pasti')){log('  Klik simpan/hantar...');await sleep(DELAY*5);continue;}
-    if(clickT('seterusnya')){log('  Klik Seterusnya...');await sleep(DELAY*3);continue;}
-    break;
+    
+    // Check for "Pasti" SweetAlert
+    if(/pasti|pastikan|confirm|sahkan|adakah|pengesahan|ya|yakin/i.test(sw)){
+      log('  Klik PASTI (SweetAlert)...');
+      if(!swalClick('pasti')) if(!swalClick('ya')) if(!swalClick('confirm')) swalClick();
+      await sleep(DELAY*4);
+      continue; // Keep waiting in the loop for the success message
+    }
+    
+    if(/gagal|error|ralat|fail/i.test(sw)){
+      err(`GAGAL: ${sw}`);swalClick();
+      return{ok:false,title:book.title,note:sw};
+    }
+    
+    // Check for standard buttons if SweetAlert isn't active
+    if(clickT('simpan')||clickT('hantar')||clickT('submit')||clickT('selesai')||clickT('pasti')){
+      log('  Klik simpan/hantar/pasti...');
+      await sleep(DELAY*4);
+      continue;
+    }
+    
+    // If it's still stuck on "Seterusnya"
+    if(clickT('seterusnya')){
+      log('  Klik Seterusnya (retry)...');
+      await sleep(DELAY*3);
+      continue;
+    }
   }
 
-  await sleep(DELAY*2);const fin=swalTxt();
-  if(/berjaya|success|disimpan|tahniah/i.test(fin)){swalClick('ok');swalClick();addUsed(book.title);updateInfo();return{ok:true,title:book.title,note:fin};}
-  swalClick();return{ok:false,title:book.title,note:fin||'Tiada maklumbalas'};
+  await sleep(DELAY*2);
+  const fin=swalTxt();
+  if(/berjaya|success|disimpan|tahniah/i.test(fin)){
+    swalClick('ok');swalClick();
+    addUsed(book.title);updateInfo();
+    return{ok:true,title:book.title,note:fin};
+  }
+  swalClick();
+  return{ok:false,title:book.title,note:fin||'Tamat masa (Tiada maklum balas)'};
 }
 
 // ============================================================
@@ -334,7 +371,7 @@ async function startRun(){
     if(i<batch.length-1){
       log('Sedia buku seterusnya...');await sleep(DELAY*3);
       swalClick('ok');swalClick();await sleep(DELAY);
-      let nav=clickT('tambah lagi')||clickT('tambah rekod')||clickT('mula masukkan');
+      let nav=clickT('tambah lagi')||clickT('tambah rekod')||clickT('mula masukkan')||clickT('ok');
       if(!nav){try{const app=document.querySelector('#app');const router=app?.__vue_app__?.config?.globalProperties?.$router||app?.__vue__?.$router;if(router){router.push('/record/add/book');nav=true;}}catch(_){}}
       if(!nav)location.href='/record/add';
       await sleep(DELAY*8);
