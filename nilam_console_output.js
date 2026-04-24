@@ -3,9 +3,67 @@
 // Mobile-friendly, touch draggable, purple glassmorphism UI.
 (async()=>{
 
+// Support for local books (from books.csv) or remote library
+let BOOKS = [
+  {
+    "title": "Sang Kancil dan Buaya",
+    "author": "Pak Pandir",
+    "publisher": "Pustaka Rakyat",
+    "year": "2020",
+    "pages": "24",
+    "categoryLabel": "Fiksyen",
+    "languageLabel": "Bahasa Melayu",
+    "summary": "Kisah kancil yang cerdik menyeberangi sungai. Buku ini sangat bermanfaat dan memberi pengajaran yang baik untuk diamalkan dalam kehidupan harian.",
+    "review": "Selepas membaca buku ini, saya menjalankan aktiviti Rumusan. Buku ini sangat bermanfaat dan memberi pengajaran yang baik untuk diamalkan dalam kehidupan harian."
+  },
+  {
+    "title": "The Adventure of Sherlock Holmes",
+    "author": "Arthur Conan Doyle",
+    "publisher": "George Newnes",
+    "year": "1892",
+    "pages": "307",
+    "categoryLabel": "Fiksyen",
+    "languageLabel": "Bahasa Inggeris",
+    "summary": "A detective solving crimes. Buku ini sangat bermanfaat dan memberi pengajaran yang baik untuk diamalkan dalam kehidupan harian. Buku ini sangat bermanfaat dan memberi pengajaran yang baik untuk diamalkan dalam kehidupan harian.",
+    "review": "Selepas membaca buku ini, saya menjalankan aktiviti Lain-lain. Buku ini sangat bermanfaat dan memberi pengajaran yang baik untuk diamalkan dalam kehidupan harian."
+  },
+  {
+    "title": "Sejarah Malaysia",
+    "author": "Ahmad Bin Ali",
+    "publisher": "Dewan Bahasa dan Pustaka",
+    "year": "2015",
+    "pages": "150",
+    "categoryLabel": "Bukan Fiksyen",
+    "languageLabel": "Bahasa Melayu",
+    "summary": "Sejarah pembentukan Malaysia. Buku ini sangat bermanfaat dan memberi pengajaran yang baik untuk diamalkan dalam kehidupan harian. Buku ini sangat bermanfaat dan memberi pengajaran yang baik untuk diamalkan dalam kehidupan harian.",
+    "review": "Selepas membaca buku ini, saya menjalankan aktiviti Bercerita. Buku ini sangat bermanfaat dan memberi pengajaran yang baik untuk diamalkan dalam kehidupan harian."
+  },
+  {
+    "title": "Misteri Pulau Harapan",
+    "author": "Azman Ismail",
+    "publisher": "Pustaka Ilmu",
+    "year": "2023",
+    "pages": "120",
+    "categoryLabel": "Fiksyen",
+    "languageLabel": "Bahasa Melayu",
+    "summary": "Kisah sekumpulan remaja yang menemui rahsia di sebuah pulau terpencil yang penuh misteri. Buku ini sangat bermanfaat dan memberi pengajaran yang baik untuk diamalkan dalam kehidupan harian.",
+    "review": "Selepas membaca buku ini, saya menjalankan aktiviti Rumusan. Buku ini sangat bermanfaat dan memberi pengajaran yang baik untuk diamalkan dalam kehidupan harian."
+  },
+  {
+    "title": "Misteri Hutan Belantara",
+    "author": "Siti Nurhaliza",
+    "publisher": "Penerbit Muzik",
+    "year": "2024",
+    "pages": "150",
+    "categoryLabel": "Fiksyen",
+    "languageLabel": "Bahasa Melayu",
+    "summary": "Kisah pengembaraan seorang penyanyi di dalam hutan belantara yang penuh dengan cabaran dan rahsia alam. Buku ini sangat bermanfaat dan memberi pengajaran yang baik untuk diamalkan dalam kehidupan harian.",
+    "review": "Selepas membaca buku ini, saya menjalankan aktiviti Rumusan. Buku ini sangat bermanfaat dan memberi pengajaran yang baik untuk diamalkan dalam kehidupan harian."
+  }
+];
 const LIB_URL='https://cdn.jsdelivr.net/gh/Notfoundst12/Nilam@53face1/books_library.json';
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
-let DELAY=500,running=false,paused=false,BOOKS=[];
+let DELAY=500,running=false,paused=false;
 
 const UK='__nilam_used__';
 const getUsed=()=>{try{return JSON.parse(localStorage.getItem(UK))||[];}catch{return[];}};
@@ -203,7 +261,7 @@ function setVal(el,v){if(!el)return false;try{el.focus();}catch(_){}const s=Stri
   if(el.__vue__)try{el.__vue__.$emit('input',s);}catch(_){}if(el._assign)try{el._assign(s);}catch(_){}return true;}
 function setSel(el,text){if(!el||el.tagName!=='SELECT')return false;const lo=text.toLowerCase();
   for(const o of el.options){if(o.text.toLowerCase().includes(lo)||o.value.toLowerCase().includes(lo)){el.value=o.value;for(const ev of['input','change'])el.dispatchEvent(new Event(ev,{bubbles:true}));return true;}}return false;}
-function clickT(text,scope){const lo=text.toLowerCase();for(const el of(scope||document).querySelectorAll('button,a,[role=button],.btn,span,label,div')){if(!vis(el))continue;const t=(el.innerText||el.textContent||'').trim();if(t.length>80||t.length<1)continue;if(t.toLowerCase().includes(lo)){try{el.scrollIntoView({block:'center',behavior:'instant'});}catch(_){}el.click();return true;}}return false;}
+function clickT(text,scope){const lo=text.toLowerCase();for(const el of(scope||document).querySelectorAll('button,a,[role=button],.btn,span,label,div,input[type=button],input[type=submit]')){if(!vis(el))continue;if(el.disabled||el.getAttribute('aria-disabled')==='true')continue;const t=(el.innerText||el.textContent||el.value||'').trim();if(t.length>80||t.length<1)continue;if(t.toLowerCase().includes(lo)){try{el.scrollIntoView({block:'center',behavior:'smooth'});}catch(_){}el.click();return true;}}return false;}
 async function waitEl(fn,ms){const end=Date.now()+(ms||15000);while(Date.now()<end){const r=fn();if(r)return r;await sleep(400);}return null;}
 
 async function fillDD(label,value,fbIdx){
@@ -250,7 +308,7 @@ async function doBook(book,idx,total){
 
   const ok=await waitEl(()=>aInp().length>=3?true:null,15000);
   if(!ok){err('Borang tidak dimuatkan!');return{ok:false,title:book.title,note:'Borang tak load'};}
-  await sleep(DELAY);swalClick();await checkPause();
+  await sleep(DELAY);swalClose();swalClick();await checkPause();
 
   log('Step 1: Maklumat Buku');
   await fill('tajuk',book.title,['title']);await sleep(DELAY);await checkPause();
@@ -262,7 +320,9 @@ async function doBook(book,idx,total){
   await fill('tahun',book.year,['terbitan','year']);await sleep(DELAY);await checkPause();
   await fillDD('bahasa',book.languageLabel,1);await sleep(DELAY);
 
-  log('Klik Seterusnya...');clickT('seterusnya');await sleep(DELAY*3);await checkPause();
+  log('Klik Seterusnya...');
+  for(let i=0;i<3;i++){ if(clickT('seterusnya'))break; await sleep(600); }
+  await sleep(DELAY*3);await checkPause();
 
   log('Step 2: Rumusan & Pengajaran');
   await waitEl(()=>aTxt().length>0?true:null,12000);await sleep(DELAY);
@@ -278,14 +338,18 @@ async function doBook(book,idx,total){
 
   log('Klik Seterusnya...');clickT('seterusnya');await sleep(DELAY*3);
 
-  for(let a=0;a<8;a++){
+  for(let a=0;a<10;a++){
     if(!running)break;await sleep(DELAY*2);
     const sw=swalTxt();
     if(/berjaya|success|disimpan|tahniah/i.test(sw)){log('BERJAYA!');swalClick('ok');swalClick();addUsed(book.title);updateInfo();return{ok:true,title:book.title,note:sw};}
-    if(/pasti|pastikan|confirm|sahkan|adakah|pengesahan/i.test(sw)){log('  Klik PASTI...');if(!swalClick('pasti'))swalClick('ya');await sleep(DELAY*5);
-      const sw2=swalTxt();if(/berjaya|success|disimpan|tahniah/i.test(sw2)){log('BERJAYA!');swalClick('ok');swalClick();addUsed(book.title);updateInfo();return{ok:true,title:book.title,note:sw2};}continue;}
+    if(/pasti|pastikan|confirm|sahkan|adakah|pengesahan|ya|yakin/i.test(sw)){
+      log('  Klik PASTI...');
+      if(!swalClick('pasti')) if(!swalClick('ya')) if(!swalClick('confirm')) swalClick();
+      await sleep(DELAY*5);
+      const sw2=swalTxt();if(/berjaya|success|disimpan|tahniah/i.test(sw2)){log('BERJAYA!');swalClick('ok');swalClick();addUsed(book.title);updateInfo();return{ok:true,title:book.title,note:sw2};}continue;
+    }
     if(/gagal|error|ralat|fail/i.test(sw)){err(`GAGAL: ${sw}`);swalClick();return{ok:false,title:book.title,note:sw};}
-    if(clickT('simpan')||clickT('hantar')||clickT('submit')||clickT('selesai')){log('  Klik simpan/hantar...');await sleep(DELAY*5);continue;}
+    if(clickT('simpan')||clickT('hantar')||clickT('submit')||clickT('selesai')||clickT('pasti')){log('  Klik simpan/hantar...');await sleep(DELAY*5);continue;}
     if(clickT('seterusnya')){log('  Klik Seterusnya...');await sleep(DELAY*3);continue;}
     break;
   }
@@ -341,21 +405,88 @@ async function startRun(){
   console.table(results.map((r,i)=>({No:i+1,Tajuk:r.title,Status:r.ok?'BERJAYA':'GAGAL',Nota:r.note||''})));
 }
 
+function swalClose() {
+  const b = document.querySelector('.swal2-confirm, .swal2-close, .swal2-styled');
+  if (b && vis(b)) { b.click(); return true; }
+  return false;
+}
+
 // ============================================================
 //  INIT
 // ============================================================
 makeUI();
-log('Memuat turun perpustakaan buku...');
 
-try{
-  const r=await fetch(LIB_URL);
-  if(!r.ok)throw new Error('HTTP '+r.status);
-  BOOKS=await r.json();
-  log(`${BOOKS.length} buku sebenar dimuatkan.`);
+if (!BOOKS || BOOKS.length === 0 || BOOKS === "[
+  {
+    "title": "Sang Kancil dan Buaya",
+    "author": "Pak Pandir",
+    "publisher": "Pustaka Rakyat",
+    "year": "2020",
+    "pages": "24",
+    "categoryLabel": "Fiksyen",
+    "languageLabel": "Bahasa Melayu",
+    "summary": "Kisah kancil yang cerdik menyeberangi sungai. Buku ini sangat bermanfaat dan memberi pengajaran yang baik untuk diamalkan dalam kehidupan harian.",
+    "review": "Selepas membaca buku ini, saya menjalankan aktiviti Rumusan. Buku ini sangat bermanfaat dan memberi pengajaran yang baik untuk diamalkan dalam kehidupan harian."
+  },
+  {
+    "title": "The Adventure of Sherlock Holmes",
+    "author": "Arthur Conan Doyle",
+    "publisher": "George Newnes",
+    "year": "1892",
+    "pages": "307",
+    "categoryLabel": "Fiksyen",
+    "languageLabel": "Bahasa Inggeris",
+    "summary": "A detective solving crimes. Buku ini sangat bermanfaat dan memberi pengajaran yang baik untuk diamalkan dalam kehidupan harian. Buku ini sangat bermanfaat dan memberi pengajaran yang baik untuk diamalkan dalam kehidupan harian.",
+    "review": "Selepas membaca buku ini, saya menjalankan aktiviti Lain-lain. Buku ini sangat bermanfaat dan memberi pengajaran yang baik untuk diamalkan dalam kehidupan harian."
+  },
+  {
+    "title": "Sejarah Malaysia",
+    "author": "Ahmad Bin Ali",
+    "publisher": "Dewan Bahasa dan Pustaka",
+    "year": "2015",
+    "pages": "150",
+    "categoryLabel": "Bukan Fiksyen",
+    "languageLabel": "Bahasa Melayu",
+    "summary": "Sejarah pembentukan Malaysia. Buku ini sangat bermanfaat dan memberi pengajaran yang baik untuk diamalkan dalam kehidupan harian. Buku ini sangat bermanfaat dan memberi pengajaran yang baik untuk diamalkan dalam kehidupan harian.",
+    "review": "Selepas membaca buku ini, saya menjalankan aktiviti Bercerita. Buku ini sangat bermanfaat dan memberi pengajaran yang baik untuk diamalkan dalam kehidupan harian."
+  },
+  {
+    "title": "Misteri Pulau Harapan",
+    "author": "Azman Ismail",
+    "publisher": "Pustaka Ilmu",
+    "year": "2023",
+    "pages": "120",
+    "categoryLabel": "Fiksyen",
+    "languageLabel": "Bahasa Melayu",
+    "summary": "Kisah sekumpulan remaja yang menemui rahsia di sebuah pulau terpencil yang penuh misteri. Buku ini sangat bermanfaat dan memberi pengajaran yang baik untuk diamalkan dalam kehidupan harian.",
+    "review": "Selepas membaca buku ini, saya menjalankan aktiviti Rumusan. Buku ini sangat bermanfaat dan memberi pengajaran yang baik untuk diamalkan dalam kehidupan harian."
+  },
+  {
+    "title": "Misteri Hutan Belantara",
+    "author": "Siti Nurhaliza",
+    "publisher": "Penerbit Muzik",
+    "year": "2024",
+    "pages": "150",
+    "categoryLabel": "Fiksyen",
+    "languageLabel": "Bahasa Melayu",
+    "summary": "Kisah pengembaraan seorang penyanyi di dalam hutan belantara yang penuh dengan cabaran dan rahsia alam. Buku ini sangat bermanfaat dan memberi pengajaran yang baik untuk diamalkan dalam kehidupan harian.",
+    "review": "Selepas membaca buku ini, saya menjalankan aktiviti Rumusan. Buku ini sangat bermanfaat dan memberi pengajaran yang baik untuk diamalkan dalam kehidupan harian."
+  }
+]") {
+  log('Memuat turun perpustakaan buku...');
+  try{
+    const r=await fetch(LIB_URL);
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    BOOKS=await r.json();
+    log(`${BOOKS.length} buku sebenar dimuatkan.`);
+    updateInfo();
+  }catch(e){
+    err('Gagal muat perpustakaan: '+e.message);
+    err('Cuba refresh halaman dan paste semula.');
+  }
+} else {
+  log(`${BOOKS.length} buku dari CSV dimuatkan.`);
   updateInfo();
-}catch(e){
-  err('Gagal muat perpustakaan: '+e.message);
-  err('Cuba refresh halaman dan paste semula.');
 }
 
 document.getElementById('np-start').onclick=()=>startRun();
