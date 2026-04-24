@@ -3,7 +3,7 @@
 // Mobile-friendly, touch draggable, purple glassmorphism UI.
 (async()=>{
 
-const LIB_URL='https://cdn.jsdelivr.net/gh/Notfoundst12/Nilam@__COMMIT__/books_library.json';
+const LIB_URL='https://cdn.jsdelivr.net/gh/Notfoundst12/Nilam@53face1/books_library.json';
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 let DELAY=500,running=false,paused=false,BOOKS=[];
 
