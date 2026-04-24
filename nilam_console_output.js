@@ -1,9 +1,10 @@
-// NILAM Auto-Fill v7.0 — 1117 buku sebenar, Dribbble UI, bulletproof used-tracking
+// NILAM Auto-Fill v7.1
 (async()=>{
 'use strict';
 
 const LIB_URL='https://cdn.jsdelivr.net/gh/Notfoundst12/Nilam@aef7bad/books_library.json';
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const qs=s=>document.querySelector(s);
 const UK='__nilam_used__';
 const getUsed=()=>{try{return JSON.parse(localStorage.getItem(UK))||[];}catch{return[];}};
 const markUsed=t=>{const u=getUsed();if(!u.includes(t)){u.push(t);localStorage.setItem(UK,JSON.stringify(u));}};
@@ -16,9 +17,9 @@ const pLog=m=>{const el=document.getElementById('nl');if(!el)return;
   const c=/BERJAYA/.test(m)?'ok':/GAGAL|RALAT|TIDAK/.test(m)?'er':/Step \d/.test(m)?'st':'';
   el.innerHTML+=`<div class="l ${c}"><span class="lt">${t}</span>${m}</div>`;el.scrollTop=1e6;};
 const log=m=>{console.log('%c[NILAM] '+m,'color:#a78bfa;font-weight:bold');pLog(m);};
-const err=m=>{console.error('[NILAM] '+m);pLog('❌ '+m);};
+const err=m=>{console.error('[NILAM] '+m);pLog('[X] '+m);};
 
-// ─── DOM helpers ─────────────────────────────────────────────
+// DOM helpers
 const vis=el=>el&&(el.offsetParent!==null||el.offsetWidth>0);
 function findField(text){
   const lo=text.toLowerCase();
@@ -56,24 +57,24 @@ const allTxt=()=>[...document.querySelectorAll('textarea')].filter(vis);
 async function fillField(label,value,alts){
   let el=findField(label);
   if(!el&&alts)for(const a of alts){el=findField(a);if(el)break;}
-  if(!el){log(`  ⚠ ${label}: tak jumpa`);return false;}
-  if(el.tagName==='SELECT')return setSel(el,value)?(log(`  ✓ ${label}`),true):false;
-  return setVal(el,value)?(log(`  ✓ ${label}`),true):false;
+  if(!el){log('  [!] '+label+': tak jumpa');return false;}
+  if(el.tagName==='SELECT')return setSel(el,value)?(log('  [OK] '+label),true):false;
+  return setVal(el,value)?(log('  [OK] '+label),true):false;
 }
 async function fillDropdown(label,value,fbIdx){
   const el=findField(label);
-  if(el&&el.tagName==='SELECT'&&setSel(el,value)){log(`  ✓ ${label}`);return true;}
+  if(el&&el.tagName==='SELECT'&&setSel(el,value)){log('  [OK] '+label);return true;}
   const sels=allSel();
-  if(typeof fbIdx==='number'&&sels[fbIdx]&&setSel(sels[fbIdx],value)){log(`  ✓ ${label} [fb]`);return true;}
+  if(typeof fbIdx==='number'&&sels[fbIdx]&&setSel(sels[fbIdx],value)){log('  [OK] '+label+' [fb]');return true;}
   for(const toggle of document.querySelectorAll('.vs__dropdown-toggle,[role=combobox],[class*=v-select],[class*=dropdown]')){
     if(!vis(toggle))continue;let c=toggle;
     for(let d=0;d<6&&c;d++){const lbl=c.querySelector('label,span');
       if(lbl&&lbl.textContent.replace(/\*/g,'').trim().toLowerCase().includes(label.toLowerCase())){
         toggle.click();await sleep(600);
         for(const opt of document.querySelectorAll('.vs__dropdown-option,[role=option],li,[class*=option]')){
-          if((opt.innerText||'').trim().toLowerCase().includes(value.toLowerCase())){opt.click();await sleep(400);log(`  ✓ ${label}`);return true;}}
+          if((opt.innerText||'').trim().toLowerCase().includes(value.toLowerCase())){opt.click();await sleep(400);log('  [OK] '+label);return true;}}
         document.body.click();await sleep(200);}c=c.parentElement;}}
-  log(`  ⚠ ${label}: tak jumpa`);return false;
+  log('  [!] '+label+': tak jumpa');return false;
 }
 function clickStar(n){
   for(const c of document.querySelectorAll('[class*=star],[class*=Star],[class*=rating],[class*=Rating]')){
@@ -85,12 +86,12 @@ function swalClick(txt){
 async function clickNext(){for(let i=0;i<8;i++){if(clickBtn('seterusnya'))return true;await sleep(500);}return false;}
 async function checkPause(){while(paused&&running)await sleep(300);}
 
-// ─── Process one book ────────────────────────────────────────
+// Process one book
 async function doBook(book,idx,total){
   if(!running)return{ok:false,title:book.title};
-  $('#np-prog').textContent=`${idx+1} / ${total}`;
-  $('#np-bar').style.width=((idx+1)/total*100)+'%';
-  log(`━━━ Buku ${idx+1}/${total}: ${book.title} ━━━`);
+  qs('#np-prog').textContent=(idx+1)+' / '+total;
+  qs('#np-bar').style.width=((idx+1)/total*100)+'%';
+  log('--- Buku '+(idx+1)+'/'+total+': '+book.title+' ---');
 
   // Navigate if needed
   if(!location.pathname.includes('/record/add/book')){
@@ -110,7 +111,7 @@ async function doBook(book,idx,total){
   await fillField('tahun',book.year,['terbitan','year']);await sleep(DELAY);await checkPause();
   await fillDropdown('bahasa',book.languageLabel,1);await sleep(DELAY);
 
-  log('→ Seterusnya');await clickNext();await sleep(DELAY*4);await checkPause();
+  log('-> Seterusnya');await clickNext();await sleep(DELAY*4);await checkPause();
 
   // Step 2
   log('Step 2: Rumusan & Pengajaran');
@@ -121,14 +122,14 @@ async function doBook(book,idx,total){
   clickStar(5);
   await sleep(DELAY);await checkPause();
 
-  log('→ Seterusnya');await clickNext();await sleep(DELAY*4);
+  log('-> Seterusnya');await clickNext();await sleep(DELAY*4);
 
   // Step 3+: handle popups
   for(let a=0;a<25;a++){
     if(!running)break;await sleep(DELAY*2);
     const sw=swalText();
-    if(/berjaya|success|disimpan|tahniah/i.test(sw)){log('✅ BERJAYA!');swalClick('ok');swalClick();return{ok:true,title:book.title};}
-    if(/pasti|pastikan|confirm|sahkan|adakah|pengesahan/i.test(sw)){log('  → Klik PASTI');swalClick('pasti')||swalClick('ya')||swalClick('confirm')||swalClick();await sleep(DELAY*4);continue;}
+    if(/berjaya|success|disimpan|tahniah/i.test(sw)){log('BERJAYA!');swalClick('ok');swalClick();return{ok:true,title:book.title};}
+    if(/pasti|pastikan|confirm|sahkan|adakah|pengesahan/i.test(sw)){log('  -> Klik PASTI');swalClick('pasti')||swalClick('ya')||swalClick('confirm')||swalClick();await sleep(DELAY*4);continue;}
     if(/gagal|error|ralat|fail/i.test(sw)){err('GAGAL: '+sw);swalClick();return{ok:false,title:book.title};}
     if(clickBtn('simpan')||clickBtn('hantar')||clickBtn('submit')||clickBtn('selesai')||clickBtn('pasti')){await sleep(DELAY*4);continue;}
     if(clickBtn('seterusnya')){await sleep(DELAY*3);continue;}
@@ -136,26 +137,26 @@ async function doBook(book,idx,total){
   return{ok:false,title:book.title};
 }
 
-// ─── Main runner ─────────────────────────────────────────────
+// Main runner
 async function startRun(){
   if(running||!BOOKS.length)return;running=true;paused=false;
   btnState('run');
-  const count=Math.min(+$('#np-cnt').value||5,100);
+  const count=Math.min(+qs('#np-cnt').value||5,100);
   const used=getUsed();
   const avail=BOOKS.filter(b=>!used.includes(b.title));
   if(!avail.length){err('Semua buku habis dipakai! Tekan Reset.');running=false;btnState('idle');return;}
   const batch=avail.slice(0,count);
-  log(`▶ Memulakan ${batch.length} buku (${avail.length} tersedia)`);
+  log('Memulakan '+batch.length+' buku ('+avail.length+' tersedia)');
 
   let ok=0,fail=0;
   for(let i=0;i<batch.length;i++){
     if(!running)break;
-    // Mark used BEFORE processing — prevents reuse even if crash/reload
+    // Mark used BEFORE processing
     markUsed(batch[i].title);
     updateStats();
     const res=await doBook(batch[i],i,batch.length);
     if(res.ok)ok++;else fail++;
-    $('#np-ok').textContent=ok;$('#np-fl').textContent=fail;
+    qs('#np-ok').textContent=ok;qs('#np-fl').textContent=fail;
     if(i<batch.length-1&&running){
       log('Sedia buku seterusnya...');await sleep(DELAY*3);
       swalClick('ok');swalClick();await sleep(DELAY);
@@ -163,26 +164,25 @@ async function startRun(){
       await sleep(DELAY*8);
     }
   }
-  log(`══ SELESAI ══  ✅${ok}  ❌${fail}`);
+  log('== SELESAI == OK:'+ok+' Gagal:'+fail);
   running=false;btnState('idle');
 }
 
-// ─── UI ──────────────────────────────────────────────────────
-const $=s=>document.querySelector(s);
+// UI
 function updateStats(){
   const used=getUsed();
-  $('#np-lib').textContent=BOOKS.length;
-  $('#np-rem').textContent=BOOKS.length-used.length;
-  $('#np-usd').textContent=used.length;
+  qs('#np-lib').textContent=BOOKS.length;
+  qs('#np-rem').textContent=BOOKS.length-used.length;
+  qs('#np-usd').textContent=used.length;
 }
 function btnState(s){
-  const go=$('#np-go'),pa=$('#np-pa'),st=$('#np-st');
+  const go=qs('#np-go'),pa=qs('#np-pa'),st=qs('#np-st');
   if(s==='run'){go.disabled=true;go.textContent='Berjalan...';pa.disabled=false;st.disabled=false;}
   else{go.disabled=false;go.textContent='Mula';pa.disabled=true;st.disabled=true;pa.textContent='Pause';}
 }
 
 function makeUI(){
-  if($('#NP'))$('#NP').remove();
+  if(qs('#NP'))qs('#NP').remove();
   const w=document.createElement('div');w.id='NP';
   w.innerHTML=`<style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
@@ -261,13 +261,13 @@ function makeUI(){
 </style>
 <div class="np-card">
   <div class="np-hd" id="np-hd">
-    <div class="np-hd-l"><div class="np-ico">📚</div><span class="np-ttl">NILAM Auto-Fill</span></div>
-    <div class="np-hd-r"><span class="np-ver">v7.0</span><button class="np-x" id="np-mn">−</button></div>
+    <div class="np-hd-l"><div class="np-ico">N</div><span class="np-ttl">NILAM Auto-Fill</span></div>
+    <div class="np-hd-r"><span class="np-ver">v7.1</span><button class="np-x" id="np-mn">-</button></div>
   </div>
   <div id="np-body">
     <div class="np-stats">
-      <div class="np-stat"><div class="np-stat-n" id="np-lib">—</div><div class="np-stat-l">Jumlah</div></div>
-      <div class="np-stat"><div class="np-stat-n" id="np-rem">—</div><div class="np-stat-l">Tinggal</div></div>
+      <div class="np-stat"><div class="np-stat-n" id="np-lib">-</div><div class="np-stat-l">Jumlah</div></div>
+      <div class="np-stat"><div class="np-stat-n" id="np-rem">-</div><div class="np-stat-l">Tinggal</div></div>
       <div class="np-stat"><div class="np-stat-n" id="np-usd">0</div><div class="np-stat-l">Dipakai</div></div>
     </div>
     <div class="np-ctrl">
@@ -295,7 +295,7 @@ function makeUI(){
 </div>`;
   document.body.appendChild(w);
 
-  // Drag — mouse + touch
+  // Drag: mouse + touch
   const hd=document.getElementById('np-hd');let dr=false,ox=0,oy=0;
   const ds=(cx,cy)=>{dr=true;const r=w.getBoundingClientRect();ox=cx-r.left;oy=cy-r.top;};
   const dm=(cx,cy)=>{if(!dr)return;w.style.left=Math.max(0,Math.min(cx-ox,innerWidth-w.offsetWidth))+'px';
@@ -313,26 +313,26 @@ function makeUI(){
   document.getElementById('np-mn').onclick=()=>{mini=!mini;
     document.getElementById('np-body').style.display=mini?'none':'';
     document.getElementById('np-ft').style.display=mini?'none':'';
-    document.getElementById('np-mn').textContent=mini?'+':'−';};
+    document.getElementById('np-mn').textContent=mini?'+':'-';};
 
   // Delay slider
   document.getElementById('np-dly').oninput=function(){DELAY=+this.value;document.getElementById('np-dvl').textContent=DELAY+'ms';};
 
   // Buttons
   document.getElementById('np-go').onclick=startRun;
-  document.getElementById('np-pa').onclick=()=>{paused=!paused;document.getElementById('np-pa').textContent=paused?'Sambung':'Pause';log(paused?'⏸ Dijeda':'▶ Disambung');};
-  document.getElementById('np-st').onclick=()=>{running=false;paused=false;log('⏹ Dihentikan');btnState('idle');};
-  document.getElementById('np-rs').onclick=()=>{if(confirm('Reset semua buku yang sudah dipakai?')){resetUsed();updateStats();log('🔄 Senarai direset');}};
+  document.getElementById('np-pa').onclick=()=>{paused=!paused;document.getElementById('np-pa').textContent=paused?'Sambung':'Pause';log(paused?'DIJEDA':'Disambung');};
+  document.getElementById('np-st').onclick=()=>{running=false;paused=false;log('DIHENTIKAN');btnState('idle');};
+  document.getElementById('np-rs').onclick=()=>{if(confirm('Reset semua buku yang sudah dipakai?')){resetUsed();updateStats();log('Senarai direset');}};
 }
 
-// ─── Init ────────────────────────────────────────────────────
+// Init
 makeUI();
 log('Memuat turun 1117 buku...');
 
 try{
   const r=await fetch(LIB_URL);if(!r.ok)throw new Error('HTTP '+r.status);
   BOOKS=await r.json();
-  log(`✅ ${BOOKS.length} buku sebenar dimuatkan`);
+  log(BOOKS.length+' buku sebenar dimuatkan');
   updateStats();
   const go=document.getElementById('np-go');
   go.disabled=false;go.textContent='Mula';go.className='np-btn b-go';
