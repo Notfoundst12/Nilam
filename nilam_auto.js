@@ -1,13 +1,15 @@
-// NILAM Auto-Fill v6.1
-// 1117 buku SEBENAR dari Google Books. Auto-delete yang dah guna.
-// Mobile-friendly, touch draggable, purple glassmorphism UI.
+// NILAM Auto-Fill v6.2
+// Gabungan 1000+ buku + CSV anda.
 (async()=>{
 
-// Support for local books (from books.csv) or remote library
+// Data dari generate_script.py akan masuk sini
 let INJECTED_BOOKS = __BOOKS_JSON__;
+
 const LIB_URL='https://cdn.jsdelivr.net/gh/Notfoundst12/Nilam@53face1/books_library.json';
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 let DELAY=600,running=false,paused=false;
+let BOOKS = [];
+let INITIALIZED = false;
 
 const UK='__nilam_used__';
 const getUsed=()=>{try{return JSON.parse(localStorage.getItem(UK))||[];}catch{return[];}};
@@ -109,7 +111,7 @@ function makeUI(){
       <h3>NILAM Auto-Fill</h3>
     </div>
     <div class="nh-right">
-      <span class="nv">v6.1</span>
+      <span class="nv">v6.2</span>
       <button class="nx" id="np-min" title="Minimize">&#x2212;</button>
     </div>
   </div>
@@ -120,7 +122,7 @@ function makeUI(){
       <div class="ninfo-chip">Dipakai <b id="np-used">0</b></div>
     </div>
     <div class="nc-ctrl" id="np-ctrl">
-      <button class="nc-btn btn-go" id="np-start">Mula</button>
+      <button class="nc-btn btn-go btn-off" id="np-start" disabled>Memuatkan...</button>
       <button class="nc-btn btn-pause btn-off" id="np-pause" disabled>Pause</button>
       <button class="nc-btn btn-stop btn-off" id="np-stop" disabled>Berhenti</button>
       <button class="nc-btn btn-reset" id="np-reset" title="Reset senarai buku yang sudah dipakai">Reset Senarai</button>
@@ -136,7 +138,7 @@ function makeUI(){
     </div>
     <div class="np" id="np-prog">
       <div class="npb"><div class="npf" id="np-pfill"></div></div>
-      <div class="npt" id="np-ptext">Menunggu arahan...</div>
+      <div class="npt" id="np-ptext">Menunggu data sedia...</div>
     </div>
     <div class="nl" id="np-log"></div>
   </div>
@@ -225,6 +227,7 @@ function clickStar(n){
 
 function swalTxt(){const e=document.querySelector('.swal2-html-container,.swal2-title,.swal2-content');return e?e.textContent.trim():'';}
 function swalClick(btnText){for(const b of document.querySelectorAll('.swal2-confirm,.swal2-deny,.swal2-cancel,.swal2-close,.swal2-actions button,button')){const t=(b.innerText||b.textContent||'').trim().toLowerCase();if(btnText&&t.includes(btnText.toLowerCase())){b.click();return true;}}const b=document.querySelector('.swal2-confirm,.swal2-close');if(b){b.click();return true;}return false;}
+function swalClose() { const b = document.querySelector('.swal2-confirm, .swal2-close, .swal2-styled'); if (b && vis(b)) { b.click(); return true; } return false; }
 
 async function fill(label,value,alts){let el=findLabel(label);if(!el&&alts)for(const a of alts){el=findLabel(a);if(el)break;}
   if(el){if(el.tagName==='SELECT'){if(setSel(el,value)){log(`  ${label}: ${value}`);return true;}}else{if(setVal(el,value)){log(`  ${label}: ${value}`);return true;}}}wrn(`  ${label}: TIDAK DIJUMPAI`);return false;}
@@ -261,89 +264,47 @@ async function doBook(book,idx,total){
 
   log('Klik Seterusnya...');
   let clickedSeterusnya = false;
-  for(let i=0;i<6;i++){ 
-    if(clickT('seterusnya')){ clickedSeterusnya = true; break; }
-    await sleep(600); 
-  }
-  if (!clickedSeterusnya) wrn('Butang Seterusnya tidak dijumpai (Step 1)');
+  for(let i=0;i<6;i++){ if(clickT('seterusnya')){ clickedSeterusnya = true; break; } await sleep(600); }
   await sleep(DELAY*3);await checkPause();
 
   log('Step 2: Rumusan & Pengajaran');
   await waitEl(()=>aTxt().length>0?true:null,12000);await sleep(DELAY);
   const txts=aTxt();
-  if(txts.length>=1){setVal(txts[0],book.summary);log(`  Rumusan: ${book.summary.substring(0,35)}...`);}
-  else{const r=findLabel('rumusan')||findLabel('sinopsis');if(r){setVal(r,book.summary);log('  Rumusan: OK');}else wrn('  Rumusan: TIDAK DIJUMPAI');}
-  await sleep(DELAY);
-  if(txts.length>=2){setVal(txts[1],book.review);log(`  Pengajaran: ${book.review.substring(0,35)}...`);}
-  else{const p=findLabel('pengajaran')||findLabel('ulasan');if(p){setVal(p,book.review);log('  Pengajaran: OK');}else wrn('  Pengajaran: TIDAK DIJUMPAI');}
-  await sleep(DELAY);
-  if(clickStar(5))log('  Rating: 5 bintang');else wrn('  Rating: tidak dijumpai');
+  if(txts.length>=1) setVal(txts[0],book.summary);
+  if(txts.length>=2) setVal(txts[1],book.review);
+  clickStar(5);
   await sleep(DELAY);await checkPause();
 
   log('Klik Seterusnya...');
   clickedSeterusnya = false;
-  for(let i=0;i<6;i++){ 
-    if(clickT('seterusnya')){ clickedSeterusnya = true; break; }
-    await sleep(600); 
-  }
-  if (!clickedSeterusnya) wrn('Butang Seterusnya tidak dijumpai (Step 2)');
+  for(let i=0;i<6;i++){ if(clickT('seterusnya')){ clickedSeterusnya = true; break; } await sleep(600); }
   await sleep(DELAY*4);
 
   // Step 3: Wait for confirmation dialogs and save buttons
-  for(let a=0;a<20;a++){ // Wait up to 20 cycles (approx 10-15 seconds)
-    if(!running)break;
-    await sleep(DELAY*2);
-    
+  for(let a=0;a<20;a++){
+    if(!running)break; await sleep(DELAY*2);
     const sw=swalTxt();
     if(/berjaya|success|disimpan|tahniah/i.test(sw)){
       log('BERJAYA!');swalClick('ok');swalClick();
       addUsed(book.title);updateInfo();
       return{ok:true,title:book.title,note:sw};
     }
-    
-    // Check for "Pasti" SweetAlert
     if(/pasti|pastikan|confirm|sahkan|adakah|pengesahan|ya|yakin/i.test(sw)){
-      log('  Klik PASTI (SweetAlert)...');
+      log('  Klik PASTI...');
       if(!swalClick('pasti')) if(!swalClick('ya')) if(!swalClick('confirm')) swalClick();
-      await sleep(DELAY*4);
-      continue; // Keep waiting in the loop for the success message
+      await sleep(DELAY*4); continue;
     }
-    
-    if(/gagal|error|ralat|fail/i.test(sw)){
-      err(`GAGAL: ${sw}`);swalClick();
-      return{ok:false,title:book.title,note:sw};
-    }
-    
-    // Check for standard buttons if SweetAlert isn't active
-    if(clickT('simpan')||clickT('hantar')||clickT('submit')||clickT('selesai')||clickT('pasti')){
-      log('  Klik simpan/hantar/pasti...');
-      await sleep(DELAY*4);
-      continue;
-    }
-    
-    // If it's still stuck on "Seterusnya"
-    if(clickT('seterusnya')){
-      log('  Klik Seterusnya (retry)...');
-      await sleep(DELAY*3);
-      continue;
-    }
+    if(/gagal|error|ralat|fail/i.test(sw)){ err(`GAGAL: ${sw}`);swalClick(); return{ok:false,title:book.title,note:sw}; }
+    if(clickT('simpan')||clickT('hantar')||clickT('submit')||clickT('selesai')||clickT('pasti')){ log('  Klik simpan/hantar...'); await sleep(DELAY*4); continue; }
   }
-
-  await sleep(DELAY*2);
-  const fin=swalTxt();
-  if(/berjaya|success|disimpan|tahniah/i.test(fin)){
-    swalClick('ok');swalClick();
-    addUsed(book.title);updateInfo();
-    return{ok:true,title:book.title,note:fin};
-  }
-  swalClick();
-  return{ok:false,title:book.title,note:fin||'Tamat masa (Tiada maklum balas)'};
+  return{ok:false,title:book.title,note:'Timeout'};
 }
 
 // ============================================================
 //  MAIN RUNNER
 // ============================================================
 async function startRun(){
+  if(!INITIALIZED) { err('Tunggu sehingga data sedia...'); return; }
   if(running)return;running=true;paused=false;
   const startBtn=document.getElementById('np-start'),pauseBtn=document.getElementById('np-pause'),stopBtn=document.getElementById('np-stop');
   startBtn.textContent='Berjalan...';startBtn.disabled=true;startBtn.className='nc-btn btn-off';
@@ -354,28 +315,22 @@ async function startRun(){
   const used=getUsed();
   const available=BOOKS.filter(b=>!used.includes(b.title));
 
-  if(available.length===0){err('Semua buku sudah dipakai! Tekan RESET SENARAI untuk mula semula.');running=false;return;}
+  if(available.length===0){err('Semua buku sudah dipakai!');running=false;return;}
 
   const batch=available.slice(0,count);
-  log(`Memulakan ${batch.length} buku (${available.length} lagi tersedia)...`);
+  log(`Memulakan ${batch.length} buku...`);
 
-  let okC=0,failC=0,results=[];
+  let okC=0,failC=0;
   for(let i=0;i<batch.length;i++){
     if(!running)break;
     const res=await doBook(batch[i],i,batch.length);
-    results.push(res);
     if(res.ok)okC++;else failC++;
     setStats(okC,failC);
-
-    if(!running)break;
-    if(i<batch.length-1){
-      log('Sedia buku seterusnya...');await sleep(DELAY*3);
-      swalClick('ok');swalClick();await sleep(DELAY);
-      let nav=clickT('tambah lagi')||clickT('tambah rekod')||clickT('mula masukkan')||clickT('ok');
-      if(!nav){try{const app=document.querySelector('#app');const router=app?.__vue_app__?.config?.globalProperties?.$router||app?.__vue__?.$router;if(router){router.push('/record/add/book');nav=true;}}catch(_){}}
-      if(!nav)location.href='/record/add';
+    if(i<batch.length-1 && running){
+      log('Sedia buku seterusnya...'); await sleep(DELAY*3);
+      swalClick('ok');swalClick(); await sleep(DELAY);
+      if(!clickT('tambah lagi') && !clickT('tambah rekod')) location.href='/record/add/book';
       await sleep(DELAY*8);
-      if(location.pathname.includes('/record/add')&&!location.pathname.includes('/book')){clickT('buku');await sleep(DELAY*2);clickT('seterusnya');await sleep(DELAY*6);}
     }
   }
 
@@ -383,13 +338,6 @@ async function startRun(){
   startBtn.textContent='Mula';startBtn.disabled=false;startBtn.className='nc-btn btn-go';
   pauseBtn.disabled=true;pauseBtn.className='nc-btn btn-off';stopBtn.disabled=true;stopBtn.className='nc-btn btn-off';
   running=false;
-  console.table(results.map((r,i)=>({No:i+1,Tajuk:r.title,Status:r.ok?'BERJAYA':'GAGAL',Nota:r.note||''})));
-}
-
-function swalClose() {
-  const b = document.querySelector('.swal2-confirm, .swal2-close, .swal2-styled');
-  if (b && vis(b)) { b.click(); return true; }
-  return false;
 }
 
 // ============================================================
@@ -397,8 +345,7 @@ function swalClose() {
 // ============================================================
 makeUI();
 
-let BOOKS = [];
-const LIB_LOADED = (async () => {
+(async () => {
   log('Memuat turun perpustakaan (1000+ buku)...');
   try {
     const r = await fetch(LIB_URL);
@@ -413,23 +360,23 @@ const LIB_LOADED = (async () => {
     const titles = new Set(BOOKS.map(b => b.title.toLowerCase()));
     let added = 0;
     INJECTED_BOOKS.forEach(b => {
-      if (!titles.has(b.title.toLowerCase())) {
-        BOOKS.push(b);
-        added++;
-      }
+      if (!titles.has(b.title.toLowerCase())) { BOOKS.push(b); added++; }
     });
     log(`${added} buku dari CSV ditambah.`);
   }
+  
+  INITIALIZED = true;
   updateInfo();
+  const startBtn = document.getElementById('np-start');
+  if(startBtn){ 
+    startBtn.disabled = false; startBtn.className = 'nc-btn btn-go'; startBtn.textContent = 'Mula'; 
+    document.getElementById('np-ptext').textContent = 'Panel Sedia. Sila tekan MULA.';
+  }
 })();
-
 
 document.getElementById('np-start').onclick=()=>startRun();
 document.getElementById('np-pause').onclick=()=>{paused=!paused;document.getElementById('np-pause').textContent=paused?'Sambung':'Pause';log(paused?'DIJEDA...':'Disambung...');};
-document.getElementById('np-stop').onclick=()=>{running=false;paused=false;log('DIHENTIKAN.');
-  document.getElementById('np-start').textContent='Mula';document.getElementById('np-start').disabled=false;document.getElementById('np-start').className='nc-btn btn-go';};
+document.getElementById('np-stop').onclick=()=>{running=false;paused=false;log('DIHENTIKAN.');};
 document.getElementById('np-reset').onclick=()=>{if(confirm('Reset semua buku yang sudah dipakai?')){resetUsed();updateInfo();log('Senarai dipakai telah direset.');}};
-
-log('Panel sedia. Set bilangan buku dan tekan MULA.');
 
 })();
