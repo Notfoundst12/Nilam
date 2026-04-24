@@ -79,10 +79,25 @@ async function fillDropdown(label,value,fbIdx){
 function clickStar(n){
   for(const c of document.querySelectorAll('[class*=star],[class*=Star],[class*=rating],[class*=Rating]')){
     const items=c.querySelectorAll('svg,i,span,path');if(items.length>=n){items[n-1].click();return true;}}return false;}
-function swalText(){const e=document.querySelector('.swal2-html-container,.swal2-title,.swal2-content');return e?e.textContent.trim():'';}
+function swalText(){
+  var s='.swal2-html-container,.swal2-title,.swal2-content,.modal-body,.dialog-body,[class*=modal],[class*=dialog],[class*=popup],[class*=alert]';
+  for(var el of document.querySelectorAll(s)){if(vis(el)&&el.textContent.trim().length>10)return el.textContent.trim();}
+  return '';
+}
+function forceClick(el){
+  if(!el)return;
+  el.focus();
+  el.dispatchEvent(new MouseEvent('mousedown',{bubbles:true,cancelable:true}));
+  el.dispatchEvent(new MouseEvent('mouseup',{bubbles:true,cancelable:true}));
+  el.dispatchEvent(new MouseEvent('click',{bubbles:true,cancelable:true}));
+  el.click();
+}
 function swalClick(txt){
-  if(txt){for(const b of document.querySelectorAll('.swal2-actions button,button')){const t=(b.innerText||'').trim().toLowerCase();if(t.includes(txt.toLowerCase())){b.click();return true;}}}
-  const b=document.querySelector('.swal2-confirm');if(b){b.click();return true;}return false;}
+  var sel='.swal2-actions button,.swal2-confirm,.swal2-cancel,.swal2-deny,.modal-footer button,[class*=modal] button,[class*=dialog] button,[class*=popup] button,[class*=alert] button,button';
+  if(txt){var lo=txt.toLowerCase();for(var b of document.querySelectorAll(sel)){if(!vis(b))continue;var t=(b.innerText||b.textContent||'').trim().toLowerCase();if(t===lo||t.includes(lo)){forceClick(b);return true;}}}
+  var b=document.querySelector('.swal2-confirm');if(b&&vis(b)){forceClick(b);return true;}
+  return false;
+}
 async function clickNext(){for(let i=0;i<8;i++){if(clickBtn('seterusnya'))return true;await sleep(500);}return false;}
 async function checkPause(){while(paused&&running)await sleep(300);}
 
@@ -124,14 +139,34 @@ async function doBook(book,idx,total){
 
   log('-> Seterusnya');await clickNext();await sleep(DELAY*4);
 
-  // Step 3+: handle popups
-  for(let a=0;a<25;a++){
+  // Step 3: Wait for Pasti confirmation, then success
+  log('Step 3: Menunggu popup...');
+  for(var a=0;a<30;a++){
     if(!running)break;await sleep(DELAY*2);
-    const sw=swalText();
+    // Check all visible buttons for "Pasti"
+    var allBtns=[...document.querySelectorAll('button,a,[role=button]')].filter(vis);
+    for(var btn of allBtns){
+      var bt=(btn.innerText||btn.textContent||'').trim().toLowerCase();
+      if(bt==='pasti'||bt==='ya'||bt==='confirm'){
+        log('  -> Tekan: '+btn.textContent.trim());
+        forceClick(btn);
+        await sleep(DELAY*5);
+        break;
+      }
+    }
+    var sw=swalText();
     if(/berjaya|success|disimpan|tahniah/i.test(sw)){log('BERJAYA!');swalClick('ok');swalClick();return{ok:true,title:book.title};}
-    if(/pasti|pastikan|confirm|sahkan|adakah|pengesahan/i.test(sw)){log('  -> Klik PASTI');swalClick('pasti')||swalClick('ya')||swalClick('confirm')||swalClick();await sleep(DELAY*4);continue;}
     if(/gagal|error|ralat|fail/i.test(sw)){err('GAGAL: '+sw);swalClick();return{ok:false,title:book.title};}
-    if(clickBtn('simpan')||clickBtn('hantar')||clickBtn('submit')||clickBtn('selesai')||clickBtn('pasti')){await sleep(DELAY*4);continue;}
+    // Also check if success button appeared
+    for(var btn of allBtns){
+      var bt=(btn.innerText||btn.textContent||'').trim().toLowerCase();
+      if(bt==='ok'&&document.querySelector('.swal2-popup,.swal2-container,[class*=modal],[class*=dialog]')){
+        forceClick(btn);await sleep(DELAY*2);
+        var sw2=swalText();
+        if(!sw2||/berjaya|success/i.test(sw2)){log('BERJAYA!');return{ok:true,title:book.title};}
+      }
+    }
+    if(clickBtn('simpan')||clickBtn('hantar')||clickBtn('submit')||clickBtn('selesai')){log('  -> Klik simpan/hantar');await sleep(DELAY*4);continue;}
     if(clickBtn('seterusnya')){await sleep(DELAY*3);continue;}
   }
   return{ok:false,title:book.title};
