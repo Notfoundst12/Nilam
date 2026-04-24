@@ -91,7 +91,8 @@ def load_csv(path):
 def generate(books):
     template = TEMPLATE_PATH.read_text(encoding="utf-8")
     books_json = json.dumps(books, ensure_ascii=False, indent=2)
-    return template.replace("__BOOKS_JSON__", books_json)
+    # Use a more specific replacement to avoid breaking logic checks
+    return template.replace("let BOOKS = __BOOKS_JSON__;", f"let BOOKS = {books_json};")
 
 
 def main():
