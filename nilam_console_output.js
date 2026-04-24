@@ -112,8 +112,12 @@ function clickStar(n){
   var containers=document.querySelectorAll('[class*=star],[class*=Star],[class*=rating],[class*=Rating]');
   for(var i=0;i<containers.length;i++){var items=containers[i].querySelectorAll('svg,i,span,path');if(items.length>=n){items[n-1].click();return true;}}return false;}
 function swalText(){
-  var sels='.swal2-html-container,.swal2-title,.swal2-content,.modal-body,[class*=modal],[class*=dialog],[class*=popup],[class*=alert]';
-  var els=document.querySelectorAll(sels);for(var i=0;i<els.length;i++){if(vis(els[i])&&els[i].textContent.trim().length>10)return els[i].textContent.trim();}
+  var sels='.swal2-html-container,.swal2-title,.swal2-content,.swal2-popup,.modal-body,.modal-content,[class*=modal],[class*=dialog],[class*=popup],[class*=alert],[class*=swal],[class*=sweet]';
+  var els=document.querySelectorAll(sels);var i;
+  for(i=0;i<els.length;i++){if(vis(els[i])&&els[i].textContent.trim().length>5)return els[i].textContent.trim();}
+  // Also check any overlay/popup that just appeared
+  var overlays=document.querySelectorAll('[class*=overlay],[class*=backdrop],[class*=mask]');
+  for(i=0;i<overlays.length;i++){if(vis(overlays[i])){var inner=overlays[i].textContent.trim();if(inner.length>5&&inner.length<500)return inner;}}
   return '';
 }
 function forceClick(el){
@@ -183,9 +187,12 @@ async function doBook(book,idx,total){
       }
     }
     var sw=swalText();
+    if(sw)log('  [popup] '+sw.substring(0,80));
     if(/berjaya|success|disimpan|tahniah/i.test(sw)){log('BERJAYA!');swalClick('ok');swalClick();return{ok:true,title:book.title};}
-    if(/duplicate|pendua|sudah wujud|already exist/i.test(sw)){log('DUPLIKAT - skip');swalClick('ok');swalClick();await sleep(DELAY*2);return{ok:false,title:book.title,dup:true};}
-    if(/gagal|error|ralat|fail/i.test(sw)){err('GAGAL: '+sw);swalClick();return{ok:false,title:book.title};}
+    if(/duplicate|pendua|sudah wujud|already exist|telah wujud|rekod sama|entry.*exist/i.test(sw)){log('DUPLIKAT - skip');swalClick('ok');swalClick();forceClick(document.querySelector('.swal2-confirm'));await sleep(DELAY*2);return{ok:false,title:book.title,dup:true};}
+    if(/gagal|error|ralat|fail/i.test(sw)){
+      if(/duplicate|pendua|entry/i.test(sw)){log('DUPLIKAT (dalam error) - skip');swalClick('ok');swalClick();await sleep(DELAY*2);return{ok:false,title:book.title,dup:true};}
+      err('GAGAL: '+sw);swalClick();return{ok:false,title:book.title};}
     if(clickBtn('simpan')||clickBtn('hantar')||clickBtn('submit')||clickBtn('selesai')){log('  -> Klik simpan/hantar');await sleep(DELAY*4);continue;}
     if(clickBtn('seterusnya')){await sleep(DELAY*3);continue;}
   }
