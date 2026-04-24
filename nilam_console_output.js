@@ -453,63 +453,10 @@ function swalClose() {
 // ============================================================
 makeUI();
 
-if (!BOOKS || BOOKS.length === 0 || BOOKS === "[
-  {
-    "title": "Sang Kancil dan Buaya",
-    "author": "Pak Pandir",
-    "publisher": "Pustaka Rakyat",
-    "year": "2020",
-    "pages": "24",
-    "categoryLabel": "Fiksyen",
-    "languageLabel": "Bahasa Melayu",
-    "summary": "Kisah kancil yang cerdik menyeberangi sungai. Buku ini sangat bermanfaat dan memberi pengajaran yang baik untuk diamalkan dalam kehidupan harian.",
-    "review": "Selepas membaca buku ini, saya menjalankan aktiviti Rumusan. Buku ini sangat bermanfaat dan memberi pengajaran yang baik untuk diamalkan dalam kehidupan harian."
-  },
-  {
-    "title": "The Adventure of Sherlock Holmes",
-    "author": "Arthur Conan Doyle",
-    "publisher": "George Newnes",
-    "year": "1892",
-    "pages": "307",
-    "categoryLabel": "Fiksyen",
-    "languageLabel": "Bahasa Inggeris",
-    "summary": "A detective solving crimes. Buku ini sangat bermanfaat dan memberi pengajaran yang baik untuk diamalkan dalam kehidupan harian. Buku ini sangat bermanfaat dan memberi pengajaran yang baik untuk diamalkan dalam kehidupan harian.",
-    "review": "Selepas membaca buku ini, saya menjalankan aktiviti Lain-lain. Buku ini sangat bermanfaat dan memberi pengajaran yang baik untuk diamalkan dalam kehidupan harian."
-  },
-  {
-    "title": "Sejarah Malaysia",
-    "author": "Ahmad Bin Ali",
-    "publisher": "Dewan Bahasa dan Pustaka",
-    "year": "2015",
-    "pages": "150",
-    "categoryLabel": "Bukan Fiksyen",
-    "languageLabel": "Bahasa Melayu",
-    "summary": "Sejarah pembentukan Malaysia. Buku ini sangat bermanfaat dan memberi pengajaran yang baik untuk diamalkan dalam kehidupan harian. Buku ini sangat bermanfaat dan memberi pengajaran yang baik untuk diamalkan dalam kehidupan harian.",
-    "review": "Selepas membaca buku ini, saya menjalankan aktiviti Bercerita. Buku ini sangat bermanfaat dan memberi pengajaran yang baik untuk diamalkan dalam kehidupan harian."
-  },
-  {
-    "title": "Misteri Pulau Harapan",
-    "author": "Azman Ismail",
-    "publisher": "Pustaka Ilmu",
-    "year": "2023",
-    "pages": "120",
-    "categoryLabel": "Fiksyen",
-    "languageLabel": "Bahasa Melayu",
-    "summary": "Kisah sekumpulan remaja yang menemui rahsia di sebuah pulau terpencil yang penuh misteri. Buku ini sangat bermanfaat dan memberi pengajaran yang baik untuk diamalkan dalam kehidupan harian.",
-    "review": "Selepas membaca buku ini, saya menjalankan aktiviti Rumusan. Buku ini sangat bermanfaat dan memberi pengajaran yang baik untuk diamalkan dalam kehidupan harian."
-  },
-  {
-    "title": "Misteri Hutan Belantara",
-    "author": "Siti Nurhaliza",
-    "publisher": "Penerbit Muzik",
-    "year": "2024",
-    "pages": "150",
-    "categoryLabel": "Fiksyen",
-    "languageLabel": "Bahasa Melayu",
-    "summary": "Kisah pengembaraan seorang penyanyi di dalam hutan belantara yang penuh dengan cabaran dan rahsia alam. Buku ini sangat bermanfaat dan memberi pengajaran yang baik untuk diamalkan dalam kehidupan harian.",
-    "review": "Selepas membaca buku ini, saya menjalankan aktiviti Rumusan. Buku ini sangat bermanfaat dan memberi pengajaran yang baik untuk diamalkan dalam kehidupan harian."
-  }
-]") {
+// Check if BOOKS is a valid array with items (injected via generate_script.py)
+const HAS_LOCAL_BOOKS = Array.isArray(BOOKS) && BOOKS.length > 0;
+
+if (!HAS_LOCAL_BOOKS) {
   log('Memuat turun perpustakaan buku...');
   try{
     const r=await fetch(LIB_URL);

@@ -397,7 +397,10 @@ function swalClose() {
 // ============================================================
 makeUI();
 
-if (!BOOKS || BOOKS.length === 0 || BOOKS === "__BOOKS_JSON__") {
+// Check if BOOKS is a valid array with items (injected via generate_script.py)
+const HAS_LOCAL_BOOKS = Array.isArray(BOOKS) && BOOKS.length > 0;
+
+if (!HAS_LOCAL_BOOKS) {
   log('Memuat turun perpustakaan buku...');
   try{
     const r=await fetch(LIB_URL);
