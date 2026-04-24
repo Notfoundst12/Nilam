@@ -1,4 +1,4 @@
-// NILAM Auto-Fill v8.0
+// NILAM Auto-Fill v8.4
 // 1117 buku sebenar. Zero arrow functions. Zero template literals. Max compatibility.
 (async function(){
 
@@ -109,8 +109,46 @@ async function fillDropdown(label,value,fbIdx){
   log('  [!] '+label+': tak jumpa');return false;
 }
 function clickStar(n){
-  var containers=document.querySelectorAll('[class*=star],[class*=Star],[class*=rating],[class*=Rating]');
-  for(var i=0;i<containers.length;i++){var items=containers[i].querySelectorAll('svg,i,span,path');if(items.length>=n){items[n-1].click();return true;}}return false;}
+  var i,j,items,el;
+  // Strategy 1: find container with star/rating class
+  var containers=document.querySelectorAll('[class*=star],[class*=Star],[class*=rating],[class*=Rating],[class*=penilaian],[class*=Penilaian],[class*=rate],[class*=Rate]');
+  for(i=0;i<containers.length;i++){items=containers[i].querySelectorAll('svg,i,span,label,path,polygon,img,a,li');if(items.length>=n){forceClick(items[n-1]);return true;}}
+  // Strategy 2: find by label text then look for clickable items nearby
+  var labels=document.querySelectorAll('label,span,div,p');
+  for(i=0;i<labels.length;i++){
+    var lt=(labels[i].textContent||'').trim().toLowerCase();
+    if(lt.indexOf('penilaian')>=0||lt.indexOf('rating')>=0||lt.indexOf('bintang')>=0||lt.indexOf('ulasan')>=0){
+      var parent=labels[i].parentElement;
+      for(var d=0;d<5&&parent;d++){
+        items=parent.querySelectorAll('svg,i,span,label,path,img,a');
+        if(items.length>=n){forceClick(items[n-1]);return true;}
+        parent=parent.parentElement;
+      }
+    }
+  }
+  // Strategy 3: find all SVG groups (common for star ratings)
+  var svgGroups=document.querySelectorAll('svg');
+  var starSvgs=[];
+  for(i=0;i<svgGroups.length;i++){
+    var svg=svgGroups[i];
+    var p=svg.parentElement;
+    if(p&&p.children.length>=3){
+      var allSvg=true;
+      for(j=0;j<p.children.length;j++){if(p.children[j].tagName!=='SVG'&&p.children[j].tagName!=='I'){allSvg=false;break;}}
+      if(allSvg&&p.children.length<=10){
+        var idx=Math.min(n-1,p.children.length-1);
+        forceClick(p.children[idx]);return true;
+      }
+    }
+  }
+  // Strategy 4: find input[type=radio] for rating
+  var radios=document.querySelectorAll('input[type=radio]');
+  for(i=0;i<radios.length;i++){
+    var rv=radios[i].value;
+    if(rv==String(n)||rv==n){radios[i].checked=true;radios[i].click();radios[i].dispatchEvent(new Event('change',{bubbles:true}));return true;}
+  }
+  return false;
+}
 function swalText(){
   var sels='.swal2-html-container,.swal2-title,.swal2-content,.swal2-popup,.modal-body,.modal-content,[class*=modal],[class*=dialog],[class*=popup],[class*=alert],[class*=swal],[class*=sweet]';
   var els=document.querySelectorAll(sels);var i;
@@ -134,6 +172,18 @@ function swalClick(txt){
   var b=document.querySelector('.swal2-confirm');if(b&&vis(b)){forceClick(b);return true;}
   return false;
 }
+function closeAllPopups(){
+  var i,t;var btns=document.querySelectorAll('.swal2-confirm,.swal2-cancel,.swal2-close,button');
+  for(i=0;i<btns.length;i++){t=(btns[i].innerText||'').trim().toLowerCase();
+    if(t==='ok'||t==='tutup'||t==='close'||btns[i].classList.contains('swal2-confirm')||btns[i].classList.contains('swal2-close')){forceClick(btns[i]);}}
+  var overlays=document.querySelectorAll('.swal2-container,.swal2-backdrop');
+  for(i=0;i<overlays.length;i++){try{overlays[i].remove();}catch(x){}}
+}
+async function navToForm(){
+  try{var vueEl=document.querySelector('#app')||document.querySelector('[data-app]');
+    if(vueEl&&vueEl.__vue__&&vueEl.__vue__.$router){vueEl.__vue__.$router.push('/record/add/book');return;}}catch(x){}
+  try{history.pushState({},'','/record/add/book');window.dispatchEvent(new PopStateEvent('popstate',{state:{}}));}catch(x){location.href='/record/add/book';}
+}
 async function clickNext(){for(var i=0;i<8;i++){if(clickBtn('seterusnya'))return true;await sleep(500);}return false;}
 async function checkPause(){while(paused&&running)await sleep(300);}
 
@@ -145,7 +195,7 @@ async function doBook(book,idx,total){
   log('--- Buku '+(idx+1)+'/'+total+': '+book.title+' ---');
 
   if(location.pathname.indexOf('/record/add/book')<0){
-    log('Navigasi ke borang...');location.href='/record/add/book';await sleep(DELAY*10);
+    log('Navigasi ke borang...');await navToForm();await sleep(DELAY*10);
   }
   var formOk=await waitFor(function(){return allInp().length>=3?true:null;});
   if(!formOk){err('Borang tak load');return{ok:false,title:book.title};}
@@ -243,10 +293,16 @@ async function startRun(){
     qs('#np-ok').textContent=ok;qs('#np-fl').textContent=fail;
     idx++;
     if(ok+fail<target&&running){
-      log('Sedia buku seterusnya...');await sleep(DELAY*3);
-      swalClick('ok');swalClick();await sleep(DELAY);
-      clickBtn('tambah lagi')||clickBtn('tambah rekod');
-      await sleep(DELAY*8);
+      log('Sedia buku seterusnya...');await sleep(DELAY*2);
+      closeAllPopups();await sleep(DELAY);
+      if(res.dup){
+        log('Navigasi ke borang baru...');
+        await navToForm();await sleep(DELAY*10);
+      } else {
+        swalClick('ok');swalClick();await sleep(DELAY);
+        clickBtn('tambah lagi')||clickBtn('tambah rekod');
+        await sleep(DELAY*8);
+      }
     }
   }
   log('== SELESAI == OK:'+ok+' Gagal:'+fail+' Duplikat:'+dup);
@@ -331,7 +387,7 @@ function makeUI(){
   html+='<div class="np-card">';
   html+='<div class="np-hd" id="np-hd">';
   html+='<div class="np-hd-l"><div class="np-ico">N</div><span class="np-ttl">NILAM Auto-Fill</span></div>';
-  html+='<div class="np-hd-r"><span class="np-ver">v8.0</span><button class="np-x" id="np-mn">-</button></div>';
+  html+='<div class="np-hd-r"><span class="np-ver">v8.4</span><button class="np-x" id="np-mn">-</button></div>';
   html+='</div>';
   html+='<div id="np-body">';
   html+='<div class="np-stats">';
