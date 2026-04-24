@@ -92,7 +92,7 @@ def generate(books):
     template = TEMPLATE_PATH.read_text(encoding="utf-8")
     books_json = json.dumps(books, ensure_ascii=False, indent=2)
     # Use a more specific replacement to avoid breaking logic checks
-    return template.replace("let BOOKS = __BOOKS_JSON__;", f"let BOOKS = {books_json};")
+    return template.replace("let INJECTED_BOOKS = __BOOKS_JSON__;", f"let BOOKS = {books_json};")
 
 
 def main():

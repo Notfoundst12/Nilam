@@ -4,7 +4,7 @@
 (async()=>{
 
 // Support for local books (from books.csv) or remote library
-let BOOKS = __BOOKS_JSON__;
+let INJECTED_BOOKS = __BOOKS_JSON__;
 const LIB_URL='https://cdn.jsdelivr.net/gh/Notfoundst12/Nilam@53face1/books_library.json';
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 let DELAY=600,running=false,paused=false;
@@ -397,25 +397,32 @@ function swalClose() {
 // ============================================================
 makeUI();
 
-// Check if BOOKS is a valid array with items (injected via generate_script.py)
-const HAS_LOCAL_BOOKS = Array.isArray(BOOKS) && BOOKS.length > 0;
-
-if (!HAS_LOCAL_BOOKS) {
-  log('Memuat turun perpustakaan buku...');
-  try{
-    const r=await fetch(LIB_URL);
-    if(!r.ok)throw new Error('HTTP '+r.status);
-    BOOKS=await r.json();
-    log(`${BOOKS.length} buku sebenar dimuatkan.`);
-    updateInfo();
-  }catch(e){
-    err('Gagal muat perpustakaan: '+e.message);
-    err('Cuba refresh halaman dan paste semula.');
+let BOOKS = [];
+const LIB_LOADED = (async () => {
+  log('Memuat turun perpustakaan (1000+ buku)...');
+  try {
+    const r = await fetch(LIB_URL);
+    if(!r.ok) throw new Error('HTTP ' + r.status);
+    BOOKS = await r.json();
+    log(`${BOOKS.length} buku dari perpustakaan dimuatkan.`);
+  } catch(e) {
+    err('Gagal muat perpustakaan awam: ' + e.message);
   }
-} else {
-  log(`${BOOKS.length} buku dari CSV dimuatkan.`);
+
+  if (Array.isArray(INJECTED_BOOKS) && INJECTED_BOOKS.length > 0) {
+    const titles = new Set(BOOKS.map(b => b.title.toLowerCase()));
+    let added = 0;
+    INJECTED_BOOKS.forEach(b => {
+      if (!titles.has(b.title.toLowerCase())) {
+        BOOKS.push(b);
+        added++;
+      }
+    });
+    log(`${added} buku dari CSV ditambah.`);
+  }
   updateInfo();
-}
+})();
+
 
 document.getElementById('np-start').onclick=()=>startRun();
 document.getElementById('np-pause').onclick=()=>{paused=!paused;document.getElementById('np-pause').textContent=paused?'Sambung':'Pause';log(paused?'DIJEDA...':'Disambung...');};
