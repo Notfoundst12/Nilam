@@ -64,7 +64,7 @@ let BOOKS = [
 const LIB_URL='https://cdn.jsdelivr.net/gh/Notfoundst12/Nilam@53face1/books_library.json';
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 let DELAY=600,running=false,paused=false;
-let BOOKS = [];
+var BOOKS = [];
 let INITIALIZED = false;
 
 const UK='__nilam_used__';
