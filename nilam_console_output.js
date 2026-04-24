@@ -1,4 +1,4 @@
-// NILAM Auto-Fill v8.4
+// NILAM Auto-Fill v9.0
 // 1117 buku sebenar. Zero arrow functions. Zero template literals. Max compatibility.
 (async function(){
 
@@ -108,45 +108,84 @@ async function fillDropdown(label,value,fbIdx){
   }
   log('  [!] '+label+': tak jumpa');return false;
 }
-function clickStar(n){
+function tryClickStar(n){
   var i,j,items,el;
-  // Strategy 1: find container with star/rating class
-  var containers=document.querySelectorAll('[class*=star],[class*=Star],[class*=rating],[class*=Rating],[class*=penilaian],[class*=Penilaian],[class*=rate],[class*=Rate]');
-  for(i=0;i<containers.length;i++){items=containers[i].querySelectorAll('svg,i,span,label,path,polygon,img,a,li');if(items.length>=n){forceClick(items[n-1]);return true;}}
-  // Strategy 2: find by label text then look for clickable items nearby
-  var labels=document.querySelectorAll('label,span,div,p');
+  // Strategy 1: container with star/rating class
+  var containers=document.querySelectorAll('[class*=star],[class*=Star],[class*=rating],[class*=Rating],[class*=penilaian],[class*=Penilaian],[class*=rate],[class*=Rate],[class*=review],[class*=Review]');
+  for(i=0;i<containers.length;i++){
+    items=containers[i].querySelectorAll('svg,i,span,label,path,polygon,img,a,li,button');
+    if(items.length>=3&&items.length<=10){forceClick(items[Math.min(n-1,items.length-1)]);return true;}
+    if(containers[i].children.length>=3&&containers[i].children.length<=10){forceClick(containers[i].children[Math.min(n-1,containers[i].children.length-1)]);return true;}
+  }
+  // Strategy 2: label text then nearby clickable items
+  var labels=document.querySelectorAll('label,span,div,p,h1,h2,h3,h4,h5,h6,legend');
   for(i=0;i<labels.length;i++){
     var lt=(labels[i].textContent||'').trim().toLowerCase();
-    if(lt.indexOf('penilaian')>=0||lt.indexOf('rating')>=0||lt.indexOf('bintang')>=0||lt.indexOf('ulasan')>=0){
+    if(lt.length>60||lt.length<3)continue;
+    if(lt.indexOf('penilaian')>=0||lt.indexOf('rating')>=0||lt.indexOf('bintang')>=0||lt.indexOf('ulasan')>=0||lt.indexOf('nilai')>=0){
       var parent=labels[i].parentElement;
-      for(var d=0;d<5&&parent;d++){
-        items=parent.querySelectorAll('svg,i,span,label,path,img,a');
-        if(items.length>=n){forceClick(items[n-1]);return true;}
+      for(var d=0;d<6&&parent;d++){
+        items=parent.querySelectorAll('svg,i,span,label,path,img,a,button');
+        var clickable=[];for(j=0;j<items.length;j++){if(vis(items[j])&&items[j]!==labels[i])clickable.push(items[j]);}
+        if(clickable.length>=3&&clickable.length<=10){forceClick(clickable[Math.min(n-1,clickable.length-1)]);return true;}
         parent=parent.parentElement;
       }
     }
   }
-  // Strategy 3: find all SVG groups (common for star ratings)
-  var svgGroups=document.querySelectorAll('svg');
-  var starSvgs=[];
-  for(i=0;i<svgGroups.length;i++){
-    var svg=svgGroups[i];
-    var p=svg.parentElement;
-    if(p&&p.children.length>=3){
-      var allSvg=true;
-      for(j=0;j<p.children.length;j++){if(p.children[j].tagName!=='SVG'&&p.children[j].tagName!=='I'){allSvg=false;break;}}
-      if(allSvg&&p.children.length<=10){
-        var idx=Math.min(n-1,p.children.length-1);
-        forceClick(p.children[idx]);return true;
+  // Strategy 3: groups of 3-10 identical siblings (likely stars)
+  var wrappers=document.querySelectorAll('div,span,ul,ol,fieldset');
+  for(i=0;i<wrappers.length;i++){
+    el=wrappers[i];if(!vis(el))continue;
+    var ch=el.children;if(ch.length<3||ch.length>10)continue;
+    var tag0=ch[0].tagName;var allSame=true;
+    for(j=1;j<ch.length;j++){if(ch[j].tagName!==tag0){allSame=false;break;}}
+    if(!allSame)continue;
+    if(tag0==='SVG'||tag0==='I'||tag0==='SPAN'||tag0==='IMG'||tag0==='LABEL'||tag0==='A'||tag0==='BUTTON'||tag0==='LI'){
+      if(ch.length===5||(ch.length>=3&&ch.length<=7)){
+        forceClick(ch[Math.min(n-1,ch.length-1)]);return true;
       }
     }
   }
-  // Strategy 4: find input[type=radio] for rating
+  // Strategy 4: radio inputs
   var radios=document.querySelectorAll('input[type=radio]');
   for(i=0;i<radios.length;i++){
     var rv=radios[i].value;
-    if(rv==String(n)||rv==n){radios[i].checked=true;radios[i].click();radios[i].dispatchEvent(new Event('change',{bubbles:true}));return true;}
+    if(rv==String(n)||rv==n){radios[i].checked=true;forceClick(radios[i]);radios[i].dispatchEvent(new Event('change',{bubbles:true}));return true;}
   }
+  // Strategy 5: aria-label
+  var ariaEls=document.querySelectorAll('[aria-label]');
+  for(i=0;i<ariaEls.length;i++){
+    var al=(ariaEls[i].getAttribute('aria-label')||'').toLowerCase();
+    if((al.indexOf('star')>=0||al.indexOf('bintang')>=0||al.indexOf('rating')>=0)&&al.indexOf(String(n))>=0){
+      forceClick(ariaEls[i]);return true;
+    }
+  }
+  // Strategy 6: data-value or value attribute
+  var dataEls=document.querySelectorAll('[data-value],[data-rating],[data-score]');
+  for(i=0;i<dataEls.length;i++){
+    var dv=dataEls[i].getAttribute('data-value')||dataEls[i].getAttribute('data-rating')||dataEls[i].getAttribute('data-score')||'';
+    if(dv==String(n)){forceClick(dataEls[i]);return true;}
+  }
+  return false;
+}
+async function clickStarRetry(n){
+  for(var attempt=0;attempt<4;attempt++){
+    if(attempt>0){await sleep(1000);log('  Retry rating #'+(attempt+1)+'...');}
+    if(tryClickStar(n))return true;
+  }
+  return false;
+}
+function isDuplicate(){
+  var txt=(document.body.innerText||document.body.textContent||'').toLowerCase();
+  if(/duplicate.?entry/i.test(txt))return true;
+  if(/pendua/i.test(txt))return true;
+  if(/sudah.?wujud/i.test(txt))return true;
+  if(/telah.?wujud/i.test(txt))return true;
+  if(/already.?exist/i.test(txt))return true;
+  if(/rekod.?ini.?sudah/i.test(txt))return true;
+  if(/data.?yang.?sama/i.test(txt))return true;
+  var sw=swalText().toLowerCase();
+  if(sw&&(/duplicate|pendua|wujud|already|exist|entry/.test(sw)))return true;
   return false;
 }
 function swalText(){
@@ -214,13 +253,15 @@ async function doBook(book,idx,total){
   log('-> Seterusnya');await clickNext();await sleep(DELAY*4);await checkPause();
 
   log('Step 2: Rumusan & Pengajaran');
-  await waitFor(function(){return allTxt().length>0?true:null;},12000);await sleep(DELAY);
+  await waitFor(function(){return allTxt().length>0?true:null;},15000);await sleep(DELAY*2);
   var txts=allTxt();
-  if(txts[0])setVal(txts[0],book.summary);
-  if(txts[1])setVal(txts[1],book.review);
+  if(txts[0]){setVal(txts[0],book.summary);await sleep(DELAY);}
+  if(txts[1]){setVal(txts[1],book.review);await sleep(DELAY);}
+  await sleep(DELAY*3);
   var stars=Math.floor(Math.random()*3)+3;
-  if(clickStar(stars)){log('  [OK] Rating: '+stars+' bintang');}else{log('  [!] Rating tak jumpa');}
-  await sleep(DELAY);await checkPause();
+  var starOk=await clickStarRetry(stars);
+  if(starOk){log('  [OK] Rating: '+stars+' bintang');}else{log('  [!] Rating tak jumpa');}
+  await sleep(DELAY*2);await checkPause();
 
   log('-> Seterusnya');await clickNext();await sleep(DELAY*4);
 
@@ -228,13 +269,11 @@ async function doBook(book,idx,total){
   log('Step 3: Menunggu popup...');
   for(var a=0;a<30;a++){
     if(!running)break;await sleep(DELAY*2);
-    // Scan entire page for duplicate text
-    var pageText=document.body.innerText||document.body.textContent||'';
-    if(/duplicate entry/i.test(pageText)){
-      log('DUPLIKAT (page scan) - skip');
-      swalClick('ok');swalClick();
-      var allB=document.querySelectorAll('button');for(var z=0;z<allB.length;z++){var bTxt=(allB[z].innerText||'').trim().toLowerCase();if(bTxt==='ok'||bTxt==='tutup'||bTxt==='close'){forceClick(allB[z]);break;}}
-      await sleep(DELAY*2);return{ok:false,title:book.title,dup:true};
+    // Broad duplicate check (page + swal)
+    if(isDuplicate()){
+      log('DUPLIKAT dikesan - skip');
+      closeAllPopups();await sleep(DELAY*2);
+      return{ok:false,title:book.title,dup:true};
     }
     // Check visible buttons for Pasti/Ya
     var btns=document.querySelectorAll('button,a,[role=button]');
@@ -243,14 +282,12 @@ async function doBook(book,idx,total){
       var bt=(btns[bi].innerText||btns[bi].textContent||'').trim().toLowerCase();
       if(bt==='pasti'||bt==='ya'||bt==='confirm'){
         log('  -> Tekan: '+btns[bi].textContent.trim());
-        forceClick(btns[bi]);await sleep(DELAY*5);
-        // Check immediately after Pasti click for duplicate
-        var afterText=document.body.innerText||'';
-        if(/duplicate entry/i.test(afterText)){
+        forceClick(btns[bi]);await sleep(DELAY*6);
+        // Check for duplicate after Pasti
+        if(isDuplicate()){
           log('DUPLIKAT (selepas Pasti) - skip');
-          await sleep(DELAY);swalClick('ok');swalClick();
-          var allB2=document.querySelectorAll('button');for(var z2=0;z2<allB2.length;z2++){var bTxt2=(allB2[z2].innerText||'').trim().toLowerCase();if(bTxt2==='ok'||bTxt2==='tutup'){forceClick(allB2[z2]);break;}}
-          await sleep(DELAY*2);return{ok:false,title:book.title,dup:true};
+          closeAllPopups();await sleep(DELAY*2);
+          return{ok:false,title:book.title,dup:true};
         }
         break;
       }
@@ -258,9 +295,9 @@ async function doBook(book,idx,total){
     var sw=swalText();
     if(sw)log('  [popup] '+sw.substring(0,100));
     if(/berjaya|success|disimpan|tahniah/i.test(sw)){log('BERJAYA!');swalClick('ok');swalClick();return{ok:true,title:book.title};}
-    if(/duplicate|pendua|sudah wujud|already exist|telah wujud|entry/i.test(sw)){log('DUPLIKAT - skip');swalClick('ok');swalClick();forceClick(document.querySelector('.swal2-confirm'));await sleep(DELAY*2);return{ok:false,title:book.title,dup:true};}
+    if(/duplicate|pendua|sudah wujud|already exist|telah wujud|entry/i.test(sw)){log('DUPLIKAT - skip');closeAllPopups();await sleep(DELAY*2);return{ok:false,title:book.title,dup:true};}
     if(/gagal|error|ralat|fail/i.test(sw)){
-      if(/duplicate|pendua|entry/i.test(sw)){log('DUPLIKAT (error) - skip');swalClick('ok');swalClick();await sleep(DELAY*2);return{ok:false,title:book.title,dup:true};}
+      if(/duplicate|pendua|entry|wujud/i.test(sw)){log('DUPLIKAT (error) - skip');closeAllPopups();await sleep(DELAY*2);return{ok:false,title:book.title,dup:true};}
       err('GAGAL: '+sw);swalClick();return{ok:false,title:book.title};}
     if(clickBtn('simpan')||clickBtn('hantar')||clickBtn('submit')||clickBtn('selesai')){log('  -> Klik simpan/hantar');await sleep(DELAY*4);continue;}
     if(clickBtn('seterusnya')){await sleep(DELAY*3);continue;}
@@ -387,7 +424,7 @@ function makeUI(){
   html+='<div class="np-card">';
   html+='<div class="np-hd" id="np-hd">';
   html+='<div class="np-hd-l"><div class="np-ico">N</div><span class="np-ttl">NILAM Auto-Fill</span></div>';
-  html+='<div class="np-hd-r"><span class="np-ver">v8.4</span><button class="np-x" id="np-mn">-</button></div>';
+  html+='<div class="np-hd-r"><span class="np-ver">v9.0</span><button class="np-x" id="np-mn">-</button></div>';
   html+='</div>';
   html+='<div id="np-body">';
   html+='<div class="np-stats">';
