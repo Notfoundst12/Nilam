@@ -156,6 +156,7 @@ async function doBook(book,idx,total){
     }
     var sw=swalText();
     if(/berjaya|success|disimpan|tahniah/i.test(sw)){log('BERJAYA!');swalClick('ok');swalClick();return{ok:true,title:book.title};}
+    if(/duplicate|pendua|sudah wujud|already exist/i.test(sw)){log('DUPLIKAT - skip, buku lain');swalClick('ok');swalClick();await sleep(DELAY*2);return{ok:false,title:book.title,dup:true};}
     if(/gagal|error|ralat|fail/i.test(sw)){err('GAGAL: '+sw);swalClick();return{ok:false,title:book.title};}
     // Also check if success button appeared
     for(var btn of allBtns){
@@ -176,30 +177,34 @@ async function doBook(book,idx,total){
 async function startRun(){
   if(running||!BOOKS.length)return;running=true;paused=false;
   btnState('run');
-  const count=Math.min(+qs('#np-cnt').value||5,100);
-  const used=getUsed();
-  const avail=BOOKS.filter(b=>!used.includes(b.title));
-  if(!avail.length){err('Semua buku habis dipakai! Tekan Reset.');running=false;btnState('idle');return;}
-  const batch=avail.slice(0,count);
-  log('Memulakan '+batch.length+' buku ('+avail.length+' tersedia)');
+  var used0=getUsed();
+  var avail0=BOOKS.filter(function(b){return !used0.includes(b.title);});
+  if(!avail0.length){err('Semua buku habis dipakai! Tekan Reset.');running=false;btnState('idle');return;}
+  log('Memulakan... ('+avail0.length+' buku tersedia)');
 
-  let ok=0,fail=0;
-  for(let i=0;i<batch.length;i++){
-    if(!running)break;
-    // Mark used BEFORE processing
-    markUsed(batch[i].title);
+  var ok=0,fail=0,dup=0,target=Math.min(+qs('#np-cnt').value||5,100);
+  var idx=0;
+  while(ok+fail<target&&running){
+    var used=getUsed();
+    var avail=BOOKS.filter(function(b){return !used.includes(b.title);});
+    if(!avail.length){err('Semua buku habis dipakai! Tekan Reset.');break;}
+    var book=avail[0];
+    markUsed(book.title);
     updateStats();
-    const res=await doBook(batch[i],i,batch.length);
-    if(res.ok)ok++;else fail++;
+    var res=await doBook(book,idx,target);
+    if(res.ok){ok++;}
+    else if(res.dup){dup++;log('Duplikat #'+dup+' - cuba buku lain...');}
+    else{fail++;}
     qs('#np-ok').textContent=ok;qs('#np-fl').textContent=fail;
-    if(i<batch.length-1&&running){
+    idx++;
+    if(ok+fail<target&&running){
       log('Sedia buku seterusnya...');await sleep(DELAY*3);
       swalClick('ok');swalClick();await sleep(DELAY);
       clickBtn('tambah lagi')||clickBtn('tambah rekod');
       await sleep(DELAY*8);
     }
   }
-  log('== SELESAI == OK:'+ok+' Gagal:'+fail);
+  log('== SELESAI == OK:'+ok+' Gagal:'+fail+' Duplikat:'+dup);
   running=false;btnState('idle');
 }
 
