@@ -63,20 +63,49 @@ async function fillField(label,value,alts){
   if(setVal(el,value)){log('  [OK] '+label);return true;}return false;
 }
 async function fillDropdown(label,value,fbIdx){
+  var lo=label.toLowerCase();var vlo=value.toLowerCase();var i,j,d;
+  // Strategy 1: find by label
   var el=findField(label);
   if(el&&el.tagName==='SELECT'&&setSel(el,value)){log('  [OK] '+label);return true;}
+  // Strategy 2: fallback by index
   var sels=allSel();
-  if(typeof fbIdx==='number'&&sels[fbIdx]&&setSel(sels[fbIdx],value)){log('  [OK] '+label+' [fb]');return true;}
-  var toggles=document.querySelectorAll('.vs__dropdown-toggle,[role=combobox],[class*=v-select],[class*=dropdown]');
-  for(var i=0;i<toggles.length;i++){
+  if(typeof fbIdx==='number'&&sels[fbIdx]&&setSel(sels[fbIdx],value)){log('  [OK] '+label+' [fb#'+fbIdx+']');return true;}
+  // Strategy 3: try ALL selects
+  for(i=0;i<sels.length;i++){if(setSel(sels[i],value)){log('  [OK] '+label+' [sel#'+i+']');return true;}}
+  // Strategy 4: vue-select / custom dropdown - search near label
+  var toggleSel='.vs__dropdown-toggle,[role=combobox],[role=listbox],[class*=v-select],[class*=dropdown],[class*=select],[class*=picker],[class*=chosen]';
+  var toggles=document.querySelectorAll(toggleSel);
+  for(i=0;i<toggles.length;i++){
     var toggle=toggles[i];if(!vis(toggle))continue;var c=toggle;
-    for(var d=0;d<6&&c;d++){var lbl=c.querySelector('label,span');
-      if(lbl&&lbl.textContent.replace(/\*/g,'').trim().toLowerCase().indexOf(label.toLowerCase())>=0){
-        toggle.click();await sleep(600);
-        var opts=document.querySelectorAll('.vs__dropdown-option,[role=option],li,[class*=option]');
-        for(var j=0;j<opts.length;j++){
-          if((opts[j].innerText||'').trim().toLowerCase().indexOf(value.toLowerCase())>=0){opts[j].click();await sleep(400);log('  [OK] '+label);return true;}}
+    for(d=0;d<6&&c;d++){var lbl=c.querySelector('label,span,div,p');
+      if(lbl&&lbl.textContent.replace(/\*/g,'').trim().toLowerCase().indexOf(lo)>=0){
+        toggle.click();await sleep(800);
+        var optSel='.vs__dropdown-option,[role=option],.dropdown-item,li,.option,[class*=option],[class*=item]';
+        var opts=document.querySelectorAll(optSel);
+        for(j=0;j<opts.length;j++){
+          var ot=(opts[j].innerText||opts[j].textContent||'').trim().toLowerCase();
+          if(ot.indexOf(vlo)>=0||vlo.indexOf(ot)>=0){opts[j].click();await sleep(400);log('  [OK] '+label+' [custom]');return true;}}
         document.body.click();await sleep(200);}c=c.parentElement;}}
+  // Strategy 5: brute force - click any dropdown-like element near label text
+  var allEls=document.querySelectorAll('div,span,button,input');
+  for(i=0;i<allEls.length;i++){
+    var ae=allEls[i];if(!vis(ae))continue;
+    var at=(ae.textContent||'').trim();
+    if(at.length>50||at.length<2||at.toLowerCase().indexOf(lo)<0)continue;
+    var parent=ae.parentElement;
+    for(d=0;d<4&&parent;d++){
+      var clickable=parent.querySelector('[class*=select],[class*=dropdown],[class*=toggle],[class*=arrow],select');
+      if(clickable&&vis(clickable)){
+        clickable.click();await sleep(800);
+        var opts2=document.querySelectorAll('[role=option],li,[class*=option],.vs__dropdown-option');
+        for(j=0;j<opts2.length;j++){
+          var ot2=(opts2[j].innerText||'').trim().toLowerCase();
+          if(ot2.indexOf(vlo)>=0){opts2[j].click();await sleep(400);log('  [OK] '+label+' [brute]');return true;}}
+        document.body.click();await sleep(200);
+      }
+      parent=parent.parentElement;
+    }
+  }
   log('  [!] '+label+': tak jumpa');return false;
 }
 function clickStar(n){
