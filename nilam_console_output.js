@@ -1,242 +1,349 @@
-// NILAM Auto-Fill v2.0 - Console DevTools Script
-// Paste skrip ini di Console pada halaman AINS (sudah login)
-// Skrip akan mengisi semua buku secara automatik.
+// NILAM Auto-Fill v3.0 - Console DevTools Script
+// Fetch & paste sahaja. Semua buku sudah tersedia.
 (async () => {
-  // __BOOKS_PLACEHOLDER__
+
+  // ============================================================
+  //  LIBRARY BUKU (Auto-generated, format siap)
+  // ============================================================
   const BOOKS = [
-  {
-    "title": "Sang Kancil dan Buaya",
-    "author": "Pak Pandir",
-    "publisher": "Pustaka Rakyat",
-    "year": "2020",
-    "pages": "24",
-    "categoryLabel": "Fiksyen",
-    "languageLabel": "Bahasa Melayu",
-    "summary": "Kisah kancil yang cerdik menyeberangi sungai. Buku ini sangat bermanfaat dan memberi pengajaran yang baik untuk diamalkan dalam kehidupan harian.",
-    "review": "Selepas membaca buku ini, saya menjalankan aktiviti Rumusan. Buku ini sangat bermanfaat dan memberi pengajaran yang baik untuk diamalkan dalam kehidupan harian."
-  },
-  {
-    "title": "The Adventure of Sherlock Holmes",
-    "author": "Arthur Conan Doyle",
-    "publisher": "George Newnes",
-    "year": "1892",
-    "pages": "307",
-    "categoryLabel": "Fiksyen",
-    "languageLabel": "Bahasa Inggeris",
-    "summary": "A detective solving crimes. Buku ini sangat bermanfaat dan memberi pengajaran yang baik untuk diamalkan dalam kehidupan harian. Buku ini sangat bermanfaat dan memberi pengajaran yang baik untuk diamalkan dalam kehidupan harian.",
-    "review": "Selepas membaca buku ini, saya menjalankan aktiviti Lain-lain. Buku ini sangat bermanfaat dan memberi pengajaran yang baik untuk diamalkan dalam kehidupan harian."
-  },
-  {
-    "title": "Sejarah Malaysia",
-    "author": "Ahmad Bin Ali",
-    "publisher": "Dewan Bahasa dan Pustaka",
-    "year": "2015",
-    "pages": "150",
-    "categoryLabel": "Bukan Fiksyen",
-    "languageLabel": "Bahasa Melayu",
-    "summary": "Sejarah pembentukan Malaysia. Buku ini sangat bermanfaat dan memberi pengajaran yang baik untuk diamalkan dalam kehidupan harian. Buku ini sangat bermanfaat dan memberi pengajaran yang baik untuk diamalkan dalam kehidupan harian.",
-    "review": "Selepas membaca buku ini, saya menjalankan aktiviti Bercerita. Buku ini sangat bermanfaat dan memberi pengajaran yang baik untuk diamalkan dalam kehidupan harian."
-  },
-  {
-    "title": "Misteri Pulau Harapan",
-    "author": "Azman Ismail",
-    "publisher": "Pustaka Ilmu",
-    "year": "2023",
-    "pages": "120",
-    "categoryLabel": "Fiksyen",
-    "languageLabel": "Bahasa Melayu",
-    "summary": "Kisah sekumpulan remaja yang menemui rahsia di sebuah pulau terpencil yang penuh misteri. Buku ini sangat bermanfaat dan memberi pengajaran yang baik untuk diamalkan dalam kehidupan harian.",
-    "review": "Selepas membaca buku ini, saya menjalankan aktiviti Rumusan. Buku ini sangat bermanfaat dan memberi pengajaran yang baik untuk diamalkan dalam kehidupan harian."
-  },
-  {
-    "title": "Misteri Hutan Belantara",
-    "author": "Siti Nurhaliza",
-    "publisher": "Penerbit Muzik",
-    "year": "2024",
-    "pages": "150",
-    "categoryLabel": "Fiksyen",
-    "languageLabel": "Bahasa Melayu",
-    "summary": "Kisah pengembaraan seorang penyanyi di dalam hutan belantara yang penuh dengan cabaran dan rahsia alam. Buku ini sangat bermanfaat dan memberi pengajaran yang baik untuk diamalkan dalam kehidupan harian.",
-    "review": "Selepas membaca buku ini, saya menjalankan aktiviti Rumusan. Buku ini sangat bermanfaat dan memberi pengajaran yang baik untuk diamalkan dalam kehidupan harian."
+    {
+      title: "Sang Kancil dan Buaya",
+      author: "Pak Pandir",
+      publisher: "Pustaka Rakyat",
+      year: "2020",
+      pages: "24",
+      categoryLabel: "Fiksyen",
+      languageLabel: "Bahasa Melayu",
+      summary: "Kisah kancil yang cerdik berjaya menyeberangi sungai dengan menipu buaya supaya berbaris menjadi jambatan. Cerita ini mengajar kita tentang kepentingan menggunakan akal fikiran dalam menghadapi cabaran hidup.",
+      review: "Selepas membaca buku ini saya belajar bahawa kecerdikan dan kebijaksanaan lebih penting daripada kekuatan fizikal semata-mata dalam menyelesaikan masalah kehidupan seharian."
+    },
+    {
+      title: "The Adventure of Sherlock Holmes",
+      author: "Arthur Conan Doyle",
+      publisher: "George Newnes",
+      year: "1892",
+      pages: "307",
+      categoryLabel: "Fiksyen",
+      languageLabel: "Bahasa Inggeris",
+      summary: "A collection of twelve detective stories featuring the famous Sherlock Holmes and his companion Dr Watson as they solve mysterious crimes across Victorian London using brilliant deductive reasoning.",
+      review: "After reading this book I learned the importance of observation and logical thinking in solving problems and that every detail no matter how small can be significant in understanding the truth."
+    },
+    {
+      title: "Sejarah Pembentukan Malaysia",
+      author: "Ahmad Bin Ali",
+      publisher: "Dewan Bahasa dan Pustaka",
+      year: "2015",
+      pages: "150",
+      categoryLabel: "Bukan Fiksyen",
+      languageLabel: "Bahasa Melayu",
+      summary: "Buku ini mengisahkan perjalanan sejarah pembentukan Malaysia dari zaman Kesultanan Melayu Melaka sehingga kemerdekaan dan penubuhan Malaysia pada tahun 1963 dengan penuh fakta yang menarik.",
+      review: "Selepas membaca buku ini saya lebih menghargai pengorbanan para pejuang kemerdekaan dan memahami betapa pentingnya perpaduan kaum dalam membina sebuah negara yang aman dan makmur."
+    },
+    {
+      title: "Misteri Pulau Harapan",
+      author: "Azman Ismail",
+      publisher: "Pustaka Ilmu",
+      year: "2023",
+      pages: "120",
+      categoryLabel: "Fiksyen",
+      languageLabel: "Bahasa Melayu",
+      summary: "Kisah sekumpulan remaja yang menemui rahsia di sebuah pulau terpencil yang penuh misteri dan terpaksa menggunakan keberanian serta kebijaksanaan untuk menyelamatkan diri daripada bahaya yang mengancam.",
+      review: "Selepas membaca buku ini saya belajar tentang kepentingan kerja berpasukan dan keberanian dalam menghadapi situasi yang mencabar serta tidak mudah berputus asa dalam hidup."
+    },
+    {
+      title: "Misteri Hutan Belantara",
+      author: "Siti Nurhaliza Ahmad",
+      publisher: "Penerbit Fajar",
+      year: "2024",
+      pages: "150",
+      categoryLabel: "Fiksyen",
+      languageLabel: "Bahasa Melayu",
+      summary: "Kisah pengembaraan seorang remaja bernama Aiman di dalam hutan belantara yang penuh dengan cabaran dan rahsia alam semula jadi yang menakjubkan dan mengajarkan erti ketabahan hati.",
+      review: "Selepas membaca buku ini saya memahami bahawa alam semula jadi perlu dijaga dan dipelihara kerana ia merupakan anugerah yang sangat berharga untuk generasi akan datang."
+    },
+    {
+      title: "Charlotte's Web",
+      author: "E.B. White",
+      publisher: "Harper and Brothers",
+      year: "1952",
+      pages: "184",
+      categoryLabel: "Fiksyen",
+      languageLabel: "Bahasa Inggeris",
+      summary: "The story of a young pig named Wilbur who befriends a clever spider named Charlotte that saves his life by writing words in her web praising the pig and proving that friendship transcends all boundaries.",
+      review: "After reading this book I learned that true friendship means being willing to sacrifice for those we care about and that even the smallest creatures can make the biggest difference in our lives."
+    },
+    {
+      title: "Sains dan Teknologi Masa Kini",
+      author: "Dr Aminah Yusof",
+      publisher: "Penerbit Universiti Malaya",
+      year: "2021",
+      pages: "180",
+      categoryLabel: "Bukan Fiksyen",
+      languageLabel: "Bahasa Melayu",
+      summary: "Buku ini membincangkan perkembangan sains dan teknologi terkini termasuk kecerdasan buatan robotik dan tenaga boleh baharu yang memberi kesan besar kepada kehidupan manusia di seluruh dunia.",
+      review: "Selepas membaca buku ini saya lebih memahami kepentingan sains dan teknologi dalam kehidupan seharian dan bersemangat untuk terus mendalami bidang STEM demi masa depan yang lebih cerah."
+    },
+    {
+      title: "The Little Prince",
+      author: "Antoine de Saint-Exupery",
+      publisher: "Reynal and Hitchcock",
+      year: "1943",
+      pages: "96",
+      categoryLabel: "Fiksyen",
+      languageLabel: "Bahasa Inggeris",
+      summary: "A poetic tale about a young prince who travels from planet to planet learning about life love and human nature from the various characters he meets along his extraordinary journey through the universe.",
+      review: "After reading this book I understood that the most important things in life are invisible to the eye and that we must look with our hearts to truly see what matters most."
+    },
+    {
+      title: "Hikayat Hang Tuah",
+      author: "Tun Sri Lanang",
+      publisher: "Dewan Bahasa dan Pustaka",
+      year: "2010",
+      pages: "280",
+      categoryLabel: "Fiksyen",
+      languageLabel: "Bahasa Melayu",
+      summary: "Hikayat yang mengisahkan kepahlawanan Hang Tuah dan sahabatnya dalam mempertahankan kerajaan Melayu Melaka serta nilai kesetiaan dan keberanian yang menjadi teras budaya Melayu sejak zaman dahulu.",
+      review: "Selepas membaca buku ini saya kagum dengan semangat kesetiaan dan kepahlawanan Hang Tuah yang sanggup berkorban demi raja dan tanah air serta mengajarkan nilai patriotisme kepada generasi muda."
+    },
+    {
+      title: "Panduan Kewangan Pelajar",
+      author: "Mohd Rizal Hassan",
+      publisher: "PTS Media Group",
+      year: "2022",
+      pages: "95",
+      categoryLabel: "Bukan Fiksyen",
+      languageLabel: "Bahasa Melayu",
+      summary: "Buku panduan yang mengajar pelajar tentang pengurusan kewangan asas termasuk cara menyimpan wang membuat bajet dan memahami nilai wang sejak usia muda untuk masa depan yang lebih terjamin.",
+      review: "Selepas membaca buku ini saya mula menyimpan wang saku dan membuat perancangan kewangan yang lebih baik kerana memahami betapa pentingnya pengurusan wang yang bijak sejak awal lagi."
+    }
+  ];
+
+  // ============================================================
+  //  CONFIG
+  // ============================================================
+  const W = { t: 500, s: 1800, p: 4000, sv: 3500 };
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+  // ============================================================
+  //  LOGGING
+  // ============================================================
+  const _l = (m, c) => { console.log(`%c[NILAM] ${m}`, `color:${c};font-weight:bold`); pLog(m); };
+  const log = m => _l(m, '#00e676');
+  const wrn = m => _l(m, '#ffab00');
+  const err = m => _l(m, '#ff1744');
+
+  // ============================================================
+  //  UI PANEL (Beautiful + Draggable)
+  // ============================================================
+  function makeUI() {
+    if (document.getElementById('NP')) document.getElementById('NP').remove();
+    const p = document.createElement('div');
+    p.id = 'NP';
+    p.innerHTML = `
+    <style>
+      #NP{position:fixed;top:20px;right:20px;width:380px;z-index:2147483647;font-family:'Segoe UI',system-ui,-apple-system,sans-serif}
+      #NP *{box-sizing:border-box}
+      #np-card{background:linear-gradient(135deg,#0f0c29,#302b63,#24243e);border-radius:16px;
+        box-shadow:0 20px 60px rgba(0,0,0,.5),0 0 0 1px rgba(255,255,255,.08);
+        overflow:hidden;backdrop-filter:blur(20px)}
+      #np-head{padding:16px 20px;cursor:grab;user-select:none;display:flex;align-items:center;
+        justify-content:space-between;border-bottom:1px solid rgba(255,255,255,.06)}
+      #np-head:active{cursor:grabbing}
+      #np-title{display:flex;align-items:center;gap:10px}
+      #np-title b{color:#fff;font-size:15px;letter-spacing:.3px}
+      #np-badge{font-size:10px;background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;
+        padding:3px 10px;border-radius:20px;font-weight:600;letter-spacing:.5px}
+      #np-prog{margin:0 20px;padding:12px 0}
+      #np-pbar{height:6px;background:rgba(255,255,255,.08);border-radius:99px;overflow:hidden}
+      #np-pfill{height:100%;width:0%;background:linear-gradient(90deg,#667eea,#764ba2,#f093fb);
+        border-radius:99px;transition:width .6s cubic-bezier(.4,0,.2,1)}
+      #np-ptext{color:rgba(255,255,255,.5);font-size:11px;margin-top:6px;text-align:right}
+      #np-log{padding:0 20px 16px;max-height:220px;overflow-y:auto;scrollbar-width:thin;
+        scrollbar-color:rgba(255,255,255,.1) transparent}
+      #np-log::-webkit-scrollbar{width:4px}
+      #np-log::-webkit-scrollbar-track{background:transparent}
+      #np-log::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:4px}
+      .np-entry{padding:6px 0;border-bottom:1px solid rgba(255,255,255,.04);
+        font-size:11.5px;color:rgba(255,255,255,.55);line-height:1.5;display:flex;gap:8px}
+      .np-entry .np-time{color:rgba(255,255,255,.25);flex-shrink:0;font-size:10px;font-family:monospace}
+      .np-ok{color:#69f0ae!important}.np-wrn{color:#ffd740!important}.np-err{color:#ff5252!important}
+      .np-step{color:#b388ff!important;font-weight:600}
+      #np-foot{padding:12px 20px;background:rgba(0,0,0,.2);border-top:1px solid rgba(255,255,255,.05);
+        display:flex;justify-content:center;gap:16px;font-size:13px}
+      .np-stat{display:flex;align-items:center;gap:5px;color:rgba(255,255,255,.6)}
+      .np-dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+      #np-books{padding:8px 20px 12px;max-height:140px;overflow-y:auto;scrollbar-width:thin;
+        scrollbar-color:rgba(255,255,255,.1) transparent}
+      .np-book{display:flex;align-items:center;gap:8px;padding:5px 8px;border-radius:8px;
+        font-size:11px;color:rgba(255,255,255,.45);margin-bottom:2px}
+      .np-book.active{background:rgba(102,126,234,.15);color:#b388ff}
+      .np-book.done{color:#69f0ae}.np-book.fail{color:#ff5252}
+      .np-num{width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+        font-size:9px;font-weight:700;background:rgba(255,255,255,.06);flex-shrink:0}
+      .np-book.active .np-num{background:rgba(102,126,234,.3)}
+      .np-book.done .np-num{background:rgba(105,240,174,.15)}
+      #np-min{background:none;border:none;color:rgba(255,255,255,.4);cursor:pointer;font-size:18px;
+        padding:0 4px;line-height:1}
+      #np-min:hover{color:#fff}
+    </style>
+    <div id="np-card">
+      <div id="np-head">
+        <div id="np-title"><b>NILAM Auto-Fill</b></div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span id="np-badge">v3.0</span>
+          <button id="np-min" title="Minimize">&#x2212;</button>
+        </div>
+      </div>
+      <div id="np-books"></div>
+      <div id="np-prog">
+        <div id="np-pbar"><div id="np-pfill"></div></div>
+        <div id="np-ptext">Sedia...</div>
+      </div>
+      <div id="np-log"></div>
+      <div id="np-foot">
+        <span class="np-stat"><span class="np-dot" style="background:#69f0ae"></span><span id="np-ok">0</span> Berjaya</span>
+        <span class="np-stat"><span class="np-dot" style="background:#ff5252"></span><span id="np-fail">0</span> Gagal</span>
+      </div>
+    </div>`;
+    document.body.appendChild(p);
+
+    // Draggable
+    const head = document.getElementById('np-head');
+    let dragging = false, ox, oy;
+    head.addEventListener('mousedown', e => { dragging = true; const r = p.getBoundingClientRect(); ox = e.clientX - r.left; oy = e.clientY - r.top; });
+    document.addEventListener('mousemove', e => { if (!dragging) return; p.style.left = (e.clientX - ox) + 'px'; p.style.top = (e.clientY - oy) + 'px'; p.style.right = 'auto'; });
+    document.addEventListener('mouseup', () => { dragging = false; });
+
+    // Minimize
+    let mini = false;
+    document.getElementById('np-min').onclick = () => {
+      mini = !mini;
+      for (const id of ['np-books','np-prog','np-log']) {
+        const el = document.getElementById(id);
+        if (el) el.style.display = mini ? 'none' : '';
+      }
+      document.getElementById('np-min').innerHTML = mini ? '&#x2b;' : '&#x2212;';
+    };
+
+    // Book list
+    const bl = document.getElementById('np-books');
+    BOOKS.forEach((b, i) => {
+      bl.innerHTML += `<div class="np-book" id="np-b${i}"><span class="np-num">${i+1}</span>${b.title}</div>`;
+    });
   }
-];
 
-  const WAIT = { tick: 400, step: 1500, page: 3500, save: 3000 };
-  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-
-  // --- Logging ---
-  const _log = (msg, color) => {
-    console.log(`%c[NILAM] ${msg}`, `color:${color};font-weight:bold`);
-    panelLog(msg);
-  };
-  const log = (m) => _log(m, '#4CAF50');
-  const warn = (m) => _log(m, '#FF9800');
-  const fail = (m) => _log(m, '#f44336');
-
-  // --- UI Panel ---
-  function createPanel() {
-    if (document.getElementById('nilam-panel')) return;
-    const d = document.createElement('div');
-    d.id = 'nilam-panel';
-    d.style.cssText =
-      'position:fixed;top:10px;right:10px;width:360px;background:#16213e;color:#fff;' +
-      'border-radius:12px;padding:16px;z-index:999999;font-family:system-ui,sans-serif;' +
-      'box-shadow:0 8px 32px rgba(0,0,0,0.4);max-height:90vh;overflow:hidden';
-    d.innerHTML =
-      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">' +
-      '<b style="font-size:15px">NILAM Auto-Fill</b>' +
-      '<span id="np-status" style="font-size:11px;background:#0f3460;padding:3px 10px;border-radius:20px">Sedia</span></div>' +
-      '<div style="background:#0f3460;border-radius:6px;height:6px;margin-bottom:10px">' +
-      '<div id="np-bar" style="background:linear-gradient(90deg,#e94560,#533483);height:100%;width:0%;border-radius:6px;transition:width .4s"></div></div>' +
-      '<div id="np-log" style="font-size:11px;max-height:250px;overflow-y:auto;color:#a8a8b3;line-height:1.6"></div>' +
-      '<div id="np-sum" style="margin-top:10px;font-size:13px;text-align:center"></div>';
-    document.body.appendChild(d);
-  }
-
-  function panelLog(msg) {
+  function pLog(msg) {
     const el = document.getElementById('np-log');
     if (!el) return;
-    el.innerHTML += `<div style="border-bottom:1px solid #1a1a3e;padding:2px 0">${msg}</div>`;
+    const t = new Date().toLocaleTimeString('ms-MY',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+    const cls = /BERJAYA|OK/.test(msg)?'np-ok': /TIDAK|GAGAL|RALAT/.test(msg)?'np-err': /Step \d/.test(msg)?'np-step':'';
+    el.innerHTML += `<div class="np-entry ${cls}"><span class="np-time">${t}</span><span>${msg}</span></div>`;
     el.scrollTop = el.scrollHeight;
   }
 
-  function setProgress(cur, total) {
-    const bar = document.getElementById('np-bar');
-    const st = document.getElementById('np-status');
-    if (bar) bar.style.width = `${((cur + 1) / total) * 100}%`;
-    if (st) st.textContent = `${cur + 1} / ${total}`;
-  }
-
-  function showDone(results) {
-    const el = document.getElementById('np-sum');
+  function setBook(i, status) {
+    const el = document.getElementById('np-b'+i);
     if (!el) return;
-    const ok = results.filter((r) => r.ok).length;
-    el.innerHTML =
-      `<span style="color:#4CAF50">&#10003; ${ok} berjaya</span>` +
-      ` &nbsp;|&nbsp; <span style="color:#e94560">&#10007; ${results.length - ok} perlu semak</span>`;
-    const st = document.getElementById('np-status');
-    if (st) { st.textContent = 'Selesai'; st.style.background = '#4CAF50'; }
+    el.className = 'np-book ' + status;
   }
 
-  // --- Session persistence (survives page reload) ---
-  const STATE_KEY = '__nilam_state__';
-
-  function loadState() {
-    try { return JSON.parse(sessionStorage.getItem(STATE_KEY)); } catch { return null; }
+  function setProg(cur, total) {
+    const f = document.getElementById('np-pfill');
+    const t = document.getElementById('np-ptext');
+    if (f) f.style.width = `${((cur+1)/total)*100}%`;
+    if (t) t.textContent = `Buku ${cur+1} daripada ${total}`;
   }
 
-  function saveState(idx, results) {
-    sessionStorage.setItem(STATE_KEY, JSON.stringify({ idx, results, ts: Date.now() }));
+  function setStats(ok, fail) {
+    const o = document.getElementById('np-ok');
+    const f = document.getElementById('np-fail');
+    if (o) o.textContent = ok;
+    if (f) f.textContent = fail;
   }
 
-  function clearState() {
-    sessionStorage.removeItem(STATE_KEY);
-  }
+  // ============================================================
+  //  STATE (survives page reload)
+  // ============================================================
+  const SK = '__nilam3__';
+  const loadSt = () => { try { return JSON.parse(sessionStorage.getItem(SK)); } catch { return null; } };
+  const saveSt = (i, r) => sessionStorage.setItem(SK, JSON.stringify({i,r}));
+  const clearSt = () => sessionStorage.removeItem(SK);
 
-  // --- Element discovery (robust, multi-strategy) ---
+  // ============================================================
+  //  DOM HELPERS
+  // ============================================================
+  const vis = el => el && (el.offsetParent!==null||el.offsetWidth>0||el.offsetHeight>0);
 
-  function visible(el) {
-    return el && (el.offsetParent !== null || el.offsetWidth > 0 || el.offsetHeight > 0);
-  }
-
-  function findByLabel(labelText) {
-    const lower = labelText.toLowerCase();
-
-    for (const label of document.querySelectorAll('label')) {
-      const t = label.textContent.replace(/\*/g, '').trim().toLowerCase();
-      if (!t.includes(lower)) continue;
-      if (label.htmlFor) {
-        const el = document.getElementById(label.htmlFor);
-        if (el && visible(el)) return el;
-      }
-      let p = label.parentElement;
-      for (let d = 0; d < 5 && p; d++) {
-        for (const sel of ['input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"])', 'select', 'textarea']) {
-          const el = p.querySelector(sel);
-          if (el && visible(el)) return el;
-        }
+  function findLabel(text) {
+    const lo = text.toLowerCase();
+    for (const lb of document.querySelectorAll('label')) {
+      const t = lb.textContent.replace(/\*/g,'').trim().toLowerCase();
+      if (!t.includes(lo)) continue;
+      if (lb.htmlFor) { const e = document.getElementById(lb.htmlFor); if (e&&vis(e)) return e; }
+      let p = lb.parentElement;
+      for (let d=0;d<6&&p;d++) {
+        const e = p.querySelector('input:not([type=hidden]):not([type=checkbox]):not([type=radio]),select,textarea');
+        if (e&&vis(e)) return e;
         p = p.parentElement;
       }
     }
-
-    for (const node of document.querySelectorAll('span, div, p, td, th, h1, h2, h3, h4, h5, h6')) {
-      const raw = node.textContent.replace(/\*/g, '').trim();
-      if (raw.length > 60 || raw.length < 2) continue;
-      if (!raw.toLowerCase().includes(lower)) continue;
-      if (node.querySelector && node.querySelector('span, div, p')) {
-        const childText = Array.from(node.childNodes)
-          .filter((n) => n.nodeType === 3)
-          .map((n) => n.textContent.trim())
-          .join('');
-        if (!childText.toLowerCase().includes(lower)) continue;
-      }
-      let p = node.parentElement;
-      for (let d = 0; d < 5 && p; d++) {
-        for (const sel of ['input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"])', 'select', 'textarea']) {
-          const el = p.querySelector(sel);
-          if (el && visible(el)) return el;
-        }
+    for (const n of document.querySelectorAll('span,div,p,td,th')) {
+      const t = n.textContent.replace(/\*/g,'').trim();
+      if (t.length>50||t.length<2||!t.toLowerCase().includes(lo)) continue;
+      let p = n.parentElement;
+      for (let d=0;d<6&&p;d++) {
+        const e = p.querySelector('input:not([type=hidden]):not([type=checkbox]):not([type=radio]),select,textarea');
+        if (e&&vis(e)) return e;
         p = p.parentElement;
       }
     }
-
     return null;
   }
 
-  function allInputs() {
-    return Array.from(document.querySelectorAll('input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"])')).filter(visible);
-  }
-  function allSelects() {
-    return Array.from(document.querySelectorAll('select')).filter(visible);
-  }
-  function allTextareas() {
-    return Array.from(document.querySelectorAll('textarea')).filter(visible);
-  }
+  const aInp = () => [...document.querySelectorAll('input:not([type=hidden]):not([type=checkbox]):not([type=radio])')].filter(vis);
+  const aSel = () => [...document.querySelectorAll('select')].filter(vis);
+  const aTxt = () => [...document.querySelectorAll('textarea')].filter(vis);
 
-  // --- Value setting (Vue/React compatible) ---
-
-  function setVal(el, value) {
+  // ============================================================
+  //  VALUE SETTERS (Vue-compatible)
+  // ============================================================
+  function setVal(el, v) {
     if (!el) return false;
-    try { el.focus(); } catch (_) {}
-    const v = String(value);
-    const proto =
-      el instanceof HTMLTextAreaElement
-        ? HTMLTextAreaElement.prototype
-        : el instanceof HTMLSelectElement
-          ? HTMLSelectElement.prototype
-          : HTMLInputElement.prototype;
-    const setter = Object.getOwnPropertyDescriptor(proto, 'value');
-    if (setter && setter.set) setter.set.call(el, v);
-    else el.value = v;
-    el.dispatchEvent(new Event('input', { bubbles: true }));
-    el.dispatchEvent(new Event('change', { bubbles: true }));
-    try { el.blur(); } catch (_) {}
+    try{el.focus();}catch(_){}
+    const s = String(v);
+    const proto = el instanceof HTMLTextAreaElement ? HTMLTextAreaElement.prototype :
+                  el instanceof HTMLSelectElement ? HTMLSelectElement.prototype :
+                  HTMLInputElement.prototype;
+    const desc = Object.getOwnPropertyDescriptor(proto,'value');
+    if (desc&&desc.set) desc.set.call(el,s); else el.value=s;
+    for (const ev of ['input','change','blur'])
+      el.dispatchEvent(new Event(ev,{bubbles:true}));
+    if (el.__vue__) try{el.__vue__.$emit('input',s);}catch(_){}
+    if (el._assign) try{el._assign(s);}catch(_){}
     return true;
   }
 
-  function setSelect(el, text) {
-    if (!el || el.tagName !== 'SELECT') return false;
-    const lower = text.toLowerCase();
+  function setSel(el, text) {
+    if (!el||el.tagName!=='SELECT') return false;
+    const lo = text.toLowerCase();
     for (const o of el.options) {
-      if (o.text.toLowerCase().includes(lower) || o.value.toLowerCase().includes(lower)) {
+      if (o.text.toLowerCase().includes(lo)||o.value.toLowerCase().includes(lo)) {
         el.value = o.value;
-        el.dispatchEvent(new Event('change', { bubbles: true }));
-        el.dispatchEvent(new Event('input', { bubbles: true }));
+        for (const ev of ['input','change']) el.dispatchEvent(new Event(ev,{bubbles:true}));
         return true;
       }
     }
     return false;
   }
 
-  function clickBtn(text, scope) {
-    const lower = text.toLowerCase();
-    const root = scope || document;
-    for (const el of root.querySelectorAll('button, a, [role="button"], .btn, span, label')) {
-      if (!visible(el)) continue;
-      const t = (el.innerText || el.textContent || '').trim();
-      if (t.length > 60) continue;
-      if (t.toLowerCase().includes(lower)) {
-        el.scrollIntoView({ block: 'center', behavior: 'instant' });
+  function clickT(text, scope) {
+    const lo = text.toLowerCase();
+    for (const el of (scope||document).querySelectorAll('button,a,[role=button],.btn,span,label,div')) {
+      if (!vis(el)) continue;
+      const t = (el.innerText||el.textContent||'').trim();
+      if (t.length>80||t.length<1) continue;
+      if (t.toLowerCase().includes(lo)) {
+        try{el.scrollIntoView({block:'center',behavior:'instant'});}catch(_){}
         el.click();
         return true;
       }
@@ -244,359 +351,298 @@
     return false;
   }
 
-  async function waitFor(fn, ms) {
-    const end = Date.now() + (ms || 12000);
-    while (Date.now() < end) {
-      const r = fn();
-      if (r) return r;
-      await sleep(WAIT.tick);
-    }
+  async function waitEl(fn, ms) {
+    const end = Date.now()+(ms||15000);
+    while (Date.now()<end) { const r=fn(); if(r) return r; await sleep(W.t); }
     return null;
   }
 
-  function swalText() {
-    const el = document.querySelector('.swal2-html-container, .swal2-title, .swal2-content');
-    return el ? el.textContent.trim() : '';
+  // ============================================================
+  //  DROPDOWN (native + vue-select + custom)
+  // ============================================================
+  async function fillDD(label, value, fbIdx) {
+    const lo = label.toLowerCase();
+    const vlo = value.toLowerCase();
+
+    const el = findLabel(label);
+    if (el&&el.tagName==='SELECT'&&setSel(el,value)) { log(`  ${label}: ${value}`); return true; }
+
+    const sels = aSel();
+    if (typeof fbIdx==='number'&&sels[fbIdx]&&setSel(sels[fbIdx],value)) {
+      log(`  ${label}: ${value} [select#${fbIdx}]`);
+      return true;
+    }
+
+    for (const toggle of document.querySelectorAll(
+      '.vs__dropdown-toggle,[class*=v-select],[role=combobox],[role=listbox],[class*=dropdown],[class*=select-trigger],[class*=multiselect]'
+    )) {
+      if (!vis(toggle)) continue;
+      let c = toggle;
+      for (let d=0;d<6&&c;d++) {
+        const lbl = c.querySelector('label,span,div,p');
+        if (lbl&&lbl.textContent.replace(/\*/g,'').trim().toLowerCase().includes(lo)) {
+          toggle.click(); await sleep(600);
+          for (const opt of document.querySelectorAll(
+            '.vs__dropdown-option,[role=option],.dropdown-item,li,.option,[class*=option],[class*=select-item]'
+          )) {
+            if ((opt.innerText||opt.textContent||'').trim().toLowerCase().includes(vlo)) {
+              opt.click(); await sleep(400);
+              log(`  ${label}: ${value} [custom]`);
+              return true;
+            }
+          }
+          document.body.click(); await sleep(200);
+        }
+        c = c.parentElement;
+      }
+    }
+
+    for (const el of document.querySelectorAll('[class*=select],[class*=dropdown],select')) {
+      if (!vis(el)) continue;
+      let c = el.parentElement;
+      for (let d=0;d<5&&c;d++) {
+        const lbl = c.querySelector('label,span');
+        if (lbl&&lbl.textContent.replace(/\*/g,'').trim().toLowerCase().includes(lo)) {
+          el.click(); await sleep(500);
+          for (const opt of document.querySelectorAll('li,[role=option],[class*=option]')) {
+            if ((opt.innerText||opt.textContent||'').trim().toLowerCase().includes(vlo)) {
+              opt.click(); await sleep(300);
+              log(`  ${label}: ${value} [fb]`);
+              return true;
+            }
+          }
+        }
+        c = c.parentElement;
+      }
+    }
+
+    wrn(`  ${label}: TIDAK DIJUMPAI`);
+    console.log('[DEBUG] Semua selects:', sels.map((s,i)=>({i,name:s.name,id:s.id,opts:[...s.options].map(o=>o.text)})));
+    return false;
   }
-  function swalClose() {
-    const b = document.querySelector('.swal2-confirm, .swal2-close');
+
+  // ============================================================
+  //  STAR RATING
+  // ============================================================
+  function clickStar(n) {
+    for (const c of document.querySelectorAll('[class*=star],[class*=Star],[class*=rating],[class*=Rating],[class*=penilaian]')) {
+      const items = c.querySelectorAll('svg,i,span,label,path,polygon');
+      if (items.length>=n) { items[n-1].dispatchEvent(new MouseEvent('click',{bubbles:true})); items[n-1].click(); return true; }
+    }
+    const rText = [...document.querySelectorAll('*')].find(e=>
+      e.children.length===0&&/penilaian|rating|bintang/i.test(e.textContent)
+    );
+    if (rText) {
+      let sib = rText.parentElement;
+      for (let d=0;d<5&&sib;d++) {
+        const svgs = [...sib.querySelectorAll('svg')];
+        if (svgs.length>=n) { svgs[n-1].dispatchEvent(new MouseEvent('click',{bubbles:true})); return true; }
+        sib = sib.parentElement;
+      }
+    }
+    return false;
+  }
+
+  // ============================================================
+  //  SWAL (handle Ya, OK, Berjaya)
+  // ============================================================
+  function swalTxt() {
+    const e = document.querySelector('.swal2-html-container,.swal2-title,.swal2-content');
+    return e ? e.textContent.trim() : '';
+  }
+  function swalClick(btnText) {
+    if (btnText) {
+      for (const b of document.querySelectorAll('.swal2-confirm,.swal2-deny,.swal2-cancel,.swal2-close,button')) {
+        const t = (b.innerText||b.textContent||'').trim().toLowerCase();
+        if (t.includes(btnText.toLowerCase())) { b.click(); return true; }
+      }
+    }
+    const b = document.querySelector('.swal2-confirm,.swal2-close');
     if (b) { b.click(); return true; }
     return false;
   }
 
-  // --- Custom dropdown handler (for vue-select / custom components) ---
-  async function handleCustomDropdown(labelText, optionText) {
-    const lower = optionText.toLowerCase();
-
-    const toggles = document.querySelectorAll(
-      '.vs__dropdown-toggle, [class*="v-select"] [class*="toggle"], [role="combobox"], [class*="dropdown-toggle"]'
-    );
-    for (const toggle of toggles) {
-      const container = toggle.closest('[class*="col"], [class*="form-group"], .field, div');
-      if (!container) continue;
-      const labelEl = container.querySelector('label, span, div');
-      if (!labelEl) continue;
-      const lt = labelEl.textContent.replace(/\*/g, '').trim().toLowerCase();
-      if (!lt.includes(labelText.toLowerCase())) continue;
-
-      toggle.click();
-      await sleep(500);
-
-      for (const opt of document.querySelectorAll(
-        '.vs__dropdown-option, [role="option"], .dropdown-item, li'
-      )) {
-        if ((opt.innerText || opt.textContent || '').trim().toLowerCase().includes(lower)) {
-          opt.click();
-          await sleep(300);
-          return true;
-        }
-      }
-    }
-    return false;
-  }
-
-  // --- Fill a single field with fallbacks ---
-  async function fillField(label, value, altLabels) {
-    let el = findByLabel(label);
-    if (!el && altLabels) {
-      for (const alt of altLabels) {
-        el = findByLabel(alt);
-        if (el) break;
-      }
-    }
+  // ============================================================
+  //  FILL FIELD
+  // ============================================================
+  async function fill(label, value, alts) {
+    let el = findLabel(label);
+    if (!el&&alts) for (const a of alts) { el=findLabel(a); if(el) break; }
     if (el) {
-      if (el.tagName === 'SELECT') {
-        if (setSelect(el, value)) {
-          log(`  ${label}: ${value}`);
-          return true;
-        }
-      } else {
-        if (setVal(el, value)) {
-          log(`  ${label}: ${value}`);
-          return true;
-        }
-      }
+      if (el.tagName==='SELECT') { if(setSel(el,value)){log(`  ${label}: ${value}`);return true;} }
+      else { if(setVal(el,value)){log(`  ${label}: ${value}`);return true;} }
     }
-    warn(`  ${label}: TIDAK DIJUMPAI`);
+    wrn(`  ${label}: TIDAK DIJUMPAI`);
     return false;
   }
 
-  // --- Handle dropdown (native select or custom) ---
-  async function fillDropdown(label, value, fallbackIdx) {
-    const el = findByLabel(label);
-    if (el && el.tagName === 'SELECT') {
-      if (setSelect(el, value)) {
-        log(`  ${label}: ${value}`);
-        return true;
-      }
-    }
-    if (await handleCustomDropdown(label, value)) {
-      log(`  ${label}: ${value} (custom)`);
-      return true;
-    }
-    const selects = allSelects();
-    if (typeof fallbackIdx === 'number' && selects[fallbackIdx]) {
-      if (setSelect(selects[fallbackIdx], value)) {
-        log(`  ${label}: ${value} (fallback #${fallbackIdx})`);
-        return true;
-      }
-    }
-    warn(`  ${label}: TIDAK DIJUMPAI`);
-    return false;
-  }
-
-  // --- Star rating ---
-  function clickStars(n) {
-    const containers = document.querySelectorAll('[class*="star"], [class*="rating"], [class*="Star"], [class*="Rating"]');
-    for (const c of containers) {
-      const items = c.querySelectorAll('svg, i, span, label, div');
-      if (items.length >= n) {
-        items[n - 1].dispatchEvent(new MouseEvent('click', { bubbles: true }));
-        items[n - 1].click();
-        return true;
-      }
-    }
-    const allSvg = document.querySelectorAll('svg');
-    const starSvgs = Array.from(allSvg).filter((s) => {
-      const parent = s.parentElement;
-      return parent && /star|rating/i.test(parent.className || '');
-    });
-    if (starSvgs.length >= n) {
-      starSvgs[n - 1].dispatchEvent(new MouseEvent('click', { bubbles: true }));
-      return true;
-    }
-    return false;
-  }
-
-  // --- Navigate to add book form ---
-  async function ensureOnForm() {
-    const path = location.pathname;
-
-    if (path.includes('/record/add/book')) {
-      await sleep(WAIT.tick);
-      return true;
-    }
-
-    if (path === '/' || path === '' || path.includes('/dashboard') || path.includes('/home')) {
-      log('Di dashboard, navigasi ke borang...');
-      if (!clickBtn('mula masukkan')) {
-        const plus = document.querySelector('a[href*="/record"], [href*="/add"], .fab, [class*="add"]');
-        if (plus) plus.click();
-        else location.href = '/record/add';
-      }
-      await sleep(WAIT.page);
-    }
-
-    if (location.pathname.includes('/record/add') && !location.pathname.includes('/book')) {
-      await sleep(WAIT.step);
-      clickBtn('buku');
-      await sleep(WAIT.tick * 2);
-      clickBtn('seterusnya');
-      await sleep(WAIT.page);
-    }
+  // ============================================================
+  //  PROCESS ONE BOOK
+  // ============================================================
+  async function doBook(book, idx, total) {
+    setBook(idx, 'active');
+    setProg(idx, total);
+    log(`--- Buku ${idx+1}/${total}: ${book.title} ---`);
 
     if (!location.pathname.includes('/record/add/book')) {
-      location.href = '/record/add/book';
-      await sleep(WAIT.page);
-    }
-
-    return location.pathname.includes('/record/add/book');
-  }
-
-  // --- Fill one book ---
-  async function processBook(book, idx, total) {
-    setProgress(idx, total);
-    log(`--- Buku ${idx + 1}/${total}: ${book.title} ---`);
-
-    await ensureOnForm();
-
-    const ready = await waitFor(() => {
-      const inputs = allInputs();
-      return inputs.length >= 3 ? inputs : null;
-    }, 15000);
-
-    if (!ready) {
-      fail('Borang tidak dimuatkan! Cuba refresh halaman dan paste skrip semula.');
-      return { ok: false, title: book.title, note: 'Borang tidak dimuatkan' };
-    }
-
-    await sleep(WAIT.tick);
-    swalClose();
-
-    // ===== STEP 1: MAKLUMAT BUKU =====
-    log('Step 1: Maklumat Buku');
-
-    await fillField('tajuk', book.title, ['title']);
-    await sleep(WAIT.tick);
-
-    clickBtn('e-buku');
-    log('  Jenis: E-Buku');
-    await sleep(WAIT.tick);
-
-    await fillDropdown('kategori', book.categoryLabel, 0);
-    await sleep(WAIT.tick);
-
-    await fillField('mukasurat', book.pages, ['bilangan', 'page', 'muka']);
-    await sleep(WAIT.tick);
-
-    await fillField('penulis', book.author, ['pengarang', 'author']);
-    await sleep(WAIT.tick);
-
-    await fillField('penerbit', book.publisher, ['publisher']);
-    await sleep(WAIT.tick);
-
-    await fillField('tahun', book.year, ['terbitan', 'year']);
-    await sleep(WAIT.tick);
-
-    await fillDropdown('bahasa', book.languageLabel, 1);
-    await sleep(WAIT.tick);
-
-    log('Klik Seterusnya...');
-    if (!clickBtn('seterusnya')) {
-      warn('Butang Seterusnya tidak dijumpai');
-    }
-    await sleep(WAIT.step);
-
-    // ===== STEP 2: RUMUSAN & PENGAJARAN =====
-    log('Step 2: Rumusan & Pengajaran');
-
-    await waitFor(() => allTextareas().length > 0, 10000);
-    await sleep(WAIT.tick);
-
-    const tas = allTextareas();
-    if (tas.length >= 1) {
-      setVal(tas[0], book.summary);
-      log(`  Rumusan: ${book.summary.substring(0, 40)}...`);
-    } else {
-      warn('  Rumusan textarea tidak dijumpai');
-    }
-    await sleep(WAIT.tick);
-
-    if (tas.length >= 2) {
-      setVal(tas[1], book.review);
-      log(`  Pengajaran: ${book.review.substring(0, 40)}...`);
-    } else {
-      const pengajaran = findByLabel('pengajaran');
-      if (pengajaran) {
-        setVal(pengajaran, book.review);
-        log(`  Pengajaran: ${book.review.substring(0, 40)}...`);
+      log('Navigasi ke borang...');
+      if (location.pathname.includes('/record/add')&&!location.pathname.includes('/book')) {
+        await sleep(W.s);
+        clickT('buku'); await sleep(800); clickT('seterusnya'); await sleep(W.p);
       } else {
-        warn('  Pengajaran textarea tidak dijumpai');
+        location.href='/record/add/book'; await sleep(W.p);
       }
     }
-    await sleep(WAIT.tick);
 
-    if (clickStars(5)) {
-      log('  Rating: 5 bintang');
-    } else {
-      warn('  Rating tidak dijumpai');
-    }
-    await sleep(WAIT.tick);
+    const ok = await waitEl(()=>aInp().length>=3?true:null, 15000);
+    if (!ok) { err('Borang tidak dimuatkan!'); setBook(idx,'fail'); return {ok:false,title:book.title,note:'Borang tak load'}; }
+    await sleep(W.t);
+    swalClick();
+
+    // STEP 1
+    log('Step 1: Maklumat Buku');
+    await fill('tajuk', book.title, ['title']);                  await sleep(300);
+    clickT('e-buku'); log('  Jenis: E-Buku');                   await sleep(300);
+    await fillDD('kategori', book.categoryLabel, 0);             await sleep(300);
+    await fill('mukasurat', book.pages, ['bilangan','muka','page']); await sleep(300);
+    await fill('penulis', book.author, ['pengarang','author']);   await sleep(300);
+    await fill('penerbit', book.publisher, ['publisher']);        await sleep(300);
+    await fill('tahun', book.year, ['terbitan','year']);          await sleep(300);
+    await fillDD('bahasa', book.languageLabel, 1);               await sleep(400);
 
     log('Klik Seterusnya...');
-    clickBtn('seterusnya');
-    await sleep(WAIT.step);
+    clickT('seterusnya'); await sleep(W.s);
 
-    // ===== STEP 3+: Handle remaining steps =====
-    for (let attempt = 0; attempt < 4; attempt++) {
-      await sleep(WAIT.tick * 2);
+    // STEP 2
+    log('Step 2: Rumusan & Pengajaran');
+    await waitEl(()=>aTxt().length>0?true:null, 12000);
+    await sleep(W.t);
 
-      const sw = swalText();
+    const txts = aTxt();
+    if (txts.length>=1) { setVal(txts[0], book.summary); log(`  Rumusan: ${book.summary.substring(0,35)}...`); }
+    else {
+      const r = findLabel('rumusan')||findLabel('sinopsis')||findLabel('ringkasan');
+      if (r) { setVal(r,book.summary); log('  Rumusan: OK (label)'); }
+      else wrn('  Rumusan: TIDAK DIJUMPAI');
+    }
+    await sleep(400);
+
+    if (txts.length>=2) { setVal(txts[1], book.review); log(`  Pengajaran: ${book.review.substring(0,35)}...`); }
+    else {
+      const p = findLabel('pengajaran')||findLabel('ulasan')||findLabel('belajar');
+      if (p) { setVal(p,book.review); log('  Pengajaran: OK (label)'); }
+      else wrn('  Pengajaran: TIDAK DIJUMPAI');
+    }
+    await sleep(400);
+
+    if (clickStar(5)) log('  Rating: 5 bintang');
+    else wrn('  Rating: tidak dijumpai');
+    await sleep(400);
+
+    log('Klik Seterusnya...');
+    clickT('seterusnya'); await sleep(W.s);
+
+    // STEP 3+
+    for (let a=0;a<6;a++) {
+      await sleep(800);
+      const sw = swalTxt();
+
       if (/berjaya|success|disimpan|tahniah/i.test(sw)) {
-        log('BERJAYA!');
-        swalClose();
-        return { ok: true, title: book.title, note: sw };
+        log('BERJAYA!'); swalClick('ok'); swalClick();
+        setBook(idx,'done');
+        return {ok:true,title:book.title,note:sw};
+      }
+      if (/pasti|confirm|sahkan|adakah/i.test(sw)) {
+        log('  Popup pengesahan -> Klik Ya...');
+        swalClick('ya'); await sleep(W.sv);
+        const sw2 = swalTxt();
+        if (/berjaya|success|disimpan|tahniah/i.test(sw2)) {
+          log('BERJAYA!'); swalClick('ok'); swalClick();
+          setBook(idx,'done');
+          return {ok:true,title:book.title,note:sw2};
+        }
+        continue;
       }
       if (/gagal|error|ralat|fail/i.test(sw)) {
-        fail(`GAGAL: ${sw}`);
-        swalClose();
-        return { ok: false, title: book.title, note: sw };
+        err(`GAGAL: ${sw}`); swalClick();
+        setBook(idx,'fail');
+        return {ok:false,title:book.title,note:sw};
       }
 
-      if (clickBtn('simpan') || clickBtn('hantar') || clickBtn('submit') || clickBtn('selesai')) {
-        log('  Klik simpan/hantar...');
-        await sleep(WAIT.save);
-        continue;
+      if (clickT('simpan')||clickT('hantar')||clickT('submit')||clickT('selesai')) {
+        log('  Klik simpan/hantar...'); await sleep(W.sv); continue;
       }
-
-      if (clickBtn('seterusnya')) {
-        log('  Klik Seterusnya...');
-        await sleep(WAIT.step);
-        continue;
+      if (clickT('seterusnya')) {
+        log('  Klik Seterusnya...'); await sleep(W.s); continue;
       }
-
       break;
     }
 
-    await sleep(WAIT.tick * 2);
-    const finalSw = swalText();
-    if (/berjaya|success|disimpan|tahniah/i.test(finalSw)) {
-      log('BERJAYA!');
-      swalClose();
-      return { ok: true, title: book.title, note: finalSw };
+    await sleep(1000);
+    const fin = swalTxt();
+    if (/berjaya|success|disimpan|tahniah/i.test(fin)) {
+      swalClick('ok'); swalClick(); setBook(idx,'done');
+      return {ok:true,title:book.title,note:fin};
     }
-
-    swalClose();
-    return { ok: false, title: book.title, note: finalSw || 'Tiada maklumbalas' };
+    swalClick(); setBook(idx,'fail');
+    return {ok:false,title:book.title,note:fin||'Tiada maklumbalas'};
   }
 
-  // ===== MAIN =====
-  createPanel();
+  // ============================================================
+  //  MAIN
+  // ============================================================
+  makeUI();
 
-  let prev = loadState();
-  let startIdx = 0;
-  let results = [];
-
-  if (prev && prev.idx > 0 && prev.idx < BOOKS.length) {
-    log(`Menyambung dari buku #${prev.idx + 1} (${prev.idx} sudah selesai)`);
-    startIdx = prev.idx;
-    results = prev.results || [];
+  let st = loadSt();
+  let si = 0, results = [];
+  if (st&&st.i>0&&st.i<BOOKS.length) {
+    si=st.i; results=st.r||[];
+    log(`Menyambung dari buku #${si+1}...`);
+    for (let j=0;j<si;j++) setBook(j,'done');
   } else {
-    clearState();
-    log(`Memulakan automasi untuk ${BOOKS.length} buku...`);
+    clearSt();
+    log(`${BOOKS.length} buku sedia. Memulakan...`);
   }
 
-  for (let i = startIdx; i < BOOKS.length; i++) {
-    const result = await processBook(BOOKS[i], i, BOOKS.length);
-    results.push(result);
+  let okC=results.filter(r=>r.ok).length, failC=results.filter(r=>!r.ok).length;
+  setStats(okC,failC);
 
-    saveState(i + 1, results);
+  for (let i=si;i<BOOKS.length;i++) {
+    saveSt(i, results);
 
-    if (i < BOOKS.length - 1) {
-      log('Navigasi untuk buku seterusnya...');
-      await sleep(WAIT.step);
+    const res = await doBook(BOOKS[i], i, BOOKS.length);
+    results.push(res);
+    if (res.ok) okC++; else failC++;
+    setStats(okC,failC);
+    saveSt(i+1, results);
 
-      if (!clickBtn('tambah lagi') && !clickBtn('tambah rekod') && !clickBtn('rekod baru')) {
+    if (i<BOOKS.length-1) {
+      log('Sedia untuk buku seterusnya...');
+      await sleep(W.s);
+      swalClick('ok'); swalClick(); await sleep(500);
+
+      let nav = clickT('tambah lagi')||clickT('tambah rekod')||clickT('mula masukkan');
+      if (!nav) {
         try {
-          const appEl = document.querySelector('#app');
-          const router =
-            appEl?.__vue_app__?.config?.globalProperties?.$router ||
-            appEl?.__vue__?.$router;
-          if (router) {
-            router.push('/record/add/book');
-          } else {
-            location.href = '/record/add/book';
-          }
-        } catch (_) {
-          location.href = '/record/add/book';
-        }
+          const app = document.querySelector('#app');
+          const router = app?.__vue_app__?.config?.globalProperties?.$router || app?.__vue__?.$router;
+          if (router) { router.push('/record/add/book'); nav=true; }
+        } catch(_) {}
       }
-      await sleep(WAIT.page);
+      if (!nav) location.href='/record/add';
+      await sleep(W.p);
+
+      if (location.pathname.includes('/record/add')&&!location.pathname.includes('/book')) {
+        clickT('buku'); await sleep(800); clickT('seterusnya'); await sleep(W.p);
+      }
     }
   }
 
-  // ===== SELESAI =====
-  setProgress(BOOKS.length - 1, BOOKS.length);
-  clearState();
-  log('=== AUTOMASI SELESAI ===');
-  showDone(results);
-  console.table(
-    results.map((r, i) => ({
-      No: i + 1,
-      Tajuk: r.title,
-      Status: r.ok ? 'BERJAYA' : 'SEMAK',
-      Nota: r.note || '',
-    }))
-  );
-  return results;
+  setProg(BOOKS.length-1, BOOKS.length);
+  clearSt();
+  log('=== SELESAI ===');
+  const badge = document.getElementById('np-badge');
+  if (badge) { badge.textContent='Selesai'; badge.style.background='linear-gradient(135deg,#00c853,#69f0ae)'; }
+  console.table(results.map((r,i)=>({No:i+1,Tajuk:r.title,Status:r.ok?'BERJAYA':'GAGAL',Nota:r.note||''})));
+
 })();
