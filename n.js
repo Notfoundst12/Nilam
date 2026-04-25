@@ -1,4 +1,4 @@
-// NILAM Auto-Fill v9.8
+// NILAM Auto-Fill v9.9
 // 1117 buku sebenar. Zero arrow functions. Zero template literals. Max compatibility.
 (async function(){
 
@@ -87,6 +87,33 @@ function clickRadio(text){
   }
   return false;
 }
+
+async function openAndSelect(labelText, optionText) {
+  var lo=labelText.toLowerCase(); var vlo=optionText.toLowerCase();
+  var labels=document.querySelectorAll('label,span,p');
+  var targetLabel=null;
+  for(var i=0;i<labels.length;i++){
+    if(isOurPanel(labels[i])||!vis(labels[i]))continue;
+    var t=labels[i].innerText.toLowerCase().replace(/\*/g,'').trim();
+    if(t===lo||(t.indexOf(lo)>=0&&t.length<30)){targetLabel=labels[i];break;}
+  }
+  if(!targetLabel)return false;
+  var p=targetLabel.parentElement;var toggle=null;
+  for(var d=0;d<6&&p;d++){
+    toggle=p.querySelector('[role=combobox],[role=listbox],[class*=select],[class*=dropdown],input[readonly],.v-select,.vs__dropdown-toggle,.v-input');
+    if(toggle&&vis(toggle))break; p=p.parentElement;
+  }
+  if(!toggle)toggle=targetLabel.parentElement;
+  forceClick(toggle);await sleep(800);
+  var opts=document.querySelectorAll('[role=option],.v-list-item,.vs__dropdown-option,li,.dropdown-item,.v-list-item__title');
+  for(var j=0;j<opts.length;j++){
+    if(!vis(opts[j]))continue;
+    var ot=opts[j].innerText.toLowerCase().trim();
+    if(ot===vlo||ot.indexOf(vlo)>=0){forceClick(opts[j]);await sleep(400);return true;}
+  }
+  document.body.click();await sleep(200);return false;
+}
+
 function waitFor(fn,ms){ms=ms||15000;var end=Date.now()+ms;return new Promise(function(resolve){(function check(){var r=fn();if(r)return resolve(r);if(Date.now()>=end)return resolve(null);setTimeout(check,400);})();});}
 function allInp(){var r=[];var els=document.querySelectorAll('input:not([type=hidden]):not([type=checkbox])');for(var i=0;i<els.length;i++)if(vis(els[i])&&!isOurPanel(els[i]))r.push(els[i]);return r;}
 function allSel(){var r=[];var els=document.querySelectorAll('select');for(var i=0;i<els.length;i++)if(vis(els[i])&&!isOurPanel(els[i]))r.push(els[i]);return r;}
@@ -361,12 +388,13 @@ async function doBook(book,idx,total){
   log('Step 1: Maklumat Buku');
   await fillField('tajuk',book.title,['title']);await sleep(DELAY);
 
-  if(clickBtn('buku fizikal')||clickBtn('buku bukan elektronik')){/* prefer physical */}
-  else{clickBtn('e-buku')||clickBtn('buku digital');}
+  // Automatically select Buku (Physical) instead of E-Buku so AINS doesn't ask for a URL!
+  if(clickBtn('buku fizikal')||clickBtn('buku bukan elektronik')||clickBtn('buku ')||clickRadio('buku')){/* prefer physical */}
   await sleep(DELAY);
 
   var kat=book.categoryLabel;
   if(await fillDropdown('kategori',kat,0,true)){/* handled */}
+  else if(await openAndSelect('kategori',kat)){log('  [OK] kategori (vuetify)');}
   else if(clickRadio(kat)||clickBtn(kat)){log('  [OK] kategori (radio/btn)');}
   else{log('  [!] kategori: tak jumpa');}
   await sleep(DELAY);await checkPause();
@@ -376,11 +404,11 @@ async function doBook(book,idx,total){
   await fillField('penerbit',book.publisher,['publisher']);await sleep(DELAY);
   await fillField('tahun',book.year,['terbitan','year']);await sleep(DELAY);await checkPause();
 
-  await fillField('pautan', 'https://ains.moe.gov.my/record/add/book', ['url','laman','web','link','pautan']);
-
   var lang=book.languageLabel;
   var langShort=lang.replace('Bahasa ','').trim();
   if(await fillDropdown('bahasa',lang,1,true)){/* handled */}
+  else if(await openAndSelect('bahasa',lang)){log('  [OK] bahasa (vuetify)');}
+  else if(await openAndSelect('bahasa',langShort)){log('  [OK] bahasa ('+langShort+' vuetify)');}
   else if(await fillDropdown('bahasa',langShort,1,true)){/* handled */}
   else if(clickRadio(lang)||clickBtn(lang)){log('  [OK] bahasa (radio/btn)');}
   else if(clickRadio(langShort)||clickBtn(langShort)){log('  [OK] bahasa ('+langShort+')');}
@@ -609,7 +637,7 @@ function makeUI(){
   html+='<div class="np-card">';
   html+='<div class="np-hd" id="np-hd">';
   html+='<div class="np-hd-l"><div class="np-ico">N</div><span class="np-ttl">NILAM Auto-Fill</span></div>';
-  html+='<div class="np-hd-r"><span class="np-ver">v9.8</span><button class="np-x" id="np-mn">-</button></div>';
+  html+='<div class="np-hd-r"><span class="np-ver">v9.9</span><button class="np-x" id="np-mn">-</button></div>';
   html+='</div>';
   html+='<div id="np-body">';
   html+='<div class="np-stats">';
