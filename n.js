@@ -1,4 +1,4 @@
-// NILAM Auto-Fill v9.9
+// NILAM Auto-Fill v10.0
 // 1117 buku sebenar. Zero arrow functions. Zero template literals. Max compatibility.
 (async function(){
 
@@ -168,6 +168,43 @@ async function fillDropdown(label,value,fbIdx){
   log('  [!] '+label+': tak jumpa');return false;
 }
 
+async function bruteForceVueSelect(labelKeywords, optionKeywords) {
+  var toggles = document.querySelectorAll('.v-select, [role=combobox], input[readonly], .vs__dropdown-toggle, .v-input');
+  for (var i = 0; i < toggles.length; i++) {
+    var toggle = toggles[i];
+    if (!vis(toggle) || isOurPanel(toggle)) continue;
+    var p = toggle.parentElement;
+    var foundLabel = false;
+    for (var d = 0; d < 4 && p; d++) {
+      var text = (p.innerText || p.textContent || '').toLowerCase();
+      for(var k=0; k<labelKeywords.length; k++){
+        if (text.indexOf(labelKeywords[k]) >= 0) { foundLabel = true; break; }
+      }
+      if (foundLabel) break;
+      p = p.parentElement;
+    }
+    if (foundLabel) {
+      forceClick(toggle);
+      await sleep(800);
+      var opts = document.querySelectorAll('.v-list-item, [role=option], .vs__dropdown-option, li');
+      for (var j = 0; j < opts.length; j++) {
+        if (!vis(opts[j]) || isOurPanel(opts[j])) continue;
+        var ot = (opts[j].innerText || opts[j].textContent || '').toLowerCase();
+        for(var k=0; k<optionKeywords.length; k++){
+          if (ot.indexOf(optionKeywords[k]) >= 0) {
+            forceClick(opts[j]);
+            await sleep(400);
+            return true;
+          }
+        }
+      }
+      document.body.click();
+      await sleep(300);
+    }
+  }
+  return false;
+}
+
 // Star rating - Vue injection priority + DOM coordinate fallback
 function tryClickStar(n){
   var i,j,items,el;
@@ -179,9 +216,14 @@ function tryClickStar(n){
       if(isOurPanel(allEl[i]))continue;
       var vm=allEl[i].__vue__;if(!vm)continue;
       var dt=vm.$data||vm;
+
+      var isStar = (vm.$options && vm.$options.name && /star|rating|rate/i.test(vm.$options.name));
+      var hasRatingData = (dt.rating!==undefined || dt.star!==undefined || dt.penilaian!==undefined || dt.score!==undefined);
+      if(!isStar && !hasRatingData) continue;
+
       var keys=['rating','star','penilaian','score','rate','value','modelValue','currentValue','currentRating'];
       for(j=0;j<keys.length;j++){
-        if(typeof dt[keys[j]]==='number'||dt[keys[j]]===0||dt[keys[j]]===''){
+        if(dt[keys[j]]!==undefined && (typeof dt[keys[j]]==='number'||dt[keys[j]]===0||dt[keys[j]]==='')){
           dt[keys[j]]=n;
           try{vm.$emit('input',n);}catch(x){}
           try{vm.$emit('change',n);}catch(x){}
@@ -394,7 +436,7 @@ async function doBook(book,idx,total){
 
   var kat=book.categoryLabel;
   if(await fillDropdown('kategori',kat,0,true)){/* handled */}
-  else if(await openAndSelect('kategori',kat)){log('  [OK] kategori (vuetify)');}
+  else if(await bruteForceVueSelect(['kategori'], [kat])){log('  [OK] kategori (vuetify)');}
   else if(clickRadio(kat)||clickBtn(kat)){log('  [OK] kategori (radio/btn)');}
   else{log('  [!] kategori: tak jumpa');}
   await sleep(DELAY);await checkPause();
@@ -407,8 +449,7 @@ async function doBook(book,idx,total){
   var lang=book.languageLabel;
   var langShort=lang.replace('Bahasa ','').trim();
   if(await fillDropdown('bahasa',lang,1,true)){/* handled */}
-  else if(await openAndSelect('bahasa',lang)){log('  [OK] bahasa (vuetify)');}
-  else if(await openAndSelect('bahasa',langShort)){log('  [OK] bahasa ('+langShort+' vuetify)');}
+  else if(await bruteForceVueSelect(['bahasa', 'bacaan'], [lang, langShort])){log('  [OK] bahasa (vuetify)');}
   else if(await fillDropdown('bahasa',langShort,1,true)){/* handled */}
   else if(clickRadio(lang)||clickBtn(lang)){log('  [OK] bahasa (radio/btn)');}
   else if(clickRadio(langShort)||clickBtn(langShort)){log('  [OK] bahasa ('+langShort+')');}
@@ -637,7 +678,7 @@ function makeUI(){
   html+='<div class="np-card">';
   html+='<div class="np-hd" id="np-hd">';
   html+='<div class="np-hd-l"><div class="np-ico">N</div><span class="np-ttl">NILAM Auto-Fill</span></div>';
-  html+='<div class="np-hd-r"><span class="np-ver">v9.9</span><button class="np-x" id="np-mn">-</button></div>';
+  html+='<div class="np-hd-r"><span class="np-ver">v10.0</span><button class="np-x" id="np-mn">-</button></div>';
   html+='</div>';
   html+='<div id="np-body">';
   html+='<div class="np-stats">';
