@@ -1,4 +1,4 @@
-// NILAM Auto-Fill v10.7
+// NILAM Auto-Fill v10.8
 // 1117 buku sebenar. Zero arrow functions. Zero template literals. Max compatibility.
 (async function(){
 
@@ -116,7 +116,7 @@ async function openAndSelect(labelText, optionText) {
     var ot=opts[j].innerText.toLowerCase().trim();
     if(ot===vlo||ot.indexOf(vlo)>=0){forceClick(opts[j]);await sleep(400);return true;}
   }
-  document.body.click();await sleep(200);return false;
+  await sleep(200);return false;
 }
 
 function waitFor(fn,ms){ms=ms||15000;var end=Date.now()+ms;return new Promise(function(resolve){(function check(){var r=fn();if(r)return resolve(r);if(Date.now()>=end)return resolve(null);setTimeout(check,400);})();});}
@@ -150,7 +150,7 @@ async function fillDropdown(label,value,fbIdx){
         for(j=0;j<opts.length;j++){
           var ot=(opts[j].innerText||opts[j].textContent||'').trim().toLowerCase();
           if(ot.indexOf(vlo)>=0||vlo.indexOf(ot)>=0){opts[j].click();await sleep(400);log('  [OK] '+label+' [custom]');return true;}}
-        document.body.click();await sleep(200);}c=c.parentElement;}}
+        await sleep(200);}c=c.parentElement;}}
   var allEls=document.querySelectorAll('div,span,button,input');
   for(i=0;i<allEls.length;i++){
     var ae=allEls[i];if(!vis(ae)||isOurPanel(ae))continue;
@@ -165,7 +165,7 @@ async function fillDropdown(label,value,fbIdx){
         for(j=0;j<opts2.length;j++){
           var ot2=(opts2[j].innerText||'').trim().toLowerCase();
           if(ot2.indexOf(vlo)>=0){opts2[j].click();await sleep(400);log('  [OK] '+label+' [brute]');return true;}}
-        document.body.click();await sleep(200);
+        await sleep(200);
       }
       parent=parent.parentElement;
     }
@@ -503,11 +503,12 @@ async function doBook(book,idx,total){
   var langOk=false;
   var langKeys=['bahasa', 'bacaan', 'bahan', 'kategori', 'medium', 'pilihan', 'language', 'lang', 'pilih'];
   
-  if(await fillDropdown('bahasa',lang,1,true)){langOk=true;}
-  else if(await bruteForceVueSelect(langKeys, [lang, langShort])){log('  [OK] bahasa (brute)');langOk=true;}
+  if(await bruteForceVueSelect(langKeys, [lang, langShort])){langOk=true;log('  [OK] bahasa (brute)');}
+  else if(await clickLanguageDirectly(lang)){langOk=true;}
+  else if(await fillDropdown('bahasa',lang,1,true)){langOk=true;}
   else if(await fillDropdown('bahasa',langShort,1,true)){langOk=true;}
   else if(clickRadio(lang)||clickBtn(lang)){log('  [OK] bahasa (radio/btn)');langOk=true;}
-  else if(await clickLanguageDirectly(lang)){langOk=true;}
+  else if(clickRadio(langShort)||clickBtn(langShort)){log('  [OK] bahasa ('+langShort+')');langOk=true;}
   else{log('  [!] bahasa: tak jumpa');}
 
   if(!katOk || !langOk) {
@@ -754,7 +755,7 @@ function makeUI(){
   html+='<div class="np-card">';
   html+='<div class="np-hd" id="np-hd">';
   html+='<div class="np-hd-l"><div class="np-ico">N</div><span class="np-ttl">NILAM Auto-Fill</span></div>';
-  html+='<div class="np-hd-r"><span class="np-ver">v10.7</span><button class="np-x" id="np-mn">-</button></div>';
+  html+='<div class="np-hd-r"><span class="np-ver">v10.8</span><button class="np-x" id="np-mn">-</button></div>';
   html+='</div>';
   html+='<div id="np-body">';
   html+='<div class="np-stats">';
