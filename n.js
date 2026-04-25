@@ -1,4 +1,4 @@
-// NILAM Auto-Fill v9.4
+// NILAM Auto-Fill v9.5
 // 1117 buku sebenar. Zero arrow functions. Zero template literals. Max compatibility.
 (async function(){
 
@@ -51,9 +51,12 @@ function setSel(el,txt){if(!el||el.tagName!=='SELECT')return false;var lo=txt.to
 function forceClick(el){
   if(!el)return;
   try{el.focus();}catch(x){}
-  el.dispatchEvent(new MouseEvent('mousedown',{bubbles:true,cancelable:true}));
-  el.dispatchEvent(new MouseEvent('mouseup',{bubbles:true,cancelable:true}));
-  el.dispatchEvent(new MouseEvent('click',{bubbles:true,cancelable:true}));
+  var rect=el.getBoundingClientRect();
+  var cx=rect.left+(rect.width/2),cy=rect.top+(rect.height/2);
+  var opts={bubbles:true,cancelable:true,clientX:cx,clientY:cy,screenX:cx,screenY:cy};
+  el.dispatchEvent(new MouseEvent('mousedown',opts));
+  el.dispatchEvent(new MouseEvent('mouseup',opts));
+  el.dispatchEvent(new MouseEvent('click',opts));
   try{el.click();}catch(x){}
 }
 function clickBtn(text){
@@ -137,69 +140,11 @@ async function fillDropdown(label,value,fbIdx){
   log('  [!] '+label+': tak jumpa');return false;
 }
 
-// Star rating - 7 strategies + Vue injection + retry
+// Star rating - Vue injection priority + DOM coordinate fallback
 function tryClickStar(n){
   var i,j,items,el;
-  // S1: container with star/rating class
-  var containers=document.querySelectorAll('[class*=star],[class*=Star],[class*=rating],[class*=Rating],[class*=penilaian],[class*=Penilaian],[class*=rate],[class*=Rate],[class*=review],[class*=Review]');
-  for(i=0;i<containers.length;i++){
-    if(isOurPanel(containers[i]))continue;
-    items=containers[i].querySelectorAll('svg,i,span,label,path,polygon,img,a,li,button');
-    if(items.length>=3&&items.length<=10){forceClick(items[Math.min(n-1,items.length-1)]);return true;}
-    if(containers[i].children.length>=3&&containers[i].children.length<=10){forceClick(containers[i].children[Math.min(n-1,containers[i].children.length-1)]);return true;}
-  }
-  // S2: label text then nearby clickable items
-  var labels=document.querySelectorAll('label,span,div,p,h1,h2,h3,h4,h5,h6,legend');
-  for(i=0;i<labels.length;i++){
-    if(isOurPanel(labels[i]))continue;
-    var lt=(labels[i].textContent||'').trim().toLowerCase();
-    if(lt.length>60||lt.length<3)continue;
-    if(lt.indexOf('penilaian')>=0||lt.indexOf('rating')>=0||lt.indexOf('bintang')>=0||lt.indexOf('ulasan')>=0||lt.indexOf('nilai')>=0){
-      var parent=labels[i].parentElement;
-      for(var d=0;d<6&&parent;d++){
-        items=parent.querySelectorAll('svg,i,span,label,path,img,a,button');
-        var clickable=[];for(j=0;j<items.length;j++){if(vis(items[j])&&items[j]!==labels[i]&&!isOurPanel(items[j]))clickable.push(items[j]);}
-        if(clickable.length>=3&&clickable.length<=10){forceClick(clickable[Math.min(n-1,clickable.length-1)]);return true;}
-        parent=parent.parentElement;
-      }
-    }
-  }
-  // S3: groups of 3-10 identical siblings
-  var wrappers=document.querySelectorAll('div,span,ul,ol,fieldset');
-  for(i=0;i<wrappers.length;i++){
-    el=wrappers[i];if(!vis(el)||isOurPanel(el))continue;
-    var ch=el.children;if(ch.length<3||ch.length>10)continue;
-    var tag0=ch[0].tagName;var allSame=true;
-    for(j=1;j<ch.length;j++){if(ch[j].tagName!==tag0){allSame=false;break;}}
-    if(!allSame)continue;
-    if(tag0==='SVG'||tag0==='I'||tag0==='SPAN'||tag0==='IMG'||tag0==='LABEL'||tag0==='A'||tag0==='BUTTON'||tag0==='LI'){
-      forceClick(ch[Math.min(n-1,ch.length-1)]);return true;
-    }
-  }
-  // S4: radio inputs
-  var radios=document.querySelectorAll('input[type=radio]');
-  for(i=0;i<radios.length;i++){
-    if(isOurPanel(radios[i]))continue;
-    var rv=radios[i].value;
-    if(rv==String(n)||rv==n){radios[i].checked=true;forceClick(radios[i]);radios[i].dispatchEvent(new Event('change',{bubbles:true}));return true;}
-  }
-  // S5: aria-label
-  var ariaEls=document.querySelectorAll('[aria-label]');
-  for(i=0;i<ariaEls.length;i++){
-    if(isOurPanel(ariaEls[i]))continue;
-    var al=(ariaEls[i].getAttribute('aria-label')||'').toLowerCase();
-    if((al.indexOf('star')>=0||al.indexOf('bintang')>=0||al.indexOf('rating')>=0)&&al.indexOf(String(n))>=0){
-      forceClick(ariaEls[i]);return true;
-    }
-  }
-  // S6: data-value
-  var dataEls=document.querySelectorAll('[data-value],[data-rating],[data-score]');
-  for(i=0;i<dataEls.length;i++){
-    if(isOurPanel(dataEls[i]))continue;
-    var dv=dataEls[i].getAttribute('data-value')||dataEls[i].getAttribute('data-rating')||dataEls[i].getAttribute('data-score')||'';
-    if(dv==String(n)){forceClick(dataEls[i]);return true;}
-  }
-  // S7: Vue model injection - find Vue component with rating-related data
+
+  // Strategy 1: Vue model injection (SAFEST)
   try{
     var allEl=document.querySelectorAll('*');
     for(i=0;i<allEl.length;i++){
@@ -213,11 +158,71 @@ function tryClickStar(n){
           try{vm.$emit('input',n);}catch(x){}
           try{vm.$emit('change',n);}catch(x){}
           try{vm.$forceUpdate();}catch(x){}
-          log('  [Vue] Set '+keys[j]+'='+n);return true;
+          log('  [Vue] Set rating='+n);return true;
         }
       }
     }
   }catch(x){}
+
+  // Strategy 2: container with star/rating class
+  var containers=document.querySelectorAll('[class*=star],[class*=Star],[class*=rating],[class*=Rating],[class*=penilaian],[class*=Penilaian],[class*=rate],[class*=Rate],[class*=review],[class*=Review]');
+  for(i=0;i<containers.length;i++){
+    if(isOurPanel(containers[i]))continue;
+    items=containers[i].querySelectorAll('svg,i,span,label,img,a,li,button');
+    if(items.length>=3&&items.length<=10){forceClick(items[Math.min(n-1,items.length-1)]);return true;}
+    if(containers[i].children.length>=3&&containers[i].children.length<=10){forceClick(containers[i].children[Math.min(n-1,containers[i].children.length-1)]);return true;}
+  }
+  // Strategy 3: label text then nearby clickable items
+  var labels=document.querySelectorAll('label,span,div,p,h1,h2,h3,h4,h5,h6,legend');
+  for(i=0;i<labels.length;i++){
+    if(isOurPanel(labels[i]))continue;
+    var lt=(labels[i].textContent||'').trim().toLowerCase();
+    if(lt.length>60||lt.length<3)continue;
+    if(lt.indexOf('penilaian')>=0||lt.indexOf('rating')>=0||lt.indexOf('bintang')>=0||lt.indexOf('ulasan')>=0||lt.indexOf('nilai')>=0){
+      var parent=labels[i].parentElement;
+      for(var d=0;d<6&&parent;d++){
+        items=parent.querySelectorAll('svg,i,span,label,img,a,button');
+        var clickable=[];for(j=0;j<items.length;j++){if(vis(items[j])&&items[j]!==labels[i]&&!isOurPanel(items[j]))clickable.push(items[j]);}
+        if(clickable.length>=3&&clickable.length<=10){forceClick(clickable[Math.min(n-1,clickable.length-1)]);return true;}
+        parent=parent.parentElement;
+      }
+    }
+  }
+  // Strategy 4: groups of 3-10 identical siblings
+  var wrappers=document.querySelectorAll('div,span,ul,ol,fieldset');
+  for(i=0;i<wrappers.length;i++){
+    el=wrappers[i];if(!vis(el)||isOurPanel(el))continue;
+    var ch=el.children;if(ch.length<3||ch.length>10)continue;
+    var tag0=ch[0].tagName;var allSame=true;
+    for(j=1;j<ch.length;j++){if(ch[j].tagName!==tag0){allSame=false;break;}}
+    if(!allSame)continue;
+    if(tag0==='SVG'||tag0==='I'||tag0==='SPAN'||tag0==='IMG'||tag0==='LABEL'||tag0==='A'||tag0==='BUTTON'||tag0==='LI'){
+      forceClick(ch[Math.min(n-1,ch.length-1)]);return true;
+    }
+  }
+  // Strategy 5: radio inputs
+  var radios=document.querySelectorAll('input[type=radio]');
+  for(i=0;i<radios.length;i++){
+    if(isOurPanel(radios[i]))continue;
+    var rv=radios[i].value;
+    if(rv==String(n)||rv==n){radios[i].checked=true;forceClick(radios[i]);radios[i].dispatchEvent(new Event('change',{bubbles:true}));return true;}
+  }
+  // Strategy 6: aria-label
+  var ariaEls=document.querySelectorAll('[aria-label]');
+  for(i=0;i<ariaEls.length;i++){
+    if(isOurPanel(ariaEls[i]))continue;
+    var al=(ariaEls[i].getAttribute('aria-label')||'').toLowerCase();
+    if((al.indexOf('star')>=0||al.indexOf('bintang')>=0||al.indexOf('rating')>=0)&&al.indexOf(String(n))>=0){
+      forceClick(ariaEls[i]);return true;
+    }
+  }
+  // Strategy 7: data-value
+  var dataEls=document.querySelectorAll('[data-value],[data-rating],[data-score]');
+  for(i=0;i<dataEls.length;i++){
+    if(isOurPanel(dataEls[i]))continue;
+    var dv=dataEls[i].getAttribute('data-value')||dataEls[i].getAttribute('data-rating')||dataEls[i].getAttribute('data-score')||'';
+    if(dv==String(n)){forceClick(dataEls[i]);return true;}
+  }
   return false;
 }
 async function clickStarRetry(n){
