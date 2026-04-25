@@ -1,4 +1,4 @@
-// NILAM Auto-Fill v10.0
+// NILAM Auto-Fill v10.1
 // 1117 buku sebenar. Zero arrow functions. Zero template literals. Max compatibility.
 (async function(){
 
@@ -211,7 +211,7 @@ function tryClickStar(n){
 
   // Strategy 1: Vue model injection (SAFEST)
   try{
-    var allEl=document.querySelectorAll('*');
+    var allEl=document.querySelectorAll('[class*=star],[class*=Star],[class*=rating],[class*=Rating],[class*=penilaian],[class*=rate]');
     for(i=0;i<allEl.length;i++){
       if(isOurPanel(allEl[i]))continue;
       var vm=allEl[i].__vue__;if(!vm)continue;
@@ -435,10 +435,12 @@ async function doBook(book,idx,total){
   await sleep(DELAY);
 
   var kat=book.categoryLabel;
-  if(await fillDropdown('kategori',kat,0,true)){/* handled */}
-  else if(await bruteForceVueSelect(['kategori'], [kat])){log('  [OK] kategori (vuetify)');}
-  else if(clickRadio(kat)||clickBtn(kat)){log('  [OK] kategori (radio/btn)');}
+  var katOk=false;
+  if(await fillDropdown('kategori',kat,0,true)){katOk=true;}
+  else if(await bruteForceVueSelect(['kategori'], [kat])){log('  [OK] kategori (vuetify)');katOk=true;}
+  else if(clickRadio(kat)||clickBtn(kat)){log('  [OK] kategori (radio/btn)');katOk=true;}
   else{log('  [!] kategori: tak jumpa');}
+
   await sleep(DELAY);await checkPause();
 
   await fillField('mukasurat',book.pages,['bilangan','muka','page']);await sleep(DELAY);
@@ -448,12 +450,19 @@ async function doBook(book,idx,total){
 
   var lang=book.languageLabel;
   var langShort=lang.replace('Bahasa ','').trim();
-  if(await fillDropdown('bahasa',lang,1,true)){/* handled */}
-  else if(await bruteForceVueSelect(['bahasa', 'bacaan'], [lang, langShort])){log('  [OK] bahasa (vuetify)');}
-  else if(await fillDropdown('bahasa',langShort,1,true)){/* handled */}
-  else if(clickRadio(lang)||clickBtn(lang)){log('  [OK] bahasa (radio/btn)');}
-  else if(clickRadio(langShort)||clickBtn(langShort)){log('  [OK] bahasa ('+langShort+')');}
+  var langOk=false;
+  if(await fillDropdown('bahasa',lang,1,true)){langOk=true;}
+  else if(await bruteForceVueSelect(['bahasa', 'bacaan'], [lang, langShort])){log('  [OK] bahasa (vuetify)');langOk=true;}
+  else if(await fillDropdown('bahasa',langShort,1,true)){langOk=true;}
+  else if(clickRadio(lang)||clickBtn(lang)){log('  [OK] bahasa (radio/btn)');langOk=true;}
+  else if(clickRadio(langShort)||clickBtn(langShort)){log('  [OK] bahasa ('+langShort+')');langOk=true;}
   else{log('  [!] bahasa: tak jumpa');}
+
+  if(!katOk || !langOk) {
+    err('Borang tak sah (Kategori/Bahasa gagal). Skip buku ini.');
+    return {ok:false, title:book.title};
+  }
+
   await sleep(DELAY);
 
   log('-> Seterusnya (1->2)');
@@ -492,38 +501,46 @@ async function doBook(book,idx,total){
 
   // === STEP 3: Confirmation & Submit ===
   log('Step 3: Pengesahan & Hantar');
+  var hasClickedHantar = false;
+
   for(var a=0;a<40;a++){
     if(!running)break;
 
-    // FIRST: try action buttons (simpan/hantar/submit/pasti/ya)
-    if(a>0){
-      // Exact match for Hantar/Simpan to avoid clicking "Pastikan data..." text
+    // Check visible validation errors first
+    var errs = document.querySelectorAll('.error--text, .text-danger, .invalid-feedback, [class*=error]');
+    for(var e=0; e<errs.length; e++){
+      if(vis(errs[e]) && !isOurPanel(errs[e]) && errs[e].innerText.length > 3 && errs[e].innerText.length < 50){
+        err('Ralat borang: ' + errs[e].innerText);
+        return {ok:false, title:book.title}; // Abort!
+      }
+    }
+
+    // FIRST: try action buttons ONLY IF we haven't already clicked Hantar
+    if(a>0 && !hasClickedHantar){
       var exactBtns=document.querySelectorAll('button,a,[role=button],.btn,input[type=submit]');
-      var clicked=false;
       for(var ei=0;ei<exactBtns.length;ei++){
         if(!vis(exactBtns[ei])||isOurPanel(exactBtns[ei])||exactBtns[ei].disabled)continue;
         var et=(exactBtns[ei].innerText||exactBtns[ei].textContent||'').trim().toLowerCase();
         if(et==='hantar'||et==='simpan'||et==='submit'){
           log('  -> Tekan (exact): '+exactBtns[ei].textContent.trim());
-          forceClick(exactBtns[ei]);await sleep(DELAY*5);clicked=true;break;
+          forceClick(exactBtns[ei]);await sleep(DELAY*5);hasClickedHantar=true;break;
         }
       }
-      if(clicked)continue;
 
-      if(clickBtn('pasti')){log('  -> Tekan Pasti');await sleep(DELAY*6);
+      if(!hasClickedHantar && clickBtn('pasti')){log('  -> Tekan Pasti');await sleep(DELAY*6);
         if(isDuplicate()){log('DUPLIKAT (selepas Pasti) - skip');closeAllPopups();await sleep(DELAY*2);return{ok:false,title:book.title,dup:true};}
         continue;
       }
-      if(clickBtn('ya')){log('  -> Tekan Ya');await sleep(DELAY*6);
+      if(!hasClickedHantar && clickBtn('ya')){log('  -> Tekan Ya');await sleep(DELAY*6);
         if(isDuplicate()){log('DUPLIKAT (selepas Ya) - skip');closeAllPopups();await sleep(DELAY*2);return{ok:false,title:book.title,dup:true};}
         continue;
       }
-      if(clickBtn('confirm')){log('  -> Tekan Confirm');await sleep(DELAY*5);continue;}
-      if(clickBtn('simpan')){log('  -> Klik Simpan');await sleep(DELAY*5);continue;}
-      if(clickBtn('hantar')){log('  -> Klik Hantar');await sleep(DELAY*5);continue;}
-      if(clickBtn('submit')){log('  -> Klik Submit');await sleep(DELAY*5);continue;}
-      if(clickBtn('selesai')){log('  -> Klik Selesai');await sleep(DELAY*5);continue;}
-      if(clickBtn('seterusnya')){log('  -> Klik Seterusnya');await sleep(DELAY*4);continue;}
+      if(!hasClickedHantar && clickBtn('confirm')){log('  -> Tekan Confirm');await sleep(DELAY*5);hasClickedHantar=true;continue;}
+      if(!hasClickedHantar && clickBtn('simpan')){log('  -> Klik Simpan');await sleep(DELAY*5);hasClickedHantar=true;continue;}
+      if(!hasClickedHantar && clickBtn('hantar')){log('  -> Klik Hantar');await sleep(DELAY*5);hasClickedHantar=true;continue;}
+      if(!hasClickedHantar && clickBtn('submit')){log('  -> Klik Submit');await sleep(DELAY*5);hasClickedHantar=true;continue;}
+      if(!hasClickedHantar && clickBtn('selesai')){log('  -> Klik Selesai');await sleep(DELAY*5);hasClickedHantar=true;continue;}
+      if(!hasClickedHantar && clickBtn('seterusnya')){log('  -> Klik Seterusnya');await sleep(DELAY*4);continue;}
     }
 
     await sleep(DELAY*2);
@@ -678,7 +695,7 @@ function makeUI(){
   html+='<div class="np-card">';
   html+='<div class="np-hd" id="np-hd">';
   html+='<div class="np-hd-l"><div class="np-ico">N</div><span class="np-ttl">NILAM Auto-Fill</span></div>';
-  html+='<div class="np-hd-r"><span class="np-ver">v10.0</span><button class="np-x" id="np-mn">-</button></div>';
+  html+='<div class="np-hd-r"><span class="np-ver">v10.1</span><button class="np-x" id="np-mn">-</button></div>';
   html+='</div>';
   html+='<div id="np-body">';
   html+='<div class="np-stats">';
