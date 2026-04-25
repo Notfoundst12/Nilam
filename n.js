@@ -1,4 +1,4 @@
-// NILAM Auto-Fill v10.4
+// NILAM Auto-Fill v10.5
 // 1117 buku sebenar. Zero arrow functions. Zero template literals. Max compatibility.
 (async function(){
 
@@ -23,7 +23,12 @@ function err(m){console.error('[NILAM] '+m);pLog('[X] '+m);}
 function vis(el){return el&&(el.offsetParent!==null||el.offsetWidth>0);}
 function isOurPanel(el){if(!el)return false;try{return el.closest&&el.closest('#NP');}catch(x){return false;}}
 function findField(text){
-  var lo=text.toLowerCase();var i,d,p,e,lb,n;
+  var lo=text.toLowerCase();var i,d,p,e,lb,n,att;
+  var inps=document.querySelectorAll('input,select,textarea');
+  for(i=0;i<inps.length;i++){e=inps[i];if(!vis(e)||isOurPanel(e))continue;
+    att=(e.placeholder||e.getAttribute('aria-label')||'').toLowerCase();
+    if(att.indexOf(lo)>=0)return e;
+  }
   var labels=document.querySelectorAll('label');
   for(i=0;i<labels.length;i++){lb=labels[i];
     if(lb.textContent.replace(/\*/g,'').trim().toLowerCase().indexOf(lo)<0)continue;
@@ -169,37 +174,69 @@ async function fillDropdown(label,value,fbIdx){
 }
 
 async function bruteForceVueSelect(labelKeywords, optionKeywords) {
-  var toggles = document.querySelectorAll('.v-select, [role=combobox], [role=listbox], input[readonly], .vs__dropdown-toggle, .v-input, .v-field, .v-input__control, .v-select__selections');
+  var toggles = document.querySelectorAll('.v-select, [role=combobox], [role=listbox], input[readonly], .vs__dropdown-toggle, .v-input, .v-field, .v-input__control, .v-select__selections, .v-select__slot, .v-input__append-inner, [class*="select"]');
+  var foundToggle = null;
   for (var i = 0; i < toggles.length; i++) {
     var toggle = toggles[i];
     if (!vis(toggle) || isOurPanel(toggle)) continue;
     var p = toggle.parentElement;
-    var foundLabel = false;
-    for (var d = 0; d < 6 && p; d++) {
+    var matched = false;
+    for (var d = 0; d < 7 && p; d++) {
       var text = (p.innerText || p.textContent || '').toLowerCase();
       for(var k=0; k<labelKeywords.length; k++){
-        if (text.indexOf(labelKeywords[k]) >= 0) { foundLabel = true; break; }
+        if (text.indexOf(labelKeywords[k].toLowerCase()) >= 0) { matched = true; break; }
       }
-      if (foundLabel) break;
+      if (matched) break;
       p = p.parentElement;
     }
-    if (foundLabel) {
-      forceClick(toggle);
-      await sleep(800);
-      var opts = document.querySelectorAll('.v-list-item, [role=option], .vs__dropdown-option, li, .v-list-item-title, .dropdown-item');
-      for (var j = 0; j < opts.length; j++) {
-        if (!vis(opts[j]) || isOurPanel(opts[j])) continue;
-        var ot = (opts[j].innerText || opts[j].textContent || '').toLowerCase();
-        for(var k=0; k<optionKeywords.length; k++){
-          if (ot.indexOf(optionKeywords[k]) >= 0) {
-            forceClick(opts[j]);
-            await sleep(400);
-            return true;
-          }
+    if (matched) { foundToggle = toggle; break; }
+  }
+  
+  if(!foundToggle && (labelKeywords.indexOf('bahasa')>=0 || labelKeywords.indexOf('language')>=0)){
+    for(var i=0; i<toggles.length; i++){if(vis(toggles[i]) && !isOurPanel(toggles[i])){foundToggle=toggles[i]; break;}}
+  }
+
+  if (foundToggle) {
+    forceClick(foundToggle);
+    await sleep(800);
+    var opts = document.querySelectorAll('.v-list-item, [role=option], .vs__dropdown-option, li, .v-list-item-title, .dropdown-item, .v-list-item__title');
+    for (var j = 0; j < opts.length; j++) {
+      if (!vis(opts[j]) || isOurPanel(opts[j])) continue;
+      var ot = (opts[j].innerText || opts[j].textContent || '').toLowerCase();
+      for(var k=0; k<optionKeywords.length; k++){
+        if (ot.indexOf(optionKeywords[k].toLowerCase()) >= 0) {
+          forceClick(opts[j]);
+          await sleep(400);
+          return true;
         }
       }
-      document.body.click();
-      await sleep(300);
+    }
+    document.body.click();
+    await sleep(300);
+  }
+  return false;
+}
+
+async function clickLanguageDirectly(lang) {
+  var lo = lang.toLowerCase();
+  var short = lo.replace('bahasa ', '').trim();
+  var targets = [lo, short];
+  if (lo.indexOf('melayu') >= 0) targets.push('melayu');
+  if (lo.indexOf('inggeris') >= 0 || lo.indexOf('english') >= 0) { targets.push('english'); targets.push('inggeris'); }
+
+  var els = document.querySelectorAll('button, span, div, a, .v-chip, .v-btn');
+  for (var i = 0; i < els.length; i++) {
+    var el = els[i];
+    if (!vis(el) || isOurPanel(el)) continue;
+    var t = (el.innerText || el.textContent || '').trim().toLowerCase();
+    if (t.length > 20 || t.length < 2) continue;
+    for (var j = 0; j < targets.length; j++) {
+      if (t === targets[j]) {
+        log('  [Direct] Klik ' + t);
+        forceClick(el);
+        await sleep(500);
+        return true;
+      }
     }
   }
   return false;
@@ -450,13 +487,13 @@ async function doBook(book,idx,total){
   var lang=book.languageLabel;
   var langShort=lang.replace('Bahasa ','').trim();
   var langOk=false;
-  var langKeys=['bahasa', 'bacaan', 'bahan', 'kategori bahan', 'medium', 'pilihan', 'language'];
+  var langKeys=['bahasa', 'bacaan', 'bahan', 'kategori', 'medium', 'pilihan', 'language', 'lang', 'pilih'];
   
   if(await fillDropdown('bahasa',lang,1,true)){langOk=true;}
-  else if(await bruteForceVueSelect(langKeys, [lang, langShort])){log('  [OK] bahasa (vuetify/brute)');langOk=true;}
+  else if(await bruteForceVueSelect(langKeys, [lang, langShort])){log('  [OK] bahasa (brute)');langOk=true;}
   else if(await fillDropdown('bahasa',langShort,1,true)){langOk=true;}
   else if(clickRadio(lang)||clickBtn(lang)){log('  [OK] bahasa (radio/btn)');langOk=true;}
-  else if(clickRadio(langShort)||clickBtn(langShort)){log('  [OK] bahasa ('+langShort+')');langOk=true;}
+  else if(await clickLanguageDirectly(lang)){langOk=true;}
   else{log('  [!] bahasa: tak jumpa');}
 
   if(!katOk || !langOk) {
@@ -703,7 +740,7 @@ function makeUI(){
   html+='<div class="np-card">';
   html+='<div class="np-hd" id="np-hd">';
   html+='<div class="np-hd-l"><div class="np-ico">N</div><span class="np-ttl">NILAM Auto-Fill</span></div>';
-  html+='<div class="np-hd-r"><span class="np-ver">v10.4</span><button class="np-x" id="np-mn">-</button></div>';
+  html+='<div class="np-hd-r"><span class="np-ver">v10.5</span><button class="np-x" id="np-mn">-</button></div>';
   html+='</div>';
   html+='<div id="np-body">';
   html+='<div class="np-stats">';
