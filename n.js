@@ -1,4 +1,4 @@
-// NILAM Auto-Fill v9.5
+// NILAM Auto-Fill v9.6
 // 1117 buku sebenar. Zero arrow functions. Zero template literals. Max compatibility.
 (async function(){
 
@@ -82,7 +82,8 @@ function clickRadio(text){
   for(var i=0;i<els.length;i++){
     var el=els[i];if(!vis(el)||isOurPanel(el))continue;
     var t=(el.innerText||el.textContent||'').trim().toLowerCase();
-    if(t===lo){forceClick(el);return true;}
+    if(t.length>40||t.length<3)continue;
+    if(t===lo||t.indexOf(lo)>=0){forceClick(el);return true;}
   }
   return false;
 }
@@ -322,6 +323,32 @@ function logButtons(){
   else log('  [DBG] Tiada butang dijumpai');
 }
 
+function getPengajaran(b){
+  var t=b.title||'';var sum=b.summary||'';var isBM=(b.languageLabel==='Bahasa Melayu');
+  var w=sum.split(/[\s,.]+/).filter(function(x){return x.length>5}).slice(0,2).join(' dan ');
+  if(isBM){
+    var tm=[
+      "Buku '"+t+"' ini memberi pengajaran yang mendalam kepada saya. Ia mengajar kita agar sentiasa berusaha dalam kehidupan.",
+      "Selepas membaca '"+t+"', saya sedar bahawa nilai-nilai murni sangat penting untuk diterapkan.",
+      "Karya ini banyak memberi inspirasi. Pengajaran utamanya ialah kita tidak boleh mudah berputus asa walaupun menghadapi pelbagai cabaran.",
+      "Satu pengajaran menarik dari buku '"+t+"' adalah kepentingan ilmu pengetahuan untuk memajukan diri dan masyarakat.",
+      "Saya belajar banyak perkara baru melalui buku ini, terutamanya bagaimana sikap positif boleh membawa kita ke arah kejayaan sejati."
+    ];
+    if(w.length>4){tm.push("Melalui buku ini, saya dapat memahami dengan lebih mendalam tentang "+w.toLowerCase()+". Ini amat berguna untuk diri saya.");tm.push("Pengajaran yang saya peroleh ialah berkaitan "+w.toLowerCase()+" yang banyak membuka minda saya.");}
+    return tm[Math.floor(Math.random()*tm.length)];
+  }else{
+    var te=[
+      "The book '"+t+"' taught me valuable lessons about perseverance and never giving up on our goals.",
+      "After reading '"+t+"', I realized the importance of positive values and how they impact our daily lives.",
+      "A great book that inspires readers to seek knowledge and strive for success despite any challenges faced.",
+      "One of the main lessons from '"+t+"' is that true success comes from hard work and continuous learning.",
+      "This book opened my mind to new perspectives and taught me to always be determined."
+    ];
+    if(w.length>4){te.push("This book helped me understand concepts like "+w.toLowerCase()+" which I find very educational.");te.push("The main takeaway for me is the importance of "+w.toLowerCase()+" in shaping a better future.");}
+    return te[Math.floor(Math.random()*te.length)];
+  }
+}
+
 // Process one book
 async function doBook(book,idx,total){
   if(!running)return{ok:false,title:book.title};
@@ -364,7 +391,7 @@ async function doBook(book,idx,total){
   await waitFor(function(){return allTxt().length>0?true:null;},15000);await sleep(DELAY*2);
   var txts=allTxt();
   if(txts[0]){setVal(txts[0],book.summary);log('  [OK] Rumusan');await sleep(DELAY);}
-  if(txts[1]){setVal(txts[1],book.review);log('  [OK] Pengajaran');await sleep(DELAY);}
+  if(txts[1]){setVal(txts[1],getPengajaran(book));log('  [OK] Pengajaran');await sleep(DELAY);}
   await sleep(DELAY*3);
 
   // Rating with retry
