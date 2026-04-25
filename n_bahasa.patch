@@ -1,0 +1,48 @@
+--- /root/NilamAutomationTools/n.js
++++ /root/NilamAutomationTools/n.js
+@@ -1,4 +1,4 @@
+-// NILAM Auto-Fill v9.7
++// NILAM Auto-Fill v9.8
+ // 1117 buku sebenar. Zero arrow functions. Zero template literals. Max compatibility.
+ (async function(){
+ 
+@@ -339,17 +339,26 @@
+   log('Step 1: Maklumat Buku');
+   await fillField('tajuk',book.title,['title']);await sleep(DELAY);
+-  clickBtn('e-buku')||clickBtn('buku digital');await sleep(DELAY);
++  
++  if(clickBtn('buku bukan elektronik')||clickBtn('buku fizikal')){/* prefer physical */}
++  else{clickBtn('e-buku')||clickBtn('buku digital');}
++  await sleep(DELAY);
+   
+   if(await fillDropdown('kategori',book.categoryLabel,0,true)){/* handled */}
+   else if(clickRadio(book.categoryLabel)||clickBtn(book.categoryLabel)){log('  [OK] kategori (radio/btn)');}
+   else{log('  [!] kategori: tak jumpa');}
+   await sleep(DELAY);await checkPause();
+   
+   await fillField('mukasurat',book.pages,['bilangan','muka','page']);await sleep(DELAY);
+   await fillField('penulis',book.author,['pengarang','author']);await sleep(DELAY);
+   await fillField('penerbit',book.publisher,['publisher']);await sleep(DELAY);
+   await fillField('tahun',book.year,['terbitan','year']);await sleep(DELAY);await checkPause();
+   
+-  if(await fillDropdown('bahasa',book.languageLabel,1,true)){/* handled */}
+-  else if(clickRadio(book.languageLabel)||clickBtn(book.languageLabel)){log('  [OK] bahasa (radio/btn)');}
++  // Fill URL if it asks for one (prevents ains.moe.gov.my/undefined crash)
++  await fillField('pautan', 'https://ains.moe.gov.my/record/add/book', ['url','laman','web','link','pautan']);
++  
++  var lang = book.languageLabel;
++  var langShort = lang.replace('Bahasa ', '').trim();
++  if(await fillDropdown('bahasa',lang,1,true)){/* handled */}
++  else if(await fillDropdown('bahasa',langShort,1,true)){/* handled */}
++  else if(clickRadio(lang)||clickBtn(lang)){log('  [OK] bahasa (radio/btn)');}
++  else if(clickRadio(langShort)||clickBtn(langShort)){log('  [OK] bahasa ('+langShort+')');}
+   else{log('  [!] bahasa: tak jumpa');}
+   await sleep(DELAY);
+@@ -421,7 +430,7 @@
+   html+='<div class="np-hd" id="np-hd">';
+   html+='<div class="np-hd-l"><div class="np-ico">N</div><span class="np-ttl">NILAM Auto-Fill</span></div>';
+-  html+='<div class="np-hd-r"><span class="np-ver">v9.7</span><button class="np-x" id="np-mn">-</button></div>';
++  html+='<div class="np-hd-r"><span class="np-ver">v9.8</span><button class="np-x" id="np-mn">-</button></div>';
+   html+='</div>';
+   html+='<div id="np-body">';
+   html+='<div class="np-stats">';

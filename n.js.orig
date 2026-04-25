@@ -1,4 +1,4 @@
-// NILAM Auto-Fill v10.4
+// NILAM Auto-Fill v9.5
 // 1117 buku sebenar. Zero arrow functions. Zero template literals. Max compatibility.
 (async function(){
 
@@ -87,33 +87,6 @@ function clickRadio(text){
   }
   return false;
 }
-
-async function openAndSelect(labelText, optionText) {
-  var lo=labelText.toLowerCase(); var vlo=optionText.toLowerCase();
-  var labels=document.querySelectorAll('label,span,p');
-  var targetLabel=null;
-  for(var i=0;i<labels.length;i++){
-    if(isOurPanel(labels[i])||!vis(labels[i]))continue;
-    var t=labels[i].innerText.toLowerCase().replace(/\*/g,'').trim();
-    if(t===lo||(t.indexOf(lo)>=0&&t.length<30)){targetLabel=labels[i];break;}
-  }
-  if(!targetLabel)return false;
-  var p=targetLabel.parentElement;var toggle=null;
-  for(var d=0;d<6&&p;d++){
-    toggle=p.querySelector('[role=combobox],[role=listbox],[class*=select],[class*=dropdown],input[readonly],.v-select,.vs__dropdown-toggle,.v-input');
-    if(toggle&&vis(toggle))break; p=p.parentElement;
-  }
-  if(!toggle)toggle=targetLabel.parentElement;
-  forceClick(toggle);await sleep(800);
-  var opts=document.querySelectorAll('[role=option],.v-list-item,.vs__dropdown-option,li,.dropdown-item,.v-list-item__title');
-  for(var j=0;j<opts.length;j++){
-    if(!vis(opts[j]))continue;
-    var ot=opts[j].innerText.toLowerCase().trim();
-    if(ot===vlo||ot.indexOf(vlo)>=0){forceClick(opts[j]);await sleep(400);return true;}
-  }
-  document.body.click();await sleep(200);return false;
-}
-
 function waitFor(fn,ms){ms=ms||15000;var end=Date.now()+ms;return new Promise(function(resolve){(function check(){var r=fn();if(r)return resolve(r);if(Date.now()>=end)return resolve(null);setTimeout(check,400);})();});}
 function allInp(){var r=[];var els=document.querySelectorAll('input:not([type=hidden]):not([type=checkbox])');for(var i=0;i<els.length;i++)if(vis(els[i])&&!isOurPanel(els[i]))r.push(els[i]);return r;}
 function allSel(){var r=[];var els=document.querySelectorAll('select');for(var i=0;i<els.length;i++)if(vis(els[i])&&!isOurPanel(els[i]))r.push(els[i]);return r;}
@@ -168,62 +141,20 @@ async function fillDropdown(label,value,fbIdx){
   log('  [!] '+label+': tak jumpa');return false;
 }
 
-async function bruteForceVueSelect(labelKeywords, optionKeywords) {
-  var toggles = document.querySelectorAll('.v-select, [role=combobox], [role=listbox], input[readonly], .vs__dropdown-toggle, .v-input, .v-field, .v-input__control, .v-select__selections');
-  for (var i = 0; i < toggles.length; i++) {
-    var toggle = toggles[i];
-    if (!vis(toggle) || isOurPanel(toggle)) continue;
-    var p = toggle.parentElement;
-    var foundLabel = false;
-    for (var d = 0; d < 6 && p; d++) {
-      var text = (p.innerText || p.textContent || '').toLowerCase();
-      for(var k=0; k<labelKeywords.length; k++){
-        if (text.indexOf(labelKeywords[k]) >= 0) { foundLabel = true; break; }
-      }
-      if (foundLabel) break;
-      p = p.parentElement;
-    }
-    if (foundLabel) {
-      forceClick(toggle);
-      await sleep(800);
-      var opts = document.querySelectorAll('.v-list-item, [role=option], .vs__dropdown-option, li, .v-list-item-title, .dropdown-item');
-      for (var j = 0; j < opts.length; j++) {
-        if (!vis(opts[j]) || isOurPanel(opts[j])) continue;
-        var ot = (opts[j].innerText || opts[j].textContent || '').toLowerCase();
-        for(var k=0; k<optionKeywords.length; k++){
-          if (ot.indexOf(optionKeywords[k]) >= 0) {
-            forceClick(opts[j]);
-            await sleep(400);
-            return true;
-          }
-        }
-      }
-      document.body.click();
-      await sleep(300);
-    }
-  }
-  return false;
-}
-
 // Star rating - Vue injection priority + DOM coordinate fallback
 function tryClickStar(n){
   var i,j,items,el;
 
   // Strategy 1: Vue model injection (SAFEST)
   try{
-    var allEl=document.querySelectorAll('[class*=star],[class*=Star],[class*=rating],[class*=Rating],[class*=penilaian],[class*=rate]');
+    var allEl=document.querySelectorAll('*');
     for(i=0;i<allEl.length;i++){
       if(isOurPanel(allEl[i]))continue;
       var vm=allEl[i].__vue__;if(!vm)continue;
       var dt=vm.$data||vm;
-
-      var isStar = (vm.$options && vm.$options.name && /star|rating|rate/i.test(vm.$options.name));
-      var hasRatingData = (dt.rating!==undefined || dt.star!==undefined || dt.penilaian!==undefined || dt.score!==undefined);
-      if(!isStar && !hasRatingData) continue;
-
       var keys=['rating','star','penilaian','score','rate','value','modelValue','currentValue','currentRating'];
       for(j=0;j<keys.length;j++){
-        if(dt[keys[j]]!==undefined && (typeof dt[keys[j]]==='number'||dt[keys[j]]===0||dt[keys[j]]==='')){
+        if(typeof dt[keys[j]]==='number'||dt[keys[j]]===0||dt[keys[j]]===''){
           dt[keys[j]]=n;
           try{vm.$emit('input',n);}catch(x){}
           try{vm.$emit('change',n);}catch(x){}
@@ -336,9 +267,9 @@ function swalClick(txt){
   return false;
 }
 function closeAllPopups(){
-  var i,t;var btns=document.querySelectorAll('.swal2-confirm,.swal2-cancel,.swal2-close,.modal .close,.modal [data-dismiss="modal"]');
+  var i,t;var btns=document.querySelectorAll('.swal2-confirm,.swal2-cancel,.swal2-close');
   for(i=0;i<btns.length;i++){forceClick(btns[i]);}
-  var overlays=document.querySelectorAll('.swal2-container,.swal2-backdrop,.modal-backdrop');
+  var overlays=document.querySelectorAll('.swal2-container,.swal2-backdrop');
   for(i=0;i<overlays.length;i++){try{overlays[i].remove();}catch(x){}}
 }
 async function navToForm(){
@@ -346,32 +277,33 @@ async function navToForm(){
     if(vueEl&&vueEl.__vue__&&vueEl.__vue__.$router){vueEl.__vue__.$router.push('/record/add/book');return;}}catch(x){}
   try{history.pushState({},'','/record/add/book');window.dispatchEvent(new PopStateEvent('popstate',{state:{}}));}catch(x){location.href='/record/add/book';}
 }
-async function resetForm(){
-  try{
-    var vueEl=document.querySelector('#app')||document.querySelector('[data-app]');
-    var router=vueEl&&vueEl.__vue__&&vueEl.__vue__.$router;
-    if(router){
-      router.push('/').catch(function(){});
-      await sleep(DELAY*2);
-      router.push('/record/add/book').catch(function(){});
-      await sleep(DELAY*6);
-      return true;
-    }
-  }catch(x){}
 
-  // Fallback if router fails
-  for(var i=0;i<3;i++){if(clickBtn('kembali'))await sleep(DELAY*2);}
-  if(clickBtn('tambah rekod')||clickBtn('tambah'))await sleep(DELAY*5);
-  return true;
-}
-
-// Click Seterusnya - with strict validation
+// Click Seterusnya - with disabled bypass and form submit fallback
 async function clickNext(){
   var i;
   // Try 1: normal click (enabled button)
   for(i=0;i<6;i++){if(clickBtn('seterusnya'))return true;await sleep(500);}
 
   log('  [!] Seterusnya dilumpuhkan atau tak jumpa.');
+
+  // Try 2: click wizard step tabs/indicators
+  var steps=document.querySelectorAll('[class*=step],[class*=wizard],[class*=tab],[class*=nav-item],[class*=stepper]');
+  for(i=0;i<steps.length;i++){
+    if(isOurPanel(steps[i])||!vis(steps[i]))continue;
+    var stxt=(steps[i].textContent||'').trim();
+    if(stxt.indexOf('2')>=0||stxt.indexOf('3')>=0||/rumusan|ulasan|review|pengajaran/i.test(stxt)){
+      forceClick(steps[i]);await sleep(500);
+      log('  [!] Klik step tab: '+stxt.substring(0,30));return true;
+    }
+  }
+  // Try 3: submit form directly
+  var forms=document.querySelectorAll('form');
+  for(i=0;i<forms.length;i++){
+    if(!isOurPanel(forms[i])&&vis(forms[i])){
+      try{forms[i].dispatchEvent(new Event('submit',{bubbles:true,cancelable:true}));}catch(x){}
+      log('  [!] Submit form terus');return true;
+    }
+  }
   return false;
 }
 async function checkPause(){while(paused&&running)await sleep(300);}
@@ -398,21 +330,8 @@ async function doBook(book,idx,total){
   book.title=String(book.title||'').replace(/[\r\n]+/g,' ').trim();
   book.author=String(book.author||'').replace(/[\r\n]+/g,' ').trim();
   book.publisher=String(book.publisher||'').replace(/[\r\n]+/g,' ').trim();
-  // Unique Rumusan & Pengajaran without templates to avoid admin detection
-  var rawSum=String(book.summary||'').trim();
-  if(!rawSum){rawSum=book.title;}
-  var words=rawSum.split(/\s+/);
-  if(words.length>12){
-    var mid=Math.floor(words.length/2);
-    // Split the summary: first half becomes rumusan, second half becomes pengajaran
-    book.summary=words.slice(0,mid).join(' ')+'...';
-    var p=words.slice(mid).join(' ');
-    // Capitalize first letter of pengajaran
-    book.review='...'+p;
-  }else{
-    book.summary=rawSum;
-    book.review=rawSum;
-  }
+  book.summary=String(book.summary||'').trim();
+  book.review=String(book.review||'').trim();
 
   qs('#np-prog').textContent=(idx+1)+' / '+total;
   qs('#np-bar').style.width=((idx+1)/total*100)+'%';
@@ -428,43 +347,13 @@ async function doBook(book,idx,total){
   // === STEP 1: Maklumat Buku ===
   log('Step 1: Maklumat Buku');
   await fillField('tajuk',book.title,['title']);await sleep(DELAY);
-
-  // Automatically select Buku (Physical) instead of E-Buku so AINS doesn't ask for a URL!
-  if(clickBtn('buku fizikal')||clickBtn('buku bukan elektronik')||clickBtn('buku ')||clickRadio('buku')){/* prefer physical */}
-  await sleep(DELAY);
-
-  var kat=book.categoryLabel;
-  var katOk=false;
-  if(await fillDropdown('kategori',kat,0,true)){katOk=true;}
-  else if(await bruteForceVueSelect(['kategori'], [kat])){log('  [OK] kategori (vuetify)');katOk=true;}
-  else if(clickRadio(kat)||clickBtn(kat)){log('  [OK] kategori (radio/btn)');katOk=true;}
-  else{log('  [!] kategori: tak jumpa');}
-
-  await sleep(DELAY);await checkPause();
-
+  clickBtn('e-buku')||clickBtn('buku digital');await sleep(DELAY);
+  if(!await fillDropdown('kategori',book.categoryLabel,0)){if(clickRadio(book.categoryLabel)||clickBtn(book.categoryLabel))log('  [OK] Kategori (butang/radio)');}await sleep(DELAY);await checkPause();
   await fillField('mukasurat',book.pages,['bilangan','muka','page']);await sleep(DELAY);
   await fillField('penulis',book.author,['pengarang','author']);await sleep(DELAY);
   await fillField('penerbit',book.publisher,['publisher']);await sleep(DELAY);
   await fillField('tahun',book.year,['terbitan','year']);await sleep(DELAY);await checkPause();
-
-  var lang=book.languageLabel;
-  var langShort=lang.replace('Bahasa ','').trim();
-  var langOk=false;
-  var langKeys=['bahasa', 'bacaan', 'bahan', 'kategori bahan', 'medium', 'pilihan', 'language'];
-  
-  if(await fillDropdown('bahasa',lang,1,true)){langOk=true;}
-  else if(await bruteForceVueSelect(langKeys, [lang, langShort])){log('  [OK] bahasa (vuetify/brute)');langOk=true;}
-  else if(await fillDropdown('bahasa',langShort,1,true)){langOk=true;}
-  else if(clickRadio(lang)||clickBtn(lang)){log('  [OK] bahasa (radio/btn)');langOk=true;}
-  else if(clickRadio(langShort)||clickBtn(langShort)){log('  [OK] bahasa ('+langShort+')');langOk=true;}
-  else{log('  [!] bahasa: tak jumpa');}
-
-  if(!katOk || !langOk) {
-    err('Borang tak sah (Kategori/Bahasa gagal). Skip buku ini.');
-    return {ok:false, title:book.title};
-  }
-
-  await sleep(DELAY);
+  if(!await fillDropdown('bahasa',book.languageLabel,1)){if(clickRadio(book.languageLabel)||clickBtn(book.languageLabel))log('  [OK] Bahasa (butang/radio)');}await sleep(DELAY);
 
   log('-> Seterusnya (1->2)');
   var next1=await clickNext();
@@ -475,8 +364,8 @@ async function doBook(book,idx,total){
   log('Step 2: Rumusan & Penilaian');
   await waitFor(function(){return allTxt().length>0?true:null;},15000);await sleep(DELAY*2);
   var txts=allTxt();
-  if(txts[0]){setVal(txts[0],book.summary);log('  [OK] Rumusan (Unik)');await sleep(DELAY);}
-  if(txts[1]){setVal(txts[1],book.review);log('  [OK] Pengajaran (Unik)');await sleep(DELAY);}
+  if(txts[0]){setVal(txts[0],book.summary);log('  [OK] Rumusan');await sleep(DELAY);}
+  if(txts[1]){setVal(txts[1],book.review);log('  [OK] Pengajaran');await sleep(DELAY);}
   await sleep(DELAY*3);
 
   // Rating with retry
@@ -502,54 +391,38 @@ async function doBook(book,idx,total){
 
   // === STEP 3: Confirmation & Submit ===
   log('Step 3: Pengesahan & Hantar');
-  var hasClickedHantar = false;
-  var hantarTimer = 0;
-
   for(var a=0;a<40;a++){
     if(!running)break;
 
-    if(hasClickedHantar) hantarTimer++;
-    if(hantarTimer > 6){
-      hasClickedHantar = false;
-      hantarTimer = 0;
-      log('  [!] Tiada popup muncul, cuba tekan semula...');
-    }
-
-    // Check visible validation errors first
-    var errs = document.querySelectorAll('.error--text, .text-danger, .invalid-feedback, [class*=error]');
-    for(var e=0; e<errs.length; e++){
-      if(vis(errs[e]) && !isOurPanel(errs[e]) && errs[e].innerText.length > 3 && errs[e].innerText.length < 50){
-        err('Ralat borang: ' + errs[e].innerText);
-        return {ok:false, title:book.title}; // Abort!
-      }
-    }
-
-    // FIRST: try action buttons ONLY IF we haven't already clicked Hantar
-    if(a>0 && !hasClickedHantar){
+    // FIRST: try action buttons (simpan/hantar/submit/pasti/ya)
+    if(a>0){
+      // Exact match for Hantar/Simpan to avoid clicking "Pastikan data..." text
       var exactBtns=document.querySelectorAll('button,a,[role=button],.btn,input[type=submit]');
+      var clicked=false;
       for(var ei=0;ei<exactBtns.length;ei++){
         if(!vis(exactBtns[ei])||isOurPanel(exactBtns[ei])||exactBtns[ei].disabled)continue;
         var et=(exactBtns[ei].innerText||exactBtns[ei].textContent||'').trim().toLowerCase();
         if(et==='hantar'||et==='simpan'||et==='submit'){
           log('  -> Tekan (exact): '+exactBtns[ei].textContent.trim());
-          forceClick(exactBtns[ei]);await sleep(DELAY*5);hasClickedHantar=true;break;
+          forceClick(exactBtns[ei]);await sleep(DELAY*5);clicked=true;break;
         }
       }
+      if(clicked)continue;
 
-      if(!hasClickedHantar && clickBtn('pasti')){log('  -> Tekan Pasti');await sleep(DELAY*6);
+      if(clickBtn('pasti')){log('  -> Tekan Pasti');await sleep(DELAY*6);
         if(isDuplicate()){log('DUPLIKAT (selepas Pasti) - skip');closeAllPopups();await sleep(DELAY*2);return{ok:false,title:book.title,dup:true};}
         continue;
       }
-      if(!hasClickedHantar && clickBtn('ya')){log('  -> Tekan Ya');await sleep(DELAY*6);
+      if(clickBtn('ya')){log('  -> Tekan Ya');await sleep(DELAY*6);
         if(isDuplicate()){log('DUPLIKAT (selepas Ya) - skip');closeAllPopups();await sleep(DELAY*2);return{ok:false,title:book.title,dup:true};}
         continue;
       }
-      if(!hasClickedHantar && clickBtn('confirm')){log('  -> Tekan Confirm');await sleep(DELAY*5);hasClickedHantar=true;continue;}
-      if(!hasClickedHantar && clickBtn('simpan')){log('  -> Klik Simpan');await sleep(DELAY*5);hasClickedHantar=true;continue;}
-      if(!hasClickedHantar && clickBtn('hantar')){log('  -> Klik Hantar');await sleep(DELAY*5);hasClickedHantar=true;continue;}
-      if(!hasClickedHantar && clickBtn('submit')){log('  -> Klik Submit');await sleep(DELAY*5);hasClickedHantar=true;continue;}
-      if(!hasClickedHantar && clickBtn('selesai')){log('  -> Klik Selesai');await sleep(DELAY*5);hasClickedHantar=true;continue;}
-      if(!hasClickedHantar && clickBtn('seterusnya')){log('  -> Klik Seterusnya');await sleep(DELAY*4);continue;}
+      if(clickBtn('confirm')){log('  -> Tekan Confirm');await sleep(DELAY*5);continue;}
+      if(clickBtn('simpan')){log('  -> Klik Simpan');await sleep(DELAY*5);continue;}
+      if(clickBtn('hantar')){log('  -> Klik Hantar');await sleep(DELAY*5);continue;}
+      if(clickBtn('submit')){log('  -> Klik Submit');await sleep(DELAY*5);continue;}
+      if(clickBtn('selesai')){log('  -> Klik Selesai');await sleep(DELAY*5);continue;}
+      if(clickBtn('seterusnya')){log('  -> Klik Seterusnya');await sleep(DELAY*4);continue;}
     }
 
     await sleep(DELAY*2);
@@ -608,14 +481,15 @@ async function startRun(){
       log('Sedia buku seterusnya...');await sleep(DELAY*2);
       closeAllPopups();await sleep(DELAY);
       if(res.dup||!res.ok){
-        log('Reset borang...');
-        await resetForm();
+        log('Refresh borang baru...');
+        try{window.location.href='/record/add/book?_t='+Date.now();}catch(x){}
+        await sleep(DELAY*10);
       } else {
         swalClick('ok');swalClick();await sleep(DELAY);
         if(!clickBtn('tambah lagi')){
           if(!clickBtn('tambah rekod')){
             log('Navigasi ke borang baru...');
-            await resetForm();
+            await navToForm();await sleep(DELAY*10);
           } else {await sleep(DELAY*8);}
         } else {await sleep(DELAY*8);}
       }
@@ -703,7 +577,7 @@ function makeUI(){
   html+='<div class="np-card">';
   html+='<div class="np-hd" id="np-hd">';
   html+='<div class="np-hd-l"><div class="np-ico">N</div><span class="np-ttl">NILAM Auto-Fill</span></div>';
-  html+='<div class="np-hd-r"><span class="np-ver">v10.4</span><button class="np-x" id="np-mn">-</button></div>';
+  html+='<div class="np-hd-r"><span class="np-ver">v9.5</span><button class="np-x" id="np-mn">-</button></div>';
   html+='</div>';
   html+='<div id="np-body">';
   html+='<div class="np-stats">';

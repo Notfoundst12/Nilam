@@ -1,0 +1,12 @@
+--- n.js
++++ n.js
+@@ -87,7 +87,7 @@
+   if(el.tagName==='SELECT'){if(setSel(el,value)){log('  [OK] '+label);return true;}return false;}
+   if(setVal(el,value)){log('  [OK] '+label);return true;}return false;
+ }
+-async function fillDropdown(label,value,fbIdx){
++async function fillDropdown(label,value,fbIdx,silent){
+   var lo=label.toLowerCase();var vlo=value.toLowerCase();var i,j,d;
+   var el=findField(label);
+-  if(el&&el.tagName==='SELECT'&&setSel(el,value)){log('  [OK] '+label);return true;}
++  if(el&&el.tagName==='SELECT'&&setSel(el,value)){if(!silent)log('  [OK] '+label);return true;}

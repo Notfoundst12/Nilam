@@ -1,4 +1,4 @@
-// NILAM Auto-Fill v10.3
+// NILAM Auto-Fill v10.4
 // 1117 buku sebenar. Zero arrow functions. Zero template literals. Max compatibility.
 (async function(){
 
@@ -169,13 +169,13 @@ async function fillDropdown(label,value,fbIdx){
 }
 
 async function bruteForceVueSelect(labelKeywords, optionKeywords) {
-  var toggles = document.querySelectorAll('.v-select, [role=combobox], input[readonly], .vs__dropdown-toggle, .v-input');
+  var toggles = document.querySelectorAll('.v-select, [role=combobox], [role=listbox], input[readonly], .vs__dropdown-toggle, .v-input, .v-field, .v-input__control, .v-select__selections');
   for (var i = 0; i < toggles.length; i++) {
     var toggle = toggles[i];
     if (!vis(toggle) || isOurPanel(toggle)) continue;
     var p = toggle.parentElement;
     var foundLabel = false;
-    for (var d = 0; d < 4 && p; d++) {
+    for (var d = 0; d < 6 && p; d++) {
       var text = (p.innerText || p.textContent || '').toLowerCase();
       for(var k=0; k<labelKeywords.length; k++){
         if (text.indexOf(labelKeywords[k]) >= 0) { foundLabel = true; break; }
@@ -186,7 +186,7 @@ async function bruteForceVueSelect(labelKeywords, optionKeywords) {
     if (foundLabel) {
       forceClick(toggle);
       await sleep(800);
-      var opts = document.querySelectorAll('.v-list-item, [role=option], .vs__dropdown-option, li');
+      var opts = document.querySelectorAll('.v-list-item, [role=option], .vs__dropdown-option, li, .v-list-item-title, .dropdown-item');
       for (var j = 0; j < opts.length; j++) {
         if (!vis(opts[j]) || isOurPanel(opts[j])) continue;
         var ot = (opts[j].innerText || opts[j].textContent || '').toLowerCase();
@@ -450,8 +450,10 @@ async function doBook(book,idx,total){
   var lang=book.languageLabel;
   var langShort=lang.replace('Bahasa ','').trim();
   var langOk=false;
+  var langKeys=['bahasa', 'bacaan', 'bahan', 'kategori bahan', 'medium', 'pilihan', 'language'];
+  
   if(await fillDropdown('bahasa',lang,1,true)){langOk=true;}
-  else if(await bruteForceVueSelect(['bahasa', 'bacaan'], [lang, langShort])){log('  [OK] bahasa (vuetify)');langOk=true;}
+  else if(await bruteForceVueSelect(langKeys, [lang, langShort])){log('  [OK] bahasa (vuetify/brute)');langOk=true;}
   else if(await fillDropdown('bahasa',langShort,1,true)){langOk=true;}
   else if(clickRadio(lang)||clickBtn(lang)){log('  [OK] bahasa (radio/btn)');langOk=true;}
   else if(clickRadio(langShort)||clickBtn(langShort)){log('  [OK] bahasa ('+langShort+')');langOk=true;}
@@ -701,7 +703,7 @@ function makeUI(){
   html+='<div class="np-card">';
   html+='<div class="np-hd" id="np-hd">';
   html+='<div class="np-hd-l"><div class="np-ico">N</div><span class="np-ttl">NILAM Auto-Fill</span></div>';
-  html+='<div class="np-hd-r"><span class="np-ver">v10.3</span><button class="np-x" id="np-mn">-</button></div>';
+  html+='<div class="np-hd-r"><span class="np-ver">v10.4</span><button class="np-x" id="np-mn">-</button></div>';
   html+='</div>';
   html+='<div id="np-body">';
   html+='<div class="np-stats">';

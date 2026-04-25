@@ -1,0 +1,86 @@
+--- /root/NilamAutomationTools/n.js
++++ /root/NilamAutomationTools/n.js
+@@ -1,4 +1,4 @@
+-// NILAM Auto-Fill v9.6
++// NILAM Auto-Fill v9.7
+ // 1117 buku sebenar. Zero arrow functions. Zero template literals. Max compatibility.
+ (async function(){
+ 
+@@ -118,34 +118,6 @@
+   if(!silent)log('  [!] '+label+': tak jumpa');return false;
+ }
+ 
+-function getPengajaran(b){
+-  var t=b.title||'';var sum=b.summary||'';var isBM=(b.languageLabel==='Bahasa Melayu');
+-  var w=sum.split(/[\s,.]+/).filter(function(x){return x.length>5}).slice(0,2).join(' dan ');
+-  if(isBM){
+-    var tm=[
+-      "Buku '"+t+"' ini memberi pengajaran yang mendalam kepada saya. Ia mengajar kita agar sentiasa berusaha dalam kehidupan.",
+-      "Selepas membaca '"+t+"', saya sedar bahawa nilai-nilai murni sangat penting untuk diterapkan.",
+-      "Karya ini banyak memberi inspirasi. Pengajaran utamanya ialah kita tidak boleh mudah berputus asa walaupun menghadapi pelbagai cabaran.",
+-      "Satu pengajaran menarik dari buku '"+t+"' adalah kepentingan ilmu pengetahuan untuk memajukan diri dan masyarakat.",
+-      "Saya belajar banyak perkara baru melalui buku ini, terutamanya bagaimana sikap positif boleh membawa kita ke arah kejayaan sejati."
+-    ];
+-    if(w.length>4){tm.push("Melalui buku ini, saya dapat memahami dengan lebih mendalam tentang "+w.toLowerCase()+". Ini amat berguna untuk diri saya.");tm.push("Pengajaran yang saya peroleh ialah berkaitan "+w.toLowerCase()+" yang banyak membuka minda saya.");}
+-    return tm[Math.floor(Math.random()*tm.length)];
+-  }else{
+-    var te=[
+-      "The book '"+t+"' taught me valuable lessons about perseverance and never giving up on our goals.",
+-      "After reading '"+t+"', I realized the importance of positive values and how they impact our daily lives.",
+-      "A great book that inspires readers to seek knowledge and strive for success despite any challenges faced.",
+-      "One of the main lessons from '"+t+"' is that true success comes from hard work and continuous learning.",
+-      "This book opened my mind to new perspectives and taught me to always be determined."
+-    ];
+-    if(w.length>4){te.push("This book helped me understand concepts like "+w.toLowerCase()+" which I find very educational.");te.push("The main takeaway for me is the importance of "+w.toLowerCase()+" in shaping a better future.");}
+-    return te[Math.floor(Math.random()*te.length)];
+-  }
+-}
+-
+ // Star rating - Vue injection priority + DOM coordinate fallback
+ function tryClickStar(n){
+   var i,j,items,el;
+@@ -330,8 +302,23 @@
+   book.title=String(book.title||'').replace(/[\r\n]+/g,' ').trim();
+   book.author=String(book.author||'').replace(/[\r\n]+/g,' ').trim();
+   book.publisher=String(book.publisher||'').replace(/[\r\n]+/g,' ').trim();
+-  book.summary=String(book.summary||'').trim();
+-  book.review=String(book.review||'').trim();
++  
++  // Unique Rumusan & Pengajaran without templates to avoid admin detection
++  var rawSum=String(book.summary||'').trim();
++  if(!rawSum){rawSum=book.title;}
++  var words=rawSum.split(/\s+/);
++  if(words.length>12){
++    var mid=Math.floor(words.length/2);
++    // Split the summary: first half becomes rumusan, second half becomes pengajaran
++    book.summary=words.slice(0,mid).join(' ')+'...';
++    var p=words.slice(mid).join(' ');
++    // Capitalize first letter of pengajaran
++    book.review=p.charAt(0).toUpperCase()+p.slice(1);
++  }else{
++    // If too short, just use the same or slight variation
++    book.summary=rawSum;
++    book.review=rawSum;
++  }
+ 
+   qs('#np-prog').textContent=(idx+1)+' / '+total;
+   qs('#np-bar').style.width=((idx+1)/total*100)+'%';
+@@ -361,8 +348,8 @@
+   log('Step 2: Rumusan & Penilaian');
+   await waitFor(function(){return allTxt().length>0?true:null;},15000);await sleep(DELAY*2);
+   var txts=allTxt();
+-  if(txts[0]){setVal(txts[0],book.summary);log('  [OK] Rumusan');await sleep(DELAY);}
+-  if(txts[1]){setVal(txts[1],getPengajaran(book));log('  [OK] Pengajaran');await sleep(DELAY);}
++  if(txts[0]){setVal(txts[0],book.summary);log('  [OK] Rumusan (Unik)');await sleep(DELAY);}
++  if(txts[1]){setVal(txts[1],book.review);log('  [OK] Pengajaran (Unik)');await sleep(DELAY);}
+   await sleep(DELAY*3);
+ 
+   // Rating with retry
+@@ -434,7 +421,7 @@
+   html+='<div class="np-hd" id="np-hd">';
+   html+='<div class="np-hd-l"><div class="np-ico">N</div><span class="np-ttl">NILAM Auto-Fill</span></div>';
+-  html+='<div class="np-hd-r"><span class="np-ver">v9.5</span><button class="np-x" id="np-mn">-</button></div>';
++  html+='<div class="np-hd-r"><span class="np-ver">v9.7</span><button class="np-x" id="np-mn">-</button></div>';
+   html+='</div>';
+   html+='<div id="np-body">';
+   html+='<div class="np-stats">';

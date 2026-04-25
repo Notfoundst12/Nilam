@@ -1,0 +1,68 @@
+--- /root/NilamAutomationTools/n.js
++++ /root/NilamAutomationTools/n.js
+@@ -87,7 +87,7 @@
+   if(el.tagName==='SELECT'){if(setSel(el,value)){log('  [OK] '+label);return true;}return false;}
+   if(setVal(el,value)){log('  [OK] '+label);return true;}return false;
+ }
+-async function fillDropdown(label,value,fbIdx){
++async function fillDropdown(label,value,fbIdx,silent){
+   var lo=label.toLowerCase();var vlo=value.toLowerCase();var i,j,d;
+   var el=findField(label);
+-  if(el&&el.tagName==='SELECT'&&setSel(el,value)){log('  [OK] '+label);return true;}
++  if(el&&el.tagName==='SELECT'&&setSel(el,value)){if(!silent)log('  [OK] '+label);return true;}
+   var sels=allSel();
+-  if(typeof fbIdx==='number'&&sels[fbIdx]&&setSel(sels[fbIdx],value)){log('  [OK] '+label+' [fb#'+fbIdx+']');return true;}
+-  for(i=0;i<sels.length;i++){if(setSel(sels[i],value)){log('  [OK] '+label+' [sel#'+i+']');return true;}}
++  if(typeof fbIdx==='number'&&sels[fbIdx]&&setSel(sels[fbIdx],value)){if(!silent)log('  [OK] '+label+' [fb#'+fbIdx+']');return true;}
++  for(i=0;i<sels.length;i++){if(setSel(sels[i],value)){if(!silent)log('  [OK] '+label+' [sel#'+i+']');return true;}}
+   var toggleSel='.vs__dropdown-toggle,[role=combobox],[role=listbox],[class*=v-select],[class*=dropdown],[class*=select],[class*=picker],[class*=chosen]';
+   var toggles=document.querySelectorAll(toggleSel);
+@@ -101,7 +101,7 @@
+         for(j=0;j<opts.length;j++){
+           var ot=(opts[j].innerText||opts[j].textContent||'').trim().toLowerCase();
+-          if(ot.indexOf(vlo)>=0||vlo.indexOf(ot)>=0){opts[j].click();await sleep(400);log('  [OK] '+label+' [custom]');return true;}
++          if(ot===vlo||ot.indexOf(vlo)>=0||vlo.indexOf(ot)>=0){opts[j].click();await sleep(400);if(!silent)log('  [OK] '+label+' [custom]');return true;}
+         }
+         document.body.click();await sleep(200);}c=c.parentElement;}}
+   var allEls=document.querySelectorAll('div,span,button,input');
+@@ -115,11 +115,35 @@
+         for(j=0;j<opts2.length;j++){
+           var ot2=(opts2[j].innerText||'').trim().toLowerCase();
+-          if(ot2.indexOf(vlo)>=0){opts2[j].click();await sleep(400);log('  [OK] '+label+' [brute]');return true;}
++          if(ot2===vlo||ot2.indexOf(vlo)>=0||vlo.indexOf(ot2)>=0){opts2[j].click();await sleep(400);if(!silent)log('  [OK] '+label+' [brute]');return true;}
+         }
+         document.body.click();await sleep(200);
+       }
+       parent=parent.parentElement;
+     }
+   }
+-  log('  [!] '+label+': tak jumpa');return false;
++  if(!silent)log('  [!] '+label+': tak jumpa');return false;
+ }
+ 
++function getPengajaran(b){
++  var t=b.title||'';var sum=b.summary||'';var isBM=(b.languageLabel==='Bahasa Melayu');
++  var w=sum.split(/[\s,.]+/).filter(function(x){return x.length>5}).slice(0,2).join(' dan ');
++  if(isBM){
++    var tm=[
++      "Buku '"+t+"' ini memberi pengajaran yang mendalam kepada saya. Ia mengajar kita agar sentiasa berusaha dalam kehidupan.",
++      "Selepas membaca '"+t+"', saya sedar bahawa nilai-nilai murni sangat penting untuk diterapkan.",
++      "Karya ini banyak memberi inspirasi. Pengajaran utamanya ialah kita tidak boleh mudah berputus asa walaupun menghadapi pelbagai cabaran.",
++      "Satu pengajaran menarik dari buku '"+t+"' adalah kepentingan ilmu pengetahuan untuk memajukan diri dan masyarakat.",
++      "Saya belajar banyak perkara baru melalui buku ini, terutamanya bagaimana sikap positif boleh membawa kita ke arah kejayaan sejati."
++    ];
++    if(w.length>4){tm.push("Melalui buku ini, saya dapat memahami dengan lebih mendalam tentang "+w.toLowerCase()+". Ini amat berguna untuk diri saya.");tm.push("Pengajaran yang saya peroleh ialah berkaitan "+w.toLowerCase()+" yang banyak membuka minda saya.");}
++    return tm[Math.floor(Math.random()*tm.length)];
++  }else{
++    var te=[
++      "The book '"+t+"' taught me valuable lessons about perseverance and never giving up on our goals.",
++      "After reading '"+t+"', I realized the importance of positive values and how they impact our daily lives.",
++      "A great book that inspires readers to seek knowledge and strive for success despite any challenges faced.",
++      "One of the main lessons from '"+t+"' is that true success comes from hard work and continuous learning.",
++      "This book opened my mind to new perspectives and taught me to always be determined."
++    ];
++    if(w.length>4){te.push("This book helped me understand concepts like "+w.toLowerCase()+" which I find very educational.");te.push("The main takeaway for me is the importance of "+w.toLowerCase()+" in shaping a better future.");}
++    return te[Math.floor(Math.random()*te.length)];
++  }
++}
++

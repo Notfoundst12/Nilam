@@ -1,0 +1,50 @@
+--- /root/NilamAutomationTools/n.js
++++ /root/NilamAutomationTools/n.js
+@@ -381,6 +381,20 @@
+ 
+     // FIRST: try action buttons (simpan/hantar/submit/pasti/ya)
+     if(a>0){
++      // NEW: Fix the "Hantar" button being skipped because of "Pastikan data adalah tepat"
++      // Look specifically for the exact word or exact match first before substring match
++      var exactBtns=document.querySelectorAll('button,a,[role=button],.btn,input[type=submit]');
++      var clicked=false;
++      for(var ei=0;ei<exactBtns.length;ei++){
++        if(!vis(exactBtns[ei])||isOurPanel(exactBtns[ei])||exactBtns[ei].disabled)continue;
++        var et=(exactBtns[ei].innerText||exactBtns[ei].textContent||'').trim().toLowerCase();
++        if(et==='hantar'||et==='simpan'||et==='submit'){
++          log('  -> Tekan (exact): '+exactBtns[ei].textContent.trim());
++          forceClick(exactBtns[ei]);await sleep(DELAY*5);clicked=true;break;
++        }
++      }
++      if(clicked)continue;
++
+       if(clickBtn('pasti')){log('  -> Tekan Pasti');await sleep(DELAY*6);
+         if(isDuplicate()){log('DUPLIKAT (selepas Pasti) - skip');closeAllPopups();await sleep(DELAY*2);return{ok:false,title:book.title,dup:true};}
+         continue;
+@@ -432,6 +446,12 @@
+   if(!avail0.length){err('Semua buku habis! Tekan Reset.');running=false;btnState('idle');return;}
+   log('Memulakan... ('+avail0.length+' buku tersedia)');
+ 
++  // Reset duplicate UI state
++  try{
++    var app=document.querySelector('#app')||document.querySelector('[data-app]');
++    if(app&&app.__vue__&&app.__vue__.$router)app.__vue__.$router.push('/record/add/book').catch(function(){});
++  }catch(x){}
++
+   var ok=0,fail=0,dup=0,target=Math.min(parseInt(qs('#np-cnt').value)||5,100);
+   var idx=0;
+   while(ok+fail<target&&running){
+@@ -453,7 +473,11 @@
+       closeAllPopups();await sleep(DELAY);
+       if(res.dup||!res.ok){
+         log('Navigasi ke borang baru...');
+-        await navToForm();await sleep(DELAY*10);
++        // Try to force reload if SPA nav fails
++        try{
++          var v=document.querySelector('#app')||document.querySelector('[data-app]');
++          if(v&&v.__vue__&&v.__vue__.$router)v.__vue__.$router.go(0);else location.reload();
++        }catch(x){location.reload();}
++        await sleep(DELAY*10);
+       } else {
+         swalClick('ok');swalClick();await sleep(DELAY);
+         if(!clickBtn('tambah lagi')){

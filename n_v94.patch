@@ -1,0 +1,127 @@
+--- /root/NilamAutomationTools/n.js
++++ /root/NilamAutomationTools/n.js
+@@ -1,4 +1,4 @@
+-// NILAM Auto-Fill v9.3
++// NILAM Auto-Fill v9.4
+ // 1117 buku sebenar. Zero arrow functions. Zero template literals. Max compatibility.
+ (async function(){
+ 
+@@ -28,7 +28,8 @@
+   for(i=0;i<labels.length;i++){lb=labels[i];
+     if(lb.textContent.replace(/\*/g,'').trim().toLowerCase().indexOf(lo)<0)continue;
+     if(lb.htmlFor){e=document.getElementById(lb.htmlFor);if(e&&vis(e))return e;}
+     p=lb.parentElement;
+-    for(d=0;d<6&&p;d++){e=p.querySelector('input:not([type=hidden]):not([type=checkbox]),select,textarea');if(e&&vis(e))return e;p=p.parentElement;}
++    for(d=0;d<5&&p;d++){e=p.querySelector('input:not([type=hidden]):not([type=checkbox]):not([type=radio]):not([type=file]):not([type=button]):not([type=submit]),select,textarea');if(e&&vis(e)&&!isOurPanel(e))return e;p=p.parentElement;}
+   }
+   var nodes=document.querySelectorAll('span,div,p,td');
+   for(i=0;i<nodes.length;i++){n=nodes[i];
+@@ -36,7 +37,7 @@
+     if(txt.length>50||txt.length<2||txt.toLowerCase().indexOf(lo)<0)continue;
+     p=n.parentElement;
+-    for(d=0;d<6&&p;d++){e=p.querySelector('input:not([type=hidden]):not([type=checkbox]),select,textarea');if(e&&vis(e))return e;p=p.parentElement;}
++    for(d=0;d<5&&p;d++){e=p.querySelector('input:not([type=hidden]):not([type=checkbox]):not([type=radio]):not([type=file]):not([type=button]):not([type=submit]),select,textarea');if(e&&vis(e)&&!isOurPanel(e))return e;p=p.parentElement;}
+   }
+   return null;
+ }
+@@ -62,17 +63,16 @@
+   }
+   return false;
+ }
+-function forceClickBtn(text){
++function clickRadio(text){
+   var lo=text.toLowerCase();
+-  var els=document.querySelectorAll('button,a,[role=button],.btn,input[type=submit],input[type=button]');
++  var radios=document.querySelectorAll('input[type=radio]');
++  for(var i=0;i<radios.length;i++){
++    if(isOurPanel(radios[i]))continue;
++    var val=(radios[i].value||'').toLowerCase();
++    if(val===lo||val.indexOf(lo)>=0){radios[i].checked=true;forceClick(radios[i]);return true;}
++  }
+   for(var i=0;i<els.length;i++){
+-    var el=els[i];if(!vis(el)||isOurPanel(el))continue;
+-    var t=(el.innerText||el.textContent||el.value||'').trim();
+-    if(t.length>80||t.length<1)continue;
+-    if(t.toLowerCase().indexOf(lo)>=0){
+-      if(el.disabled){el.disabled=false;el.removeAttribute('disabled');}
+-      forceClick(el);return true;
+-    }
++    var el=els[i];if(!vis(el)||isOurPanel(el))continue;
++    var t=(el.innerText||el.textContent||el.value||'').trim();
++    if(t===lo){forceClick(el);return true;}
+   }
+   return false;
+ }
+@@ -275,9 +275,8 @@
+   var i;
+   // Try 1: normal click (enabled button)
+   for(i=0;i<6;i++){if(clickBtn('seterusnya'))return true;await sleep(500);}
+-  // Try 2: force-enable disabled button and click
+-  log('  [!] Seterusnya dilumpuhkan - cuba bypass...');
+-  if(forceClickBtn('seterusnya')){await sleep(500);return true;}
+-  if(forceClickBtn('next')){await sleep(500);return true;}
+-  // Try 3: click wizard step tabs/indicators
++  log('  [!] Butang Seterusnya dilumpuhkan atau tiada.');
++  
++  // Try 2: click wizard step tabs/indicators
+   var steps=document.querySelectorAll('[class*=step],[class*=wizard],[class*=tab],[class*=nav-item],[class*=stepper]');
+   for(i=0;i<steps.length;i++){
+@@ -289,7 +288,7 @@
+       log('  [!] Klik step tab: '+stxt.substring(0,30));return true;
+     }
+   }
+-  // Try 4: submit form directly
++  // Try 3: submit form directly
+   var forms=document.querySelectorAll('form');
+   for(i=0;i<forms.length;i++){
+@@ -321,6 +320,12 @@
+ // Process one book
+ async function doBook(book,idx,total){
+   if(!running)return{ok:false,title:book.title};
++  
++  book.title=String(book.title||'').replace(/[\r\n]+/g,' ').trim();
++  book.author=String(book.author||'').replace(/[\r\n]+/g,' ').trim();
++  book.publisher=String(book.publisher||'').replace(/[\r\n]+/g,' ').trim();
++  book.summary=String(book.summary||'').trim();
++  book.review=String(book.review||'').trim();
++
+   qs('#np-prog').textContent=(idx+1)+' / '+total;
+   qs('#np-bar').style.width=((idx+1)/total*100)+'%';
+   log('--- Buku '+(idx+1)+'/'+total+': '+book.title+' ---');
+@@ -334,13 +339,13 @@
+   // === STEP 1: Maklumat Buku ===
+   log('Step 1: Maklumat Buku');
+   await fillField('tajuk',book.title,['title']);await sleep(DELAY);
+-  clickBtn('e-buku');await sleep(DELAY);
+-  await fillDropdown('kategori',book.categoryLabel,0);await sleep(DELAY);await checkPause();
++  clickBtn('e-buku')||clickBtn('buku digital');await sleep(DELAY);
++  if(!await fillDropdown('kategori',book.categoryLabel,0)){if(clickRadio(book.categoryLabel)||clickBtn(book.categoryLabel))log('  [OK] Kategori (butang/radio)');}await sleep(DELAY);await checkPause();
+   await fillField('mukasurat',book.pages,['bilangan','muka','page']);await sleep(DELAY);
+   await fillField('penulis',book.author,['pengarang','author']);await sleep(DELAY);
+   await fillField('penerbit',book.publisher,['publisher']);await sleep(DELAY);
+   await fillField('tahun',book.year,['terbitan','year']);await sleep(DELAY);await checkPause();
+-  await fillDropdown('bahasa',book.languageLabel,1);await sleep(DELAY);
++  if(!await fillDropdown('bahasa',book.languageLabel,1)){if(clickRadio(book.languageLabel)||clickBtn(book.languageLabel))log('  [OK] Bahasa (butang/radio)');}await sleep(DELAY);
+ 
+   log('-> Seterusnya (1->2)');
+   var next1=await clickNext();
+@@ -367,8 +372,7 @@
+     next2=await clickNext();
+     if(!next2){
+-      log('  [!] Masih gagal - cuba terus ke Step 3');logButtons();
++      log('  [!] Masih gagal - skip buku ini & reload borang');logButtons();
++      return{ok:false,title:book.title};
+     }
+   }
+   await sleep(DELAY*5);
+@@ -475,8 +479,6 @@
+         log('Navigasi ke borang baru...');
+-        // Try to force reload if SPA nav fails
+         try{
+-          var v=document.querySelector('#app')||document.querySelector('[data-app]');
+-          if(v&&v.__vue__&&v.__vue__.$router)v.__vue__.$router.go(0);else location.reload();
+-        }catch(x){location.reload();}
++          window.location.href='/record/add/book?_t='+Date.now();
++        }catch(x){}
+         await sleep(DELAY*10);
+       } else {
