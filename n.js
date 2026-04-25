@@ -1,4 +1,4 @@
-// NILAM Auto-Fill v9.1
+// NILAM Auto-Fill v9.2
 // 1117 buku sebenar. Zero arrow functions. Zero template literals. Max compatibility.
 (async function(){
 
@@ -381,6 +381,19 @@ async function doBook(book,idx,total){
 
     // FIRST: try action buttons (simpan/hantar/submit/pasti/ya)
     if(a>0){
+      // Exact match for Hantar/Simpan to avoid clicking "Pastikan data..." text
+      var exactBtns=document.querySelectorAll('button,a,[role=button],.btn,input[type=submit]');
+      var clicked=false;
+      for(var ei=0;ei<exactBtns.length;ei++){
+        if(!vis(exactBtns[ei])||isOurPanel(exactBtns[ei])||exactBtns[ei].disabled)continue;
+        var et=(exactBtns[ei].innerText||exactBtns[ei].textContent||'').trim().toLowerCase();
+        if(et==='hantar'||et==='simpan'||et==='submit'){
+          log('  -> Tekan (exact): '+exactBtns[ei].textContent.trim());
+          forceClick(exactBtns[ei]);await sleep(DELAY*5);clicked=true;break;
+        }
+      }
+      if(clicked)continue;
+
       if(clickBtn('pasti')){log('  -> Tekan Pasti');await sleep(DELAY*6);
         if(isDuplicate()){log('DUPLIKAT (selepas Pasti) - skip');closeAllPopups();await sleep(DELAY*2);return{ok:false,title:book.title,dup:true};}
         continue;
@@ -453,8 +466,15 @@ async function startRun(){
       log('Sedia buku seterusnya...');await sleep(DELAY*2);
       closeAllPopups();await sleep(DELAY);
       if(res.dup||!res.ok){
-        log('Navigasi ke borang baru...');
-        await navToForm();await sleep(DELAY*10);
+        log('Refresh halaman baru...');
+        try{
+          var v=document.querySelector('#app')||document.querySelector('[data-app]');
+          if(v&&v.__vue__&&v.__vue__.$router){v.__vue__.$router.go();await sleep(DELAY*5);}
+          else{location.reload();}
+        }catch(x){location.reload();}
+        // Stop execution here because page will reload
+        // Panel will be injected again by the user or localStorage if persisted
+        return;
       } else {
         swalClick('ok');swalClick();await sleep(DELAY);
         if(!clickBtn('tambah lagi')){
