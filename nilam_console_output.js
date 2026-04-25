@@ -1,4 +1,4 @@
-// NILAM Auto-Fill v9.0
+// NILAM Auto-Fill v9.1
 // 1117 buku sebenar. Zero arrow functions. Zero template literals. Max compatibility.
 (async function(){
 
@@ -21,6 +21,7 @@ function err(m){console.error('[NILAM] '+m);pLog('[X] '+m);}
 
 // DOM helpers
 function vis(el){return el&&(el.offsetParent!==null||el.offsetWidth>0);}
+function isOurPanel(el){if(!el)return false;try{return el.closest&&el.closest('#NP');}catch(x){return false;}}
 function findField(text){
   var lo=text.toLowerCase();var i,d,p,e,lb,n;
   var labels=document.querySelectorAll('label');
@@ -47,13 +48,43 @@ function setVal(el,v){if(!el)return false;var s=String(v);try{el.focus();}catch(
   return true;}
 function setSel(el,txt){if(!el||el.tagName!=='SELECT')return false;var lo=txt.toLowerCase();
   var i;for(i=0;i<el.options.length;i++){var o=el.options[i];if(o.text.toLowerCase().indexOf(lo)>=0||o.value.toLowerCase().indexOf(lo)>=0){el.value=o.value;el.dispatchEvent(new Event('input',{bubbles:true}));el.dispatchEvent(new Event('change',{bubbles:true}));return true;}}return false;}
-function clickBtn(text){var lo=text.toLowerCase();var els=document.querySelectorAll('button,a,[role=button],.btn,input[type=submit],input[type=button],span');
-  for(var i=0;i<els.length;i++){var el=els[i];if(!vis(el)||el.disabled)continue;var t=(el.innerText||el.textContent||el.value||'').trim();
-    if(t.length>80||t.length<1)continue;if(t.toLowerCase().indexOf(lo)>=0){el.click();return true;}}return false;}
+function forceClick(el){
+  if(!el)return;
+  try{el.focus();}catch(x){}
+  el.dispatchEvent(new MouseEvent('mousedown',{bubbles:true,cancelable:true}));
+  el.dispatchEvent(new MouseEvent('mouseup',{bubbles:true,cancelable:true}));
+  el.dispatchEvent(new MouseEvent('click',{bubbles:true,cancelable:true}));
+  try{el.click();}catch(x){}
+}
+function clickBtn(text){
+  var lo=text.toLowerCase();
+  var els=document.querySelectorAll('button,a,[role=button],.btn,input[type=submit],input[type=button],span');
+  for(var i=0;i<els.length;i++){
+    var el=els[i];if(!vis(el)||el.disabled||isOurPanel(el))continue;
+    var t=(el.innerText||el.textContent||el.value||'').trim();
+    if(t.length>80||t.length<1)continue;
+    if(t.toLowerCase().indexOf(lo)>=0){forceClick(el);return true;}
+  }
+  return false;
+}
+function forceClickBtn(text){
+  var lo=text.toLowerCase();
+  var els=document.querySelectorAll('button,a,[role=button],.btn,input[type=submit],input[type=button]');
+  for(var i=0;i<els.length;i++){
+    var el=els[i];if(!vis(el)||isOurPanel(el))continue;
+    var t=(el.innerText||el.textContent||el.value||'').trim();
+    if(t.length>80||t.length<1)continue;
+    if(t.toLowerCase().indexOf(lo)>=0){
+      if(el.disabled){el.disabled=false;el.removeAttribute('disabled');}
+      forceClick(el);return true;
+    }
+  }
+  return false;
+}
 function waitFor(fn,ms){ms=ms||15000;var end=Date.now()+ms;return new Promise(function(resolve){(function check(){var r=fn();if(r)return resolve(r);if(Date.now()>=end)return resolve(null);setTimeout(check,400);})();});}
-function allInp(){var r=[];var els=document.querySelectorAll('input:not([type=hidden]):not([type=checkbox])');for(var i=0;i<els.length;i++)if(vis(els[i]))r.push(els[i]);return r;}
-function allSel(){var r=[];var els=document.querySelectorAll('select');for(var i=0;i<els.length;i++)if(vis(els[i]))r.push(els[i]);return r;}
-function allTxt(){var r=[];var els=document.querySelectorAll('textarea');for(var i=0;i<els.length;i++)if(vis(els[i]))r.push(els[i]);return r;}
+function allInp(){var r=[];var els=document.querySelectorAll('input:not([type=hidden]):not([type=checkbox])');for(var i=0;i<els.length;i++)if(vis(els[i])&&!isOurPanel(els[i]))r.push(els[i]);return r;}
+function allSel(){var r=[];var els=document.querySelectorAll('select');for(var i=0;i<els.length;i++)if(vis(els[i])&&!isOurPanel(els[i]))r.push(els[i]);return r;}
+function allTxt(){var r=[];var els=document.querySelectorAll('textarea');for(var i=0;i<els.length;i++)if(vis(els[i])&&!isOurPanel(els[i]))r.push(els[i]);return r;}
 
 async function fillField(label,value,alts){
   var el=findField(label);
@@ -64,19 +95,15 @@ async function fillField(label,value,alts){
 }
 async function fillDropdown(label,value,fbIdx){
   var lo=label.toLowerCase();var vlo=value.toLowerCase();var i,j,d;
-  // Strategy 1: find by label
   var el=findField(label);
   if(el&&el.tagName==='SELECT'&&setSel(el,value)){log('  [OK] '+label);return true;}
-  // Strategy 2: fallback by index
   var sels=allSel();
   if(typeof fbIdx==='number'&&sels[fbIdx]&&setSel(sels[fbIdx],value)){log('  [OK] '+label+' [fb#'+fbIdx+']');return true;}
-  // Strategy 3: try ALL selects
   for(i=0;i<sels.length;i++){if(setSel(sels[i],value)){log('  [OK] '+label+' [sel#'+i+']');return true;}}
-  // Strategy 4: vue-select / custom dropdown - search near label
   var toggleSel='.vs__dropdown-toggle,[role=combobox],[role=listbox],[class*=v-select],[class*=dropdown],[class*=select],[class*=picker],[class*=chosen]';
   var toggles=document.querySelectorAll(toggleSel);
   for(i=0;i<toggles.length;i++){
-    var toggle=toggles[i];if(!vis(toggle))continue;var c=toggle;
+    var toggle=toggles[i];if(!vis(toggle)||isOurPanel(toggle))continue;var c=toggle;
     for(d=0;d<6&&c;d++){var lbl=c.querySelector('label,span,div,p');
       if(lbl&&lbl.textContent.replace(/\*/g,'').trim().toLowerCase().indexOf(lo)>=0){
         toggle.click();await sleep(800);
@@ -86,10 +113,9 @@ async function fillDropdown(label,value,fbIdx){
           var ot=(opts[j].innerText||opts[j].textContent||'').trim().toLowerCase();
           if(ot.indexOf(vlo)>=0||vlo.indexOf(ot)>=0){opts[j].click();await sleep(400);log('  [OK] '+label+' [custom]');return true;}}
         document.body.click();await sleep(200);}c=c.parentElement;}}
-  // Strategy 5: brute force - click any dropdown-like element near label text
   var allEls=document.querySelectorAll('div,span,button,input');
   for(i=0;i<allEls.length;i++){
-    var ae=allEls[i];if(!vis(ae))continue;
+    var ae=allEls[i];if(!vis(ae)||isOurPanel(ae))continue;
     var at=(ae.textContent||'').trim();
     if(at.length>50||at.length<2||at.toLowerCase().indexOf(lo)<0)continue;
     var parent=ae.parentElement;
@@ -108,74 +134,102 @@ async function fillDropdown(label,value,fbIdx){
   }
   log('  [!] '+label+': tak jumpa');return false;
 }
+
+// Star rating - 7 strategies + Vue injection + retry
 function tryClickStar(n){
   var i,j,items,el;
-  // Strategy 1: container with star/rating class
+  // S1: container with star/rating class
   var containers=document.querySelectorAll('[class*=star],[class*=Star],[class*=rating],[class*=Rating],[class*=penilaian],[class*=Penilaian],[class*=rate],[class*=Rate],[class*=review],[class*=Review]');
   for(i=0;i<containers.length;i++){
+    if(isOurPanel(containers[i]))continue;
     items=containers[i].querySelectorAll('svg,i,span,label,path,polygon,img,a,li,button');
     if(items.length>=3&&items.length<=10){forceClick(items[Math.min(n-1,items.length-1)]);return true;}
     if(containers[i].children.length>=3&&containers[i].children.length<=10){forceClick(containers[i].children[Math.min(n-1,containers[i].children.length-1)]);return true;}
   }
-  // Strategy 2: label text then nearby clickable items
+  // S2: label text then nearby clickable items
   var labels=document.querySelectorAll('label,span,div,p,h1,h2,h3,h4,h5,h6,legend');
   for(i=0;i<labels.length;i++){
+    if(isOurPanel(labels[i]))continue;
     var lt=(labels[i].textContent||'').trim().toLowerCase();
     if(lt.length>60||lt.length<3)continue;
     if(lt.indexOf('penilaian')>=0||lt.indexOf('rating')>=0||lt.indexOf('bintang')>=0||lt.indexOf('ulasan')>=0||lt.indexOf('nilai')>=0){
       var parent=labels[i].parentElement;
       for(var d=0;d<6&&parent;d++){
         items=parent.querySelectorAll('svg,i,span,label,path,img,a,button');
-        var clickable=[];for(j=0;j<items.length;j++){if(vis(items[j])&&items[j]!==labels[i])clickable.push(items[j]);}
+        var clickable=[];for(j=0;j<items.length;j++){if(vis(items[j])&&items[j]!==labels[i]&&!isOurPanel(items[j]))clickable.push(items[j]);}
         if(clickable.length>=3&&clickable.length<=10){forceClick(clickable[Math.min(n-1,clickable.length-1)]);return true;}
         parent=parent.parentElement;
       }
     }
   }
-  // Strategy 3: groups of 3-10 identical siblings (likely stars)
+  // S3: groups of 3-10 identical siblings
   var wrappers=document.querySelectorAll('div,span,ul,ol,fieldset');
   for(i=0;i<wrappers.length;i++){
-    el=wrappers[i];if(!vis(el))continue;
+    el=wrappers[i];if(!vis(el)||isOurPanel(el))continue;
     var ch=el.children;if(ch.length<3||ch.length>10)continue;
     var tag0=ch[0].tagName;var allSame=true;
     for(j=1;j<ch.length;j++){if(ch[j].tagName!==tag0){allSame=false;break;}}
     if(!allSame)continue;
     if(tag0==='SVG'||tag0==='I'||tag0==='SPAN'||tag0==='IMG'||tag0==='LABEL'||tag0==='A'||tag0==='BUTTON'||tag0==='LI'){
-      if(ch.length===5||(ch.length>=3&&ch.length<=7)){
-        forceClick(ch[Math.min(n-1,ch.length-1)]);return true;
-      }
+      forceClick(ch[Math.min(n-1,ch.length-1)]);return true;
     }
   }
-  // Strategy 4: radio inputs
+  // S4: radio inputs
   var radios=document.querySelectorAll('input[type=radio]');
   for(i=0;i<radios.length;i++){
+    if(isOurPanel(radios[i]))continue;
     var rv=radios[i].value;
     if(rv==String(n)||rv==n){radios[i].checked=true;forceClick(radios[i]);radios[i].dispatchEvent(new Event('change',{bubbles:true}));return true;}
   }
-  // Strategy 5: aria-label
+  // S5: aria-label
   var ariaEls=document.querySelectorAll('[aria-label]');
   for(i=0;i<ariaEls.length;i++){
+    if(isOurPanel(ariaEls[i]))continue;
     var al=(ariaEls[i].getAttribute('aria-label')||'').toLowerCase();
     if((al.indexOf('star')>=0||al.indexOf('bintang')>=0||al.indexOf('rating')>=0)&&al.indexOf(String(n))>=0){
       forceClick(ariaEls[i]);return true;
     }
   }
-  // Strategy 6: data-value or value attribute
+  // S6: data-value
   var dataEls=document.querySelectorAll('[data-value],[data-rating],[data-score]');
   for(i=0;i<dataEls.length;i++){
+    if(isOurPanel(dataEls[i]))continue;
     var dv=dataEls[i].getAttribute('data-value')||dataEls[i].getAttribute('data-rating')||dataEls[i].getAttribute('data-score')||'';
     if(dv==String(n)){forceClick(dataEls[i]);return true;}
   }
+  // S7: Vue model injection - find Vue component with rating-related data
+  try{
+    var allEl=document.querySelectorAll('*');
+    for(i=0;i<allEl.length;i++){
+      if(isOurPanel(allEl[i]))continue;
+      var vm=allEl[i].__vue__;if(!vm)continue;
+      var dt=vm.$data||vm;
+      var keys=['rating','star','penilaian','score','rate','value','modelValue','currentValue','currentRating'];
+      for(j=0;j<keys.length;j++){
+        if(typeof dt[keys[j]]==='number'||dt[keys[j]]===0||dt[keys[j]]===''){
+          dt[keys[j]]=n;
+          try{vm.$emit('input',n);}catch(x){}
+          try{vm.$emit('change',n);}catch(x){}
+          try{vm.$forceUpdate();}catch(x){}
+          log('  [Vue] Set '+keys[j]+'='+n);return true;
+        }
+      }
+    }
+  }catch(x){}
   return false;
 }
 async function clickStarRetry(n){
-  for(var attempt=0;attempt<4;attempt++){
-    if(attempt>0){await sleep(1000);log('  Retry rating #'+(attempt+1)+'...');}
+  for(var attempt=0;attempt<5;attempt++){
+    if(attempt>0){await sleep(1200);log('  Retry rating #'+(attempt+1)+'...');}
     if(tryClickStar(n))return true;
   }
   return false;
 }
+
+// Duplicate detection
 function isDuplicate(){
+  var sw=swalText().toLowerCase();
+  if(sw&&(/duplicate|pendua|wujud|already|exist|entry/.test(sw)))return true;
   var txt=(document.body.innerText||document.body.textContent||'').toLowerCase();
   if(/duplicate.?entry/i.test(txt))return true;
   if(/pendua/i.test(txt))return true;
@@ -184,37 +238,29 @@ function isDuplicate(){
   if(/already.?exist/i.test(txt))return true;
   if(/rekod.?ini.?sudah/i.test(txt))return true;
   if(/data.?yang.?sama/i.test(txt))return true;
-  var sw=swalText().toLowerCase();
-  if(sw&&(/duplicate|pendua|wujud|already|exist|entry/.test(sw)))return true;
   return false;
 }
+
+// SweetAlert helpers - exclude our panel
 function swalText(){
-  var sels='.swal2-html-container,.swal2-title,.swal2-content,.swal2-popup,.modal-body,.modal-content,[class*=modal],[class*=dialog],[class*=popup],[class*=alert],[class*=swal],[class*=sweet]';
+  var sels='.swal2-html-container,.swal2-title,.swal2-content,.swal2-popup';
   var els=document.querySelectorAll(sels);var i;
-  for(i=0;i<els.length;i++){if(vis(els[i])&&els[i].textContent.trim().length>5)return els[i].textContent.trim();}
-  // Also check any overlay/popup that just appeared
-  var overlays=document.querySelectorAll('[class*=overlay],[class*=backdrop],[class*=mask]');
-  for(i=0;i<overlays.length;i++){if(vis(overlays[i])){var inner=overlays[i].textContent.trim();if(inner.length>5&&inner.length<500)return inner;}}
+  for(i=0;i<els.length;i++){if(vis(els[i])&&!isOurPanel(els[i])&&els[i].textContent.trim().length>5)return els[i].textContent.trim();}
+  var sels2='.modal-body,.modal-content,[class*=dialog],[class*=alert],[class*=swal],[class*=sweet]';
+  var els2=document.querySelectorAll(sels2);
+  for(i=0;i<els2.length;i++){if(vis(els2[i])&&!isOurPanel(els2[i])&&els2[i].textContent.trim().length>5)return els2[i].textContent.trim();}
   return '';
 }
-function forceClick(el){
-  if(!el)return;el.focus();
-  el.dispatchEvent(new MouseEvent('mousedown',{bubbles:true,cancelable:true}));
-  el.dispatchEvent(new MouseEvent('mouseup',{bubbles:true,cancelable:true}));
-  el.dispatchEvent(new MouseEvent('click',{bubbles:true,cancelable:true}));
-  el.click();
-}
 function swalClick(txt){
-  var sel='.swal2-actions button,.swal2-confirm,.swal2-cancel,.swal2-deny,.modal-footer button,[class*=modal] button,[class*=popup] button,button';
+  var sel='.swal2-actions button,.swal2-confirm,.swal2-cancel,.swal2-deny,.modal-footer button';
   var els=document.querySelectorAll(sel);
-  if(txt){var lo=txt.toLowerCase();for(var i=0;i<els.length;i++){if(!vis(els[i]))continue;var t=(els[i].innerText||els[i].textContent||'').trim().toLowerCase();if(t===lo||t.indexOf(lo)>=0){forceClick(els[i]);return true;}}}
+  if(txt){var lo=txt.toLowerCase();for(var i=0;i<els.length;i++){if(!vis(els[i])||isOurPanel(els[i]))continue;var t=(els[i].innerText||els[i].textContent||'').trim().toLowerCase();if(t===lo||t.indexOf(lo)>=0){forceClick(els[i]);return true;}}}
   var b=document.querySelector('.swal2-confirm');if(b&&vis(b)){forceClick(b);return true;}
   return false;
 }
 function closeAllPopups(){
-  var i,t;var btns=document.querySelectorAll('.swal2-confirm,.swal2-cancel,.swal2-close,button');
-  for(i=0;i<btns.length;i++){t=(btns[i].innerText||'').trim().toLowerCase();
-    if(t==='ok'||t==='tutup'||t==='close'||btns[i].classList.contains('swal2-confirm')||btns[i].classList.contains('swal2-close')){forceClick(btns[i]);}}
+  var i,t;var btns=document.querySelectorAll('.swal2-confirm,.swal2-cancel,.swal2-close');
+  for(i=0;i<btns.length;i++){forceClick(btns[i]);}
   var overlays=document.querySelectorAll('.swal2-container,.swal2-backdrop');
   for(i=0;i<overlays.length;i++){try{overlays[i].remove();}catch(x){}}
 }
@@ -223,8 +269,52 @@ async function navToForm(){
     if(vueEl&&vueEl.__vue__&&vueEl.__vue__.$router){vueEl.__vue__.$router.push('/record/add/book');return;}}catch(x){}
   try{history.pushState({},'','/record/add/book');window.dispatchEvent(new PopStateEvent('popstate',{state:{}}));}catch(x){location.href='/record/add/book';}
 }
-async function clickNext(){for(var i=0;i<8;i++){if(clickBtn('seterusnya'))return true;await sleep(500);}return false;}
+
+// Click Seterusnya - with disabled bypass and form submit fallback
+async function clickNext(){
+  var i;
+  // Try 1: normal click (enabled button)
+  for(i=0;i<6;i++){if(clickBtn('seterusnya'))return true;await sleep(500);}
+  // Try 2: force-enable disabled button and click
+  log('  [!] Seterusnya dilumpuhkan - cuba bypass...');
+  if(forceClickBtn('seterusnya')){await sleep(500);return true;}
+  if(forceClickBtn('next')){await sleep(500);return true;}
+  // Try 3: click wizard step tabs/indicators
+  var steps=document.querySelectorAll('[class*=step],[class*=wizard],[class*=tab],[class*=nav-item],[class*=stepper]');
+  for(i=0;i<steps.length;i++){
+    if(isOurPanel(steps[i])||!vis(steps[i]))continue;
+    var stxt=(steps[i].textContent||'').trim();
+    if(stxt.indexOf('2')>=0||stxt.indexOf('3')>=0||/rumusan|ulasan|review|pengajaran/i.test(stxt)){
+      forceClick(steps[i]);await sleep(500);
+      log('  [!] Klik step tab: '+stxt.substring(0,30));return true;
+    }
+  }
+  // Try 4: submit form directly
+  var forms=document.querySelectorAll('form');
+  for(i=0;i<forms.length;i++){
+    if(!isOurPanel(forms[i])&&vis(forms[i])){
+      try{forms[i].dispatchEvent(new Event('submit',{bubbles:true,cancelable:true}));}catch(x){}
+      log('  [!] Submit form terus');return true;
+    }
+  }
+  return false;
+}
 async function checkPause(){while(paused&&running)await sleep(300);}
+
+// Diagnostic: log what buttons are visible
+function logButtons(){
+  var els=document.querySelectorAll('button,a,[role=button],.btn,input[type=submit]');
+  var found=[];
+  for(var i=0;i<els.length;i++){
+    if(!vis(els[i])||isOurPanel(els[i]))continue;
+    var t=(els[i].innerText||els[i].textContent||els[i].value||'').trim();
+    if(t.length>0&&t.length<40){
+      found.push(t+(els[i].disabled?' [OFF]':''));
+    }
+  }
+  if(found.length>0)log('  [DBG] Butang: '+found.join(' | '));
+  else log('  [DBG] Tiada butang dijumpai');
+}
 
 // Process one book
 async function doBook(book,idx,total){
@@ -240,6 +330,7 @@ async function doBook(book,idx,total){
   if(!formOk){err('Borang tak load');return{ok:false,title:book.title};}
   await sleep(DELAY);swalClick();await checkPause();
 
+  // === STEP 1: Maklumat Buku ===
   log('Step 1: Maklumat Buku');
   await fillField('tajuk',book.title,['title']);await sleep(DELAY);
   clickBtn('e-buku');await sleep(DELAY);
@@ -250,58 +341,87 @@ async function doBook(book,idx,total){
   await fillField('tahun',book.year,['terbitan','year']);await sleep(DELAY);await checkPause();
   await fillDropdown('bahasa',book.languageLabel,1);await sleep(DELAY);
 
-  log('-> Seterusnya');await clickNext();await sleep(DELAY*4);await checkPause();
+  log('-> Seterusnya (1->2)');
+  var next1=await clickNext();
+  if(!next1){err('Gagal tekan Seterusnya step 1');logButtons();}
+  await sleep(DELAY*5);await checkPause();
 
-  log('Step 2: Rumusan & Pengajaran');
+  // === STEP 2: Rumusan & Pengajaran & Rating ===
+  log('Step 2: Rumusan & Penilaian');
   await waitFor(function(){return allTxt().length>0?true:null;},15000);await sleep(DELAY*2);
   var txts=allTxt();
-  if(txts[0]){setVal(txts[0],book.summary);await sleep(DELAY);}
-  if(txts[1]){setVal(txts[1],book.review);await sleep(DELAY);}
+  if(txts[0]){setVal(txts[0],book.summary);log('  [OK] Rumusan');await sleep(DELAY);}
+  if(txts[1]){setVal(txts[1],book.review);log('  [OK] Pengajaran');await sleep(DELAY);}
   await sleep(DELAY*3);
+
+  // Rating with retry
   var stars=Math.floor(Math.random()*3)+3;
   var starOk=await clickStarRetry(stars);
-  if(starOk){log('  [OK] Rating: '+stars+' bintang');}else{log('  [!] Rating tak jumpa');}
+  if(starOk){log('  [OK] Rating: '+stars+' bintang');}
+  else{log('  [!] Rating tak jumpa - teruskan tanpa rating');}
   await sleep(DELAY*2);await checkPause();
 
-  log('-> Seterusnya');await clickNext();await sleep(DELAY*4);
+  log('-> Seterusnya (2->3)');
+  var next2=await clickNext();
+  if(!next2){
+    err('Gagal tekan Seterusnya step 2');logButtons();
+    // Last resort: wait and try again
+    await sleep(DELAY*5);
+    next2=await clickNext();
+    if(!next2){
+      log('  [!] Masih gagal - cuba terus ke Step 3');logButtons();
+    }
+  }
+  await sleep(DELAY*5);
 
-  // Step 3: Pasti + success detection
-  log('Step 3: Menunggu popup...');
-  for(var a=0;a<30;a++){
-    if(!running)break;await sleep(DELAY*2);
-    // Broad duplicate check (page + swal)
+  // === STEP 3: Confirmation & Submit ===
+  log('Step 3: Pengesahan & Hantar');
+  for(var a=0;a<40;a++){
+    if(!running)break;
+
+    // FIRST: try action buttons (simpan/hantar/submit/pasti/ya)
+    if(a>0){
+      if(clickBtn('pasti')){log('  -> Tekan Pasti');await sleep(DELAY*6);
+        if(isDuplicate()){log('DUPLIKAT (selepas Pasti) - skip');closeAllPopups();await sleep(DELAY*2);return{ok:false,title:book.title,dup:true};}
+        continue;
+      }
+      if(clickBtn('ya')){log('  -> Tekan Ya');await sleep(DELAY*6);
+        if(isDuplicate()){log('DUPLIKAT (selepas Ya) - skip');closeAllPopups();await sleep(DELAY*2);return{ok:false,title:book.title,dup:true};}
+        continue;
+      }
+      if(clickBtn('confirm')){log('  -> Tekan Confirm');await sleep(DELAY*5);continue;}
+      if(clickBtn('simpan')){log('  -> Klik Simpan');await sleep(DELAY*5);continue;}
+      if(clickBtn('hantar')){log('  -> Klik Hantar');await sleep(DELAY*5);continue;}
+      if(clickBtn('submit')){log('  -> Klik Submit');await sleep(DELAY*5);continue;}
+      if(clickBtn('selesai')){log('  -> Klik Selesai');await sleep(DELAY*5);continue;}
+      if(clickBtn('seterusnya')){log('  -> Klik Seterusnya');await sleep(DELAY*4);continue;}
+    }
+
+    await sleep(DELAY*2);
+
+    // Check for duplicate
     if(isDuplicate()){
       log('DUPLIKAT dikesan - skip');
       closeAllPopups();await sleep(DELAY*2);
       return{ok:false,title:book.title,dup:true};
     }
-    // Check visible buttons for Pasti/Ya
-    var btns=document.querySelectorAll('button,a,[role=button]');
-    var bi;for(bi=0;bi<btns.length;bi++){
-      if(!vis(btns[bi]))continue;
-      var bt=(btns[bi].innerText||btns[bi].textContent||'').trim().toLowerCase();
-      if(bt==='pasti'||bt==='ya'||bt==='confirm'){
-        log('  -> Tekan: '+btns[bi].textContent.trim());
-        forceClick(btns[bi]);await sleep(DELAY*6);
-        // Check for duplicate after Pasti
-        if(isDuplicate()){
-          log('DUPLIKAT (selepas Pasti) - skip');
-          closeAllPopups();await sleep(DELAY*2);
-          return{ok:false,title:book.title,dup:true};
-        }
-        break;
+
+    // Check SweetAlert text
+    var sw=swalText();
+    if(sw){
+      log('  [popup] '+sw.substring(0,100));
+      if(/berjaya|success|disimpan|tahniah/i.test(sw)){log('BERJAYA!');swalClick('ok');swalClick();return{ok:true,title:book.title};}
+      if(/duplicate|pendua|sudah wujud|already exist|telah wujud|entry/i.test(sw)){log('DUPLIKAT - skip');closeAllPopups();await sleep(DELAY*2);return{ok:false,title:book.title,dup:true};}
+      if(/gagal|error|ralat|fail/i.test(sw)){
+        if(/duplicate|pendua|entry|wujud/i.test(sw)){log('DUPLIKAT (error) - skip');closeAllPopups();await sleep(DELAY*2);return{ok:false,title:book.title,dup:true};}
+        err('GAGAL: '+sw);swalClick();return{ok:false,title:book.title};
       }
     }
-    var sw=swalText();
-    if(sw)log('  [popup] '+sw.substring(0,100));
-    if(/berjaya|success|disimpan|tahniah/i.test(sw)){log('BERJAYA!');swalClick('ok');swalClick();return{ok:true,title:book.title};}
-    if(/duplicate|pendua|sudah wujud|already exist|telah wujud|entry/i.test(sw)){log('DUPLIKAT - skip');closeAllPopups();await sleep(DELAY*2);return{ok:false,title:book.title,dup:true};}
-    if(/gagal|error|ralat|fail/i.test(sw)){
-      if(/duplicate|pendua|entry|wujud/i.test(sw)){log('DUPLIKAT (error) - skip');closeAllPopups();await sleep(DELAY*2);return{ok:false,title:book.title,dup:true};}
-      err('GAGAL: '+sw);swalClick();return{ok:false,title:book.title};}
-    if(clickBtn('simpan')||clickBtn('hantar')||clickBtn('submit')||clickBtn('selesai')){log('  -> Klik simpan/hantar');await sleep(DELAY*4);continue;}
-    if(clickBtn('seterusnya')){await sleep(DELAY*3);continue;}
+
+    // Every 10 iterations log diagnostics
+    if(a>0&&a%10===0){logButtons();}
   }
+  err('Timeout - tiada respons selepas 40 cuba');logButtons();
   return{ok:false,title:book.title};
 }
 
@@ -332,13 +452,17 @@ async function startRun(){
     if(ok+fail<target&&running){
       log('Sedia buku seterusnya...');await sleep(DELAY*2);
       closeAllPopups();await sleep(DELAY);
-      if(res.dup){
+      if(res.dup||!res.ok){
         log('Navigasi ke borang baru...');
         await navToForm();await sleep(DELAY*10);
       } else {
         swalClick('ok');swalClick();await sleep(DELAY);
-        clickBtn('tambah lagi')||clickBtn('tambah rekod');
-        await sleep(DELAY*8);
+        if(!clickBtn('tambah lagi')){
+          if(!clickBtn('tambah rekod')){
+            log('Navigasi ke borang baru...');
+            await navToForm();await sleep(DELAY*10);
+          } else {await sleep(DELAY*8);}
+        } else {await sleep(DELAY*8);}
       }
     }
   }
@@ -424,7 +548,7 @@ function makeUI(){
   html+='<div class="np-card">';
   html+='<div class="np-hd" id="np-hd">';
   html+='<div class="np-hd-l"><div class="np-ico">N</div><span class="np-ttl">NILAM Auto-Fill</span></div>';
-  html+='<div class="np-hd-r"><span class="np-ver">v9.0</span><button class="np-x" id="np-mn">-</button></div>';
+  html+='<div class="np-hd-r"><span class="np-ver">v9.1</span><button class="np-x" id="np-mn">-</button></div>';
   html+='</div>';
   html+='<div id="np-body">';
   html+='<div class="np-stats">';
