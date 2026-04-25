@@ -1,4 +1,4 @@
-// NILAM Auto-Fill v10.5
+// NILAM Auto-Fill v10.6
 // 1117 buku sebenar. Zero arrow functions. Zero template literals. Max compatibility.
 (async function(){
 
@@ -198,8 +198,8 @@ async function bruteForceVueSelect(labelKeywords, optionKeywords) {
 
   if (foundToggle) {
     forceClick(foundToggle);
-    await sleep(800);
-    var opts = document.querySelectorAll('.v-list-item, [role=option], .vs__dropdown-option, li, .v-list-item-title, .dropdown-item, .v-list-item__title');
+    await sleep(1200);
+    var opts = document.querySelectorAll('.v-list-item, [role=option], .vs__dropdown-option, li, .v-list-item-title, .dropdown-item, .v-list-item__title, .v-label, .v-selection-control, .v-radio, label');
     for (var j = 0; j < opts.length; j++) {
       if (!vis(opts[j]) || isOurPanel(opts[j])) continue;
       var ot = (opts[j].innerText || opts[j].textContent || '').toLowerCase();
@@ -224,14 +224,14 @@ async function clickLanguageDirectly(lang) {
   if (lo.indexOf('melayu') >= 0) targets.push('melayu');
   if (lo.indexOf('inggeris') >= 0 || lo.indexOf('english') >= 0) { targets.push('english'); targets.push('inggeris'); }
 
-  var els = document.querySelectorAll('button, span, div, a, .v-chip, .v-btn');
+  var els = document.querySelectorAll('button, span, div, a, .v-chip, .v-btn, .v-label, label, .v-list-item-title, .v-selection-control');
   for (var i = 0; i < els.length; i++) {
     var el = els[i];
     if (!vis(el) || isOurPanel(el)) continue;
     var t = (el.innerText || el.textContent || '').trim().toLowerCase();
-    if (t.length > 20 || t.length < 2) continue;
+    if (t.length > 30 || t.length < 2) continue;
     for (var j = 0; j < targets.length; j++) {
-      if (t === targets[j]) {
+      if (t === targets[j] || (t.indexOf(targets[j]) >= 0 && t.length < targets[j].length + 5)) {
         log('  [Direct] Klik ' + t);
         forceClick(el);
         await sleep(500);
@@ -740,7 +740,7 @@ function makeUI(){
   html+='<div class="np-card">';
   html+='<div class="np-hd" id="np-hd">';
   html+='<div class="np-hd-l"><div class="np-ico">N</div><span class="np-ttl">NILAM Auto-Fill</span></div>';
-  html+='<div class="np-hd-r"><span class="np-ver">v10.5</span><button class="np-x" id="np-mn">-</button></div>';
+  html+='<div class="np-hd-r"><span class="np-ver">v10.6</span><button class="np-x" id="np-mn">-</button></div>';
   html+='</div>';
   html+='<div id="np-body">';
   html+='<div class="np-stats">';
