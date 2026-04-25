@@ -1,4 +1,4 @@
-// NILAM Auto-Fill v9.7
+// NILAM Auto-Fill v9.8
 // 1117 buku sebenar. Zero arrow functions. Zero template literals. Max compatibility.
 (async function(){
 
@@ -360,13 +360,32 @@ async function doBook(book,idx,total){
   // === STEP 1: Maklumat Buku ===
   log('Step 1: Maklumat Buku');
   await fillField('tajuk',book.title,['title']);await sleep(DELAY);
-  clickBtn('e-buku')||clickBtn('buku digital');await sleep(DELAY);
-  if(!await fillDropdown('kategori',book.categoryLabel,0)){if(clickRadio(book.categoryLabel)||clickBtn(book.categoryLabel))log('  [OK] Kategori (butang/radio)');}await sleep(DELAY);await checkPause();
+
+  if(clickBtn('buku fizikal')||clickBtn('buku bukan elektronik')){/* prefer physical */}
+  else{clickBtn('e-buku')||clickBtn('buku digital');}
+  await sleep(DELAY);
+
+  var kat=book.categoryLabel;
+  if(await fillDropdown('kategori',kat,0,true)){/* handled */}
+  else if(clickRadio(kat)||clickBtn(kat)){log('  [OK] kategori (radio/btn)');}
+  else{log('  [!] kategori: tak jumpa');}
+  await sleep(DELAY);await checkPause();
+
   await fillField('mukasurat',book.pages,['bilangan','muka','page']);await sleep(DELAY);
   await fillField('penulis',book.author,['pengarang','author']);await sleep(DELAY);
   await fillField('penerbit',book.publisher,['publisher']);await sleep(DELAY);
   await fillField('tahun',book.year,['terbitan','year']);await sleep(DELAY);await checkPause();
-  if(!await fillDropdown('bahasa',book.languageLabel,1)){if(clickRadio(book.languageLabel)||clickBtn(book.languageLabel))log('  [OK] Bahasa (butang/radio)');}await sleep(DELAY);
+
+  await fillField('pautan', 'https://ains.moe.gov.my/record/add/book', ['url','laman','web','link','pautan']);
+
+  var lang=book.languageLabel;
+  var langShort=lang.replace('Bahasa ','').trim();
+  if(await fillDropdown('bahasa',lang,1,true)){/* handled */}
+  else if(await fillDropdown('bahasa',langShort,1,true)){/* handled */}
+  else if(clickRadio(lang)||clickBtn(lang)){log('  [OK] bahasa (radio/btn)');}
+  else if(clickRadio(langShort)||clickBtn(langShort)){log('  [OK] bahasa ('+langShort+')');}
+  else{log('  [!] bahasa: tak jumpa');}
+  await sleep(DELAY);
 
   log('-> Seterusnya (1->2)');
   var next1=await clickNext();
@@ -590,7 +609,7 @@ function makeUI(){
   html+='<div class="np-card">';
   html+='<div class="np-hd" id="np-hd">';
   html+='<div class="np-hd-l"><div class="np-ico">N</div><span class="np-ttl">NILAM Auto-Fill</span></div>';
-  html+='<div class="np-hd-r"><span class="np-ver">v9.7</span><button class="np-x" id="np-mn">-</button></div>';
+  html+='<div class="np-hd-r"><span class="np-ver">v9.8</span><button class="np-x" id="np-mn">-</button></div>';
   html+='</div>';
   html+='<div id="np-body">';
   html+='<div class="np-stats">';
