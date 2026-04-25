@@ -1,4 +1,4 @@
-// NILAM Auto-Fill v10.2
+// NILAM Auto-Fill v10.3
 // 1117 buku sebenar. Zero arrow functions. Zero template literals. Max compatibility.
 (async function(){
 
@@ -336,8 +336,10 @@ function swalClick(txt){
   return false;
 }
 function closeAllPopups(){
-  var i,t;var btns=document.querySelectorAll('.swal2-confirm,.swal2-cancel,.swal2-close');
+  var i,t;var btns=document.querySelectorAll('.swal2-confirm,.swal2-cancel,.swal2-close,.modal .close,.modal [data-dismiss="modal"]');
   for(i=0;i<btns.length;i++){forceClick(btns[i]);}
+  var overlays=document.querySelectorAll('.swal2-container,.swal2-backdrop,.modal-backdrop');
+  for(i=0;i<overlays.length;i++){try{overlays[i].remove();}catch(x){}}
 }
 async function navToForm(){
   try{var vueEl=document.querySelector('#app')||document.querySelector('[data-app]');
@@ -363,32 +365,13 @@ async function resetForm(){
   return true;
 }
 
-// Click Seterusnya - with disabled bypass and form submit fallback
+// Click Seterusnya - with strict validation
 async function clickNext(){
   var i;
   // Try 1: normal click (enabled button)
   for(i=0;i<6;i++){if(clickBtn('seterusnya'))return true;await sleep(500);}
 
   log('  [!] Seterusnya dilumpuhkan atau tak jumpa.');
-
-  // Try 2: click wizard step tabs/indicators
-  var steps=document.querySelectorAll('[class*=step],[class*=wizard],[class*=tab],[class*=nav-item],[class*=stepper]');
-  for(i=0;i<steps.length;i++){
-    if(isOurPanel(steps[i])||!vis(steps[i]))continue;
-    var stxt=(steps[i].textContent||'').trim();
-    if(stxt.indexOf('2')>=0||stxt.indexOf('3')>=0||/rumusan|ulasan|review|pengajaran/i.test(stxt)){
-      forceClick(steps[i]);await sleep(500);
-      log('  [!] Klik step tab: '+stxt.substring(0,30));return true;
-    }
-  }
-  // Try 3: submit form directly
-  var forms=document.querySelectorAll('form');
-  for(i=0;i<forms.length;i++){
-    if(!isOurPanel(forms[i])&&vis(forms[i])){
-      try{forms[i].dispatchEvent(new Event('submit',{bubbles:true,cancelable:true}));}catch(x){}
-      log('  [!] Submit form terus');return true;
-    }
-  }
   return false;
 }
 async function checkPause(){while(paused&&running)await sleep(300);}
@@ -718,7 +701,7 @@ function makeUI(){
   html+='<div class="np-card">';
   html+='<div class="np-hd" id="np-hd">';
   html+='<div class="np-hd-l"><div class="np-ico">N</div><span class="np-ttl">NILAM Auto-Fill</span></div>';
-  html+='<div class="np-hd-r"><span class="np-ver">v10.2</span><button class="np-x" id="np-mn">-</button></div>';
+  html+='<div class="np-hd-r"><span class="np-ver">v10.3</span><button class="np-x" id="np-mn">-</button></div>';
   html+='</div>';
   html+='<div id="np-body">';
   html+='<div class="np-stats">';

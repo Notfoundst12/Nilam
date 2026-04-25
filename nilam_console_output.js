@@ -1,8 +1,8 @@
-// NILAM Auto-Fill v9.1
+// NILAM Auto-Fill v10.3
 // 1117 buku sebenar. Zero arrow functions. Zero template literals. Max compatibility.
 (async function(){
 
-var LIB_URL='https://cdn.jsdelivr.net/gh/Notfoundst12/Nilam@aef7bad/books_library.json';
+var LIB_URL='https://cdn.jsdelivr.net/gh/Notfoundst12/Nilam@290c9e4/books_library.json';
 var UK='__nilam_used__';
 var BOOKS=[],DELAY=600,running=false,paused=false;
 
@@ -29,14 +29,14 @@ function findField(text){
     if(lb.textContent.replace(/\*/g,'').trim().toLowerCase().indexOf(lo)<0)continue;
     if(lb.htmlFor){e=document.getElementById(lb.htmlFor);if(e&&vis(e))return e;}
     p=lb.parentElement;
-    for(d=0;d<6&&p;d++){e=p.querySelector('input:not([type=hidden]):not([type=checkbox]),select,textarea');if(e&&vis(e))return e;p=p.parentElement;}
+    for(d=0;d<5&&p;d++){e=p.querySelector('input:not([type=hidden]):not([type=checkbox]):not([type=radio]):not([type=file]):not([type=button]):not([type=submit]),select,textarea');if(e&&vis(e)&&!isOurPanel(e))return e;p=p.parentElement;}
   }
   var nodes=document.querySelectorAll('span,div,p,td');
   for(i=0;i<nodes.length;i++){n=nodes[i];
     var txt=n.textContent.replace(/\*/g,'').trim();
     if(txt.length>50||txt.length<2||txt.toLowerCase().indexOf(lo)<0)continue;
     p=n.parentElement;
-    for(d=0;d<6&&p;d++){e=p.querySelector('input:not([type=hidden]):not([type=checkbox]),select,textarea');if(e&&vis(e))return e;p=p.parentElement;}
+    for(d=0;d<5&&p;d++){e=p.querySelector('input:not([type=hidden]):not([type=checkbox]):not([type=radio]):not([type=file]):not([type=button]):not([type=submit]),select,textarea');if(e&&vis(e)&&!isOurPanel(e))return e;p=p.parentElement;}
   }
   return null;
 }
@@ -51,9 +51,12 @@ function setSel(el,txt){if(!el||el.tagName!=='SELECT')return false;var lo=txt.to
 function forceClick(el){
   if(!el)return;
   try{el.focus();}catch(x){}
-  el.dispatchEvent(new MouseEvent('mousedown',{bubbles:true,cancelable:true}));
-  el.dispatchEvent(new MouseEvent('mouseup',{bubbles:true,cancelable:true}));
-  el.dispatchEvent(new MouseEvent('click',{bubbles:true,cancelable:true}));
+  var rect=el.getBoundingClientRect();
+  var cx=rect.left+(rect.width/2),cy=rect.top+(rect.height/2);
+  var opts={bubbles:true,cancelable:true,clientX:cx,clientY:cy,screenX:cx,screenY:cy};
+  el.dispatchEvent(new MouseEvent('mousedown',opts));
+  el.dispatchEvent(new MouseEvent('mouseup',opts));
+  el.dispatchEvent(new MouseEvent('click',opts));
   try{el.click();}catch(x){}
 }
 function clickBtn(text){
@@ -67,20 +70,50 @@ function clickBtn(text){
   }
   return false;
 }
-function forceClickBtn(text){
+function clickRadio(text){
   var lo=text.toLowerCase();
-  var els=document.querySelectorAll('button,a,[role=button],.btn,input[type=submit],input[type=button]');
+  var radios=document.querySelectorAll('input[type=radio]');
+  for(var i=0;i<radios.length;i++){
+    if(isOurPanel(radios[i]))continue;
+    var val=(radios[i].value||'').toLowerCase();
+    if(val===lo||val.indexOf(lo)>=0){radios[i].checked=true;forceClick(radios[i]);return true;}
+  }
+  var els=document.querySelectorAll('label,span,div');
   for(var i=0;i<els.length;i++){
     var el=els[i];if(!vis(el)||isOurPanel(el))continue;
-    var t=(el.innerText||el.textContent||el.value||'').trim();
-    if(t.length>80||t.length<1)continue;
-    if(t.toLowerCase().indexOf(lo)>=0){
-      if(el.disabled){el.disabled=false;el.removeAttribute('disabled');}
-      forceClick(el);return true;
-    }
+    var t=(el.innerText||el.textContent||'').trim().toLowerCase();
+    if(t.length>40||t.length<3)continue;
+    if(t===lo||t.indexOf(lo)>=0){forceClick(el);return true;}
   }
   return false;
 }
+
+async function openAndSelect(labelText, optionText) {
+  var lo=labelText.toLowerCase(); var vlo=optionText.toLowerCase();
+  var labels=document.querySelectorAll('label,span,p');
+  var targetLabel=null;
+  for(var i=0;i<labels.length;i++){
+    if(isOurPanel(labels[i])||!vis(labels[i]))continue;
+    var t=labels[i].innerText.toLowerCase().replace(/\*/g,'').trim();
+    if(t===lo||(t.indexOf(lo)>=0&&t.length<30)){targetLabel=labels[i];break;}
+  }
+  if(!targetLabel)return false;
+  var p=targetLabel.parentElement;var toggle=null;
+  for(var d=0;d<6&&p;d++){
+    toggle=p.querySelector('[role=combobox],[role=listbox],[class*=select],[class*=dropdown],input[readonly],.v-select,.vs__dropdown-toggle,.v-input');
+    if(toggle&&vis(toggle))break; p=p.parentElement;
+  }
+  if(!toggle)toggle=targetLabel.parentElement;
+  forceClick(toggle);await sleep(800);
+  var opts=document.querySelectorAll('[role=option],.v-list-item,.vs__dropdown-option,li,.dropdown-item,.v-list-item__title');
+  for(var j=0;j<opts.length;j++){
+    if(!vis(opts[j]))continue;
+    var ot=opts[j].innerText.toLowerCase().trim();
+    if(ot===vlo||ot.indexOf(vlo)>=0){forceClick(opts[j]);await sleep(400);return true;}
+  }
+  document.body.click();await sleep(200);return false;
+}
+
 function waitFor(fn,ms){ms=ms||15000;var end=Date.now()+ms;return new Promise(function(resolve){(function check(){var r=fn();if(r)return resolve(r);if(Date.now()>=end)return resolve(null);setTimeout(check,400);})();});}
 function allInp(){var r=[];var els=document.querySelectorAll('input:not([type=hidden]):not([type=checkbox])');for(var i=0;i<els.length;i++)if(vis(els[i])&&!isOurPanel(els[i]))r.push(els[i]);return r;}
 function allSel(){var r=[];var els=document.querySelectorAll('select');for(var i=0;i<els.length;i++)if(vis(els[i])&&!isOurPanel(els[i]))r.push(els[i]);return r;}
@@ -135,18 +168,81 @@ async function fillDropdown(label,value,fbIdx){
   log('  [!] '+label+': tak jumpa');return false;
 }
 
-// Star rating - 7 strategies + Vue injection + retry
+async function bruteForceVueSelect(labelKeywords, optionKeywords) {
+  var toggles = document.querySelectorAll('.v-select, [role=combobox], input[readonly], .vs__dropdown-toggle, .v-input');
+  for (var i = 0; i < toggles.length; i++) {
+    var toggle = toggles[i];
+    if (!vis(toggle) || isOurPanel(toggle)) continue;
+    var p = toggle.parentElement;
+    var foundLabel = false;
+    for (var d = 0; d < 4 && p; d++) {
+      var text = (p.innerText || p.textContent || '').toLowerCase();
+      for(var k=0; k<labelKeywords.length; k++){
+        if (text.indexOf(labelKeywords[k]) >= 0) { foundLabel = true; break; }
+      }
+      if (foundLabel) break;
+      p = p.parentElement;
+    }
+    if (foundLabel) {
+      forceClick(toggle);
+      await sleep(800);
+      var opts = document.querySelectorAll('.v-list-item, [role=option], .vs__dropdown-option, li');
+      for (var j = 0; j < opts.length; j++) {
+        if (!vis(opts[j]) || isOurPanel(opts[j])) continue;
+        var ot = (opts[j].innerText || opts[j].textContent || '').toLowerCase();
+        for(var k=0; k<optionKeywords.length; k++){
+          if (ot.indexOf(optionKeywords[k]) >= 0) {
+            forceClick(opts[j]);
+            await sleep(400);
+            return true;
+          }
+        }
+      }
+      document.body.click();
+      await sleep(300);
+    }
+  }
+  return false;
+}
+
+// Star rating - Vue injection priority + DOM coordinate fallback
 function tryClickStar(n){
   var i,j,items,el;
-  // S1: container with star/rating class
+
+  // Strategy 1: Vue model injection (SAFEST)
+  try{
+    var allEl=document.querySelectorAll('[class*=star],[class*=Star],[class*=rating],[class*=Rating],[class*=penilaian],[class*=rate]');
+    for(i=0;i<allEl.length;i++){
+      if(isOurPanel(allEl[i]))continue;
+      var vm=allEl[i].__vue__;if(!vm)continue;
+      var dt=vm.$data||vm;
+
+      var isStar = (vm.$options && vm.$options.name && /star|rating|rate/i.test(vm.$options.name));
+      var hasRatingData = (dt.rating!==undefined || dt.star!==undefined || dt.penilaian!==undefined || dt.score!==undefined);
+      if(!isStar && !hasRatingData) continue;
+
+      var keys=['rating','star','penilaian','score','rate','value','modelValue','currentValue','currentRating'];
+      for(j=0;j<keys.length;j++){
+        if(dt[keys[j]]!==undefined && (typeof dt[keys[j]]==='number'||dt[keys[j]]===0||dt[keys[j]]==='')){
+          dt[keys[j]]=n;
+          try{vm.$emit('input',n);}catch(x){}
+          try{vm.$emit('change',n);}catch(x){}
+          try{vm.$forceUpdate();}catch(x){}
+          log('  [Vue] Set rating='+n);return true;
+        }
+      }
+    }
+  }catch(x){}
+
+  // Strategy 2: container with star/rating class
   var containers=document.querySelectorAll('[class*=star],[class*=Star],[class*=rating],[class*=Rating],[class*=penilaian],[class*=Penilaian],[class*=rate],[class*=Rate],[class*=review],[class*=Review]');
   for(i=0;i<containers.length;i++){
     if(isOurPanel(containers[i]))continue;
-    items=containers[i].querySelectorAll('svg,i,span,label,path,polygon,img,a,li,button');
+    items=containers[i].querySelectorAll('svg,i,span,label,img,a,li,button');
     if(items.length>=3&&items.length<=10){forceClick(items[Math.min(n-1,items.length-1)]);return true;}
     if(containers[i].children.length>=3&&containers[i].children.length<=10){forceClick(containers[i].children[Math.min(n-1,containers[i].children.length-1)]);return true;}
   }
-  // S2: label text then nearby clickable items
+  // Strategy 3: label text then nearby clickable items
   var labels=document.querySelectorAll('label,span,div,p,h1,h2,h3,h4,h5,h6,legend');
   for(i=0;i<labels.length;i++){
     if(isOurPanel(labels[i]))continue;
@@ -155,14 +251,14 @@ function tryClickStar(n){
     if(lt.indexOf('penilaian')>=0||lt.indexOf('rating')>=0||lt.indexOf('bintang')>=0||lt.indexOf('ulasan')>=0||lt.indexOf('nilai')>=0){
       var parent=labels[i].parentElement;
       for(var d=0;d<6&&parent;d++){
-        items=parent.querySelectorAll('svg,i,span,label,path,img,a,button');
+        items=parent.querySelectorAll('svg,i,span,label,img,a,button');
         var clickable=[];for(j=0;j<items.length;j++){if(vis(items[j])&&items[j]!==labels[i]&&!isOurPanel(items[j]))clickable.push(items[j]);}
         if(clickable.length>=3&&clickable.length<=10){forceClick(clickable[Math.min(n-1,clickable.length-1)]);return true;}
         parent=parent.parentElement;
       }
     }
   }
-  // S3: groups of 3-10 identical siblings
+  // Strategy 4: groups of 3-10 identical siblings
   var wrappers=document.querySelectorAll('div,span,ul,ol,fieldset');
   for(i=0;i<wrappers.length;i++){
     el=wrappers[i];if(!vis(el)||isOurPanel(el))continue;
@@ -174,14 +270,14 @@ function tryClickStar(n){
       forceClick(ch[Math.min(n-1,ch.length-1)]);return true;
     }
   }
-  // S4: radio inputs
+  // Strategy 5: radio inputs
   var radios=document.querySelectorAll('input[type=radio]');
   for(i=0;i<radios.length;i++){
     if(isOurPanel(radios[i]))continue;
     var rv=radios[i].value;
     if(rv==String(n)||rv==n){radios[i].checked=true;forceClick(radios[i]);radios[i].dispatchEvent(new Event('change',{bubbles:true}));return true;}
   }
-  // S5: aria-label
+  // Strategy 6: aria-label
   var ariaEls=document.querySelectorAll('[aria-label]');
   for(i=0;i<ariaEls.length;i++){
     if(isOurPanel(ariaEls[i]))continue;
@@ -190,32 +286,13 @@ function tryClickStar(n){
       forceClick(ariaEls[i]);return true;
     }
   }
-  // S6: data-value
+  // Strategy 7: data-value
   var dataEls=document.querySelectorAll('[data-value],[data-rating],[data-score]');
   for(i=0;i<dataEls.length;i++){
     if(isOurPanel(dataEls[i]))continue;
     var dv=dataEls[i].getAttribute('data-value')||dataEls[i].getAttribute('data-rating')||dataEls[i].getAttribute('data-score')||'';
     if(dv==String(n)){forceClick(dataEls[i]);return true;}
   }
-  // S7: Vue model injection - find Vue component with rating-related data
-  try{
-    var allEl=document.querySelectorAll('*');
-    for(i=0;i<allEl.length;i++){
-      if(isOurPanel(allEl[i]))continue;
-      var vm=allEl[i].__vue__;if(!vm)continue;
-      var dt=vm.$data||vm;
-      var keys=['rating','star','penilaian','score','rate','value','modelValue','currentValue','currentRating'];
-      for(j=0;j<keys.length;j++){
-        if(typeof dt[keys[j]]==='number'||dt[keys[j]]===0||dt[keys[j]]===''){
-          dt[keys[j]]=n;
-          try{vm.$emit('input',n);}catch(x){}
-          try{vm.$emit('change',n);}catch(x){}
-          try{vm.$forceUpdate();}catch(x){}
-          log('  [Vue] Set '+keys[j]+'='+n);return true;
-        }
-      }
-    }
-  }catch(x){}
   return false;
 }
 async function clickStarRetry(n){
@@ -259,9 +336,9 @@ function swalClick(txt){
   return false;
 }
 function closeAllPopups(){
-  var i,t;var btns=document.querySelectorAll('.swal2-confirm,.swal2-cancel,.swal2-close');
+  var i,t;var btns=document.querySelectorAll('.swal2-confirm,.swal2-cancel,.swal2-close,.modal .close,.modal [data-dismiss="modal"]');
   for(i=0;i<btns.length;i++){forceClick(btns[i]);}
-  var overlays=document.querySelectorAll('.swal2-container,.swal2-backdrop');
+  var overlays=document.querySelectorAll('.swal2-container,.swal2-backdrop,.modal-backdrop');
   for(i=0;i<overlays.length;i++){try{overlays[i].remove();}catch(x){}}
 }
 async function navToForm(){
@@ -269,34 +346,32 @@ async function navToForm(){
     if(vueEl&&vueEl.__vue__&&vueEl.__vue__.$router){vueEl.__vue__.$router.push('/record/add/book');return;}}catch(x){}
   try{history.pushState({},'','/record/add/book');window.dispatchEvent(new PopStateEvent('popstate',{state:{}}));}catch(x){location.href='/record/add/book';}
 }
+async function resetForm(){
+  try{
+    var vueEl=document.querySelector('#app')||document.querySelector('[data-app]');
+    var router=vueEl&&vueEl.__vue__&&vueEl.__vue__.$router;
+    if(router){
+      router.push('/').catch(function(){});
+      await sleep(DELAY*2);
+      router.push('/record/add/book').catch(function(){});
+      await sleep(DELAY*6);
+      return true;
+    }
+  }catch(x){}
 
-// Click Seterusnya - with disabled bypass and form submit fallback
+  // Fallback if router fails
+  for(var i=0;i<3;i++){if(clickBtn('kembali'))await sleep(DELAY*2);}
+  if(clickBtn('tambah rekod')||clickBtn('tambah'))await sleep(DELAY*5);
+  return true;
+}
+
+// Click Seterusnya - with strict validation
 async function clickNext(){
   var i;
   // Try 1: normal click (enabled button)
   for(i=0;i<6;i++){if(clickBtn('seterusnya'))return true;await sleep(500);}
-  // Try 2: force-enable disabled button and click
-  log('  [!] Seterusnya dilumpuhkan - cuba bypass...');
-  if(forceClickBtn('seterusnya')){await sleep(500);return true;}
-  if(forceClickBtn('next')){await sleep(500);return true;}
-  // Try 3: click wizard step tabs/indicators
-  var steps=document.querySelectorAll('[class*=step],[class*=wizard],[class*=tab],[class*=nav-item],[class*=stepper]');
-  for(i=0;i<steps.length;i++){
-    if(isOurPanel(steps[i])||!vis(steps[i]))continue;
-    var stxt=(steps[i].textContent||'').trim();
-    if(stxt.indexOf('2')>=0||stxt.indexOf('3')>=0||/rumusan|ulasan|review|pengajaran/i.test(stxt)){
-      forceClick(steps[i]);await sleep(500);
-      log('  [!] Klik step tab: '+stxt.substring(0,30));return true;
-    }
-  }
-  // Try 4: submit form directly
-  var forms=document.querySelectorAll('form');
-  for(i=0;i<forms.length;i++){
-    if(!isOurPanel(forms[i])&&vis(forms[i])){
-      try{forms[i].dispatchEvent(new Event('submit',{bubbles:true,cancelable:true}));}catch(x){}
-      log('  [!] Submit form terus');return true;
-    }
-  }
+
+  log('  [!] Seterusnya dilumpuhkan atau tak jumpa.');
   return false;
 }
 async function checkPause(){while(paused&&running)await sleep(300);}
@@ -319,6 +394,26 @@ function logButtons(){
 // Process one book
 async function doBook(book,idx,total){
   if(!running)return{ok:false,title:book.title};
+
+  book.title=String(book.title||'').replace(/[\r\n]+/g,' ').trim();
+  book.author=String(book.author||'').replace(/[\r\n]+/g,' ').trim();
+  book.publisher=String(book.publisher||'').replace(/[\r\n]+/g,' ').trim();
+  // Unique Rumusan & Pengajaran without templates to avoid admin detection
+  var rawSum=String(book.summary||'').trim();
+  if(!rawSum){rawSum=book.title;}
+  var words=rawSum.split(/\s+/);
+  if(words.length>12){
+    var mid=Math.floor(words.length/2);
+    // Split the summary: first half becomes rumusan, second half becomes pengajaran
+    book.summary=words.slice(0,mid).join(' ')+'...';
+    var p=words.slice(mid).join(' ');
+    // Capitalize first letter of pengajaran
+    book.review='...'+p;
+  }else{
+    book.summary=rawSum;
+    book.review=rawSum;
+  }
+
   qs('#np-prog').textContent=(idx+1)+' / '+total;
   qs('#np-bar').style.width=((idx+1)/total*100)+'%';
   log('--- Buku '+(idx+1)+'/'+total+': '+book.title+' ---');
@@ -333,13 +428,41 @@ async function doBook(book,idx,total){
   // === STEP 1: Maklumat Buku ===
   log('Step 1: Maklumat Buku');
   await fillField('tajuk',book.title,['title']);await sleep(DELAY);
-  clickBtn('e-buku');await sleep(DELAY);
-  await fillDropdown('kategori',book.categoryLabel,0);await sleep(DELAY);await checkPause();
+
+  // Automatically select Buku (Physical) instead of E-Buku so AINS doesn't ask for a URL!
+  if(clickBtn('buku fizikal')||clickBtn('buku bukan elektronik')||clickBtn('buku ')||clickRadio('buku')){/* prefer physical */}
+  await sleep(DELAY);
+
+  var kat=book.categoryLabel;
+  var katOk=false;
+  if(await fillDropdown('kategori',kat,0,true)){katOk=true;}
+  else if(await bruteForceVueSelect(['kategori'], [kat])){log('  [OK] kategori (vuetify)');katOk=true;}
+  else if(clickRadio(kat)||clickBtn(kat)){log('  [OK] kategori (radio/btn)');katOk=true;}
+  else{log('  [!] kategori: tak jumpa');}
+
+  await sleep(DELAY);await checkPause();
+
   await fillField('mukasurat',book.pages,['bilangan','muka','page']);await sleep(DELAY);
   await fillField('penulis',book.author,['pengarang','author']);await sleep(DELAY);
   await fillField('penerbit',book.publisher,['publisher']);await sleep(DELAY);
   await fillField('tahun',book.year,['terbitan','year']);await sleep(DELAY);await checkPause();
-  await fillDropdown('bahasa',book.languageLabel,1);await sleep(DELAY);
+
+  var lang=book.languageLabel;
+  var langShort=lang.replace('Bahasa ','').trim();
+  var langOk=false;
+  if(await fillDropdown('bahasa',lang,1,true)){langOk=true;}
+  else if(await bruteForceVueSelect(['bahasa', 'bacaan'], [lang, langShort])){log('  [OK] bahasa (vuetify)');langOk=true;}
+  else if(await fillDropdown('bahasa',langShort,1,true)){langOk=true;}
+  else if(clickRadio(lang)||clickBtn(lang)){log('  [OK] bahasa (radio/btn)');langOk=true;}
+  else if(clickRadio(langShort)||clickBtn(langShort)){log('  [OK] bahasa ('+langShort+')');langOk=true;}
+  else{log('  [!] bahasa: tak jumpa');}
+
+  if(!katOk || !langOk) {
+    err('Borang tak sah (Kategori/Bahasa gagal). Skip buku ini.');
+    return {ok:false, title:book.title};
+  }
+
+  await sleep(DELAY);
 
   log('-> Seterusnya (1->2)');
   var next1=await clickNext();
@@ -350,8 +473,8 @@ async function doBook(book,idx,total){
   log('Step 2: Rumusan & Penilaian');
   await waitFor(function(){return allTxt().length>0?true:null;},15000);await sleep(DELAY*2);
   var txts=allTxt();
-  if(txts[0]){setVal(txts[0],book.summary);log('  [OK] Rumusan');await sleep(DELAY);}
-  if(txts[1]){setVal(txts[1],book.review);log('  [OK] Pengajaran');await sleep(DELAY);}
+  if(txts[0]){setVal(txts[0],book.summary);log('  [OK] Rumusan (Unik)');await sleep(DELAY);}
+  if(txts[1]){setVal(txts[1],book.review);log('  [OK] Pengajaran (Unik)');await sleep(DELAY);}
   await sleep(DELAY*3);
 
   // Rating with retry
@@ -369,32 +492,62 @@ async function doBook(book,idx,total){
     await sleep(DELAY*5);
     next2=await clickNext();
     if(!next2){
-      log('  [!] Masih gagal - cuba terus ke Step 3');logButtons();
+      log('  [!] Borang gagal diteruskan - skip buku ini & force reload.');logButtons();
+      return{ok:false,title:book.title};
     }
   }
   await sleep(DELAY*5);
 
   // === STEP 3: Confirmation & Submit ===
   log('Step 3: Pengesahan & Hantar');
+  var hasClickedHantar = false;
+  var hantarTimer = 0;
+
   for(var a=0;a<40;a++){
     if(!running)break;
 
-    // FIRST: try action buttons (simpan/hantar/submit/pasti/ya)
-    if(a>0){
-      if(clickBtn('pasti')){log('  -> Tekan Pasti');await sleep(DELAY*6);
+    if(hasClickedHantar) hantarTimer++;
+    if(hantarTimer > 6){
+      hasClickedHantar = false;
+      hantarTimer = 0;
+      log('  [!] Tiada popup muncul, cuba tekan semula...');
+    }
+
+    // Check visible validation errors first
+    var errs = document.querySelectorAll('.error--text, .text-danger, .invalid-feedback, [class*=error]');
+    for(var e=0; e<errs.length; e++){
+      if(vis(errs[e]) && !isOurPanel(errs[e]) && errs[e].innerText.length > 3 && errs[e].innerText.length < 50){
+        err('Ralat borang: ' + errs[e].innerText);
+        return {ok:false, title:book.title}; // Abort!
+      }
+    }
+
+    // FIRST: try action buttons ONLY IF we haven't already clicked Hantar
+    if(a>0 && !hasClickedHantar){
+      var exactBtns=document.querySelectorAll('button,a,[role=button],.btn,input[type=submit]');
+      for(var ei=0;ei<exactBtns.length;ei++){
+        if(!vis(exactBtns[ei])||isOurPanel(exactBtns[ei])||exactBtns[ei].disabled)continue;
+        var et=(exactBtns[ei].innerText||exactBtns[ei].textContent||'').trim().toLowerCase();
+        if(et==='hantar'||et==='simpan'||et==='submit'){
+          log('  -> Tekan (exact): '+exactBtns[ei].textContent.trim());
+          forceClick(exactBtns[ei]);await sleep(DELAY*5);hasClickedHantar=true;break;
+        }
+      }
+
+      if(!hasClickedHantar && clickBtn('pasti')){log('  -> Tekan Pasti');await sleep(DELAY*6);
         if(isDuplicate()){log('DUPLIKAT (selepas Pasti) - skip');closeAllPopups();await sleep(DELAY*2);return{ok:false,title:book.title,dup:true};}
         continue;
       }
-      if(clickBtn('ya')){log('  -> Tekan Ya');await sleep(DELAY*6);
+      if(!hasClickedHantar && clickBtn('ya')){log('  -> Tekan Ya');await sleep(DELAY*6);
         if(isDuplicate()){log('DUPLIKAT (selepas Ya) - skip');closeAllPopups();await sleep(DELAY*2);return{ok:false,title:book.title,dup:true};}
         continue;
       }
-      if(clickBtn('confirm')){log('  -> Tekan Confirm');await sleep(DELAY*5);continue;}
-      if(clickBtn('simpan')){log('  -> Klik Simpan');await sleep(DELAY*5);continue;}
-      if(clickBtn('hantar')){log('  -> Klik Hantar');await sleep(DELAY*5);continue;}
-      if(clickBtn('submit')){log('  -> Klik Submit');await sleep(DELAY*5);continue;}
-      if(clickBtn('selesai')){log('  -> Klik Selesai');await sleep(DELAY*5);continue;}
-      if(clickBtn('seterusnya')){log('  -> Klik Seterusnya');await sleep(DELAY*4);continue;}
+      if(!hasClickedHantar && clickBtn('confirm')){log('  -> Tekan Confirm');await sleep(DELAY*5);hasClickedHantar=true;continue;}
+      if(!hasClickedHantar && clickBtn('simpan')){log('  -> Klik Simpan');await sleep(DELAY*5);hasClickedHantar=true;continue;}
+      if(!hasClickedHantar && clickBtn('hantar')){log('  -> Klik Hantar');await sleep(DELAY*5);hasClickedHantar=true;continue;}
+      if(!hasClickedHantar && clickBtn('submit')){log('  -> Klik Submit');await sleep(DELAY*5);hasClickedHantar=true;continue;}
+      if(!hasClickedHantar && clickBtn('selesai')){log('  -> Klik Selesai');await sleep(DELAY*5);hasClickedHantar=true;continue;}
+      if(!hasClickedHantar && clickBtn('seterusnya')){log('  -> Klik Seterusnya');await sleep(DELAY*4);continue;}
     }
 
     await sleep(DELAY*2);
@@ -453,14 +606,14 @@ async function startRun(){
       log('Sedia buku seterusnya...');await sleep(DELAY*2);
       closeAllPopups();await sleep(DELAY);
       if(res.dup||!res.ok){
-        log('Navigasi ke borang baru...');
-        await navToForm();await sleep(DELAY*10);
+        log('Reset borang...');
+        await resetForm();
       } else {
         swalClick('ok');swalClick();await sleep(DELAY);
         if(!clickBtn('tambah lagi')){
           if(!clickBtn('tambah rekod')){
             log('Navigasi ke borang baru...');
-            await navToForm();await sleep(DELAY*10);
+            await resetForm();
           } else {await sleep(DELAY*8);}
         } else {await sleep(DELAY*8);}
       }
@@ -492,52 +645,52 @@ function makeUI(){
   css+='#NP{position:fixed;top:12px;right:12px;width:360px;max-width:calc(100vw - 24px);z-index:2147483647;';
   css+='font-family:"Inter",-apple-system,system-ui,sans-serif;font-size:13px;touch-action:none;user-select:none;-webkit-user-select:none}';
   css+='@media(max-width:440px){#NP{width:calc(100vw - 16px);right:8px;top:8px;font-size:12px}}';
-  css+='.np-card{background:#0f0b1e;border:1px solid rgba(147,130,255,.15);border-radius:20px;overflow:hidden;';
-  css+='box-shadow:0 20px 60px rgba(0,0,0,.55),0 0 100px -20px rgba(124,58,237,.12)}';
-  css+='.np-hd{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;';
-  css+='background:linear-gradient(135deg,rgba(124,58,237,.1),rgba(99,102,241,.06));cursor:grab;touch-action:none}';
+  css+='.np-card{background:rgba(15,15,15,0.7);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.1);border-radius:24px;overflow:hidden;';
+  css+='box-shadow:0 30px 60px rgba(0,0,0,0.6),inset 0 1px 0 rgba(255,255,255,0.1)}';
+  css+='.np-hd{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;';
+  css+='background:linear-gradient(180deg,rgba(255,255,255,0.08) 0%,rgba(255,255,255,0.02) 100%);border-bottom:1px solid rgba(255,255,255,0.05);cursor:grab;touch-action:none}';
   css+='.np-hd:active{cursor:grabbing}';
   css+='.np-hd-l{display:flex;align-items:center;gap:10px}';
-  css+='.np-ico{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;font-size:15px;font-weight:900;color:#fff;';
-  css+='background:linear-gradient(135deg,#7c3aed,#6366f1);box-shadow:0 4px 14px rgba(99,102,241,.45)}';
-  css+='.np-ttl{font-size:14px;font-weight:800;letter-spacing:-.4px;color:#c4b5fd}';
+  css+='.np-ico{width:36px;height:36px;border-radius:12px;display:grid;place-items:center;font-size:16px;font-weight:900;color:#000;';
+  css+='background:linear-gradient(135deg,#fff,#e2e8f0);box-shadow:0 4px 12px rgba(255,255,255,0.2)}';
+  css+='.np-ttl{font-size:15px;font-weight:800;letter-spacing:-.4px;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,0.5)}';
   css+='.np-hd-r{display:flex;align-items:center;gap:6px}';
-  css+='.np-ver{font-size:8px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:#7c3aed;';
-  css+='background:rgba(124,58,237,.12);border:1px solid rgba(124,58,237,.18);padding:2px 8px;border-radius:6px}';
-  css+='.np-x{width:26px;height:26px;border-radius:8px;border:none;background:rgba(255,255,255,.04);color:rgba(255,255,255,.3);';
+  css+='.np-ver{font-size:9px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:#000;';
+  css+='background:rgba(255,255,255,0.9);padding:3px 8px;border-radius:6px}';
+  css+='.np-x{width:28px;height:28px;border-radius:8px;border:none;background:rgba(0,0,0,0.2);color:#fff;';
   css+='font-size:15px;cursor:pointer;display:grid;place-items:center;transition:.15s}';
-  css+='.np-x:active{background:rgba(124,58,237,.25);color:#fff}';
-  css+='.np-stats{display:flex;padding:8px 18px;gap:6px}';
-  css+='.np-stat{flex:1;text-align:center;padding:8px 0;border-radius:10px;background:rgba(124,58,237,.06);border:1px solid rgba(124,58,237,.08)}';
-  css+='.np-stat-n{font-size:18px;font-weight:800;color:#c4b5fd;line-height:1.2}';
+  css+='.np-x:active{background:rgba(255,255,255,0.2);color:#fff}';
+  css+='.np-stats{display:flex;padding:12px 20px 8px;gap:8px}';
+  css+='.np-stat{flex:1;text-align:center;padding:10px 0;border-radius:12px;background:rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,0.05);box-shadow:inset 0 1px 0 rgba(255,255,255,0.02)}';
+  css+='.np-stat-n{font-size:20px;font-weight:800;color:#fff;line-height:1.2;font-variant-numeric:tabular-nums}';
   css+='.np-stat-l{font-size:9px;font-weight:600;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.5px;margin-top:2px}';
-  css+='.np-ctrl{padding:12px 18px;display:flex;flex-wrap:wrap;gap:6px;border-top:1px solid rgba(124,58,237,.06)}';
+  css+='.np-ctrl{padding:12px 20px;display:flex;flex-wrap:wrap;gap:8px}';
   css+='.np-btn{flex:1;min-width:80px;height:38px;border:none;border-radius:10px;font-size:11px;font-weight:700;';
   css+='cursor:pointer;text-transform:uppercase;letter-spacing:.4px;transition:.2s}';
   css+='.np-btn:active{transform:scale(.95)}';
   css+='.np-btn:disabled{opacity:.35;pointer-events:none}';
-  css+='.b-go{background:linear-gradient(135deg,#7c3aed,#6d28d9);color:#fff;box-shadow:0 4px 16px rgba(109,40,217,.35)}';
-  css+='.b-pa{background:rgba(251,191,36,.08);color:#fcd34d;border:1px solid rgba(251,191,36,.12)}';
-  css+='.b-st{background:rgba(248,113,113,.08);color:#fca5a5;border:1px solid rgba(248,113,113,.1)}';
-  css+='.b-rs{flex:none;width:auto;padding:0 12px;background:rgba(124,58,237,.08);color:#a78bfa;border:1px solid rgba(124,58,237,.1);font-size:10px}';
-  css+='.np-set{display:flex;align-items:center;gap:8px;padding:6px 18px;color:rgba(255,255,255,.35);font-size:11px;font-weight:500}';
+  css+='.b-go{background:linear-gradient(135deg,#fff,#cbd5e1);color:#000;box-shadow:0 4px 12px rgba(255,255,255,0.15)}';
+  css+='.b-pa{background:rgba(0,0,0,0.3);color:#fff;border:1px solid rgba(255,255,255,0.1)}';
+  css+='.b-st{background:rgba(248,113,113,.15);color:#fca5a5;border:1px solid rgba(248,113,113,.2)}';
+  css+='.b-rs{flex:none;width:auto;padding:0 14px;background:rgba(0,0,0,0.2);color:#94a3b8;border:1px solid rgba(255,255,255,0.05);font-size:10px}';
+  css+='.np-set{display:flex;align-items:center;gap:12px;padding:8px 20px;color:rgba(255,255,255,.5);font-size:11px;font-weight:500}';
   css+='.np-set label{min-width:48px}';
-  css+='.np-set input[type=range]{flex:1;height:4px;-webkit-appearance:none;appearance:none;background:rgba(124,58,237,.15);border-radius:4px;outline:none}';
+  css+='.np-set input[type=range]{flex:1;height:4px;-webkit-appearance:none;appearance:none;background:rgba(0,0,0,0.3);border-radius:4px;outline:none}';
   css+='.np-set input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;';
-  css+='background:#7c3aed;box-shadow:0 2px 6px rgba(124,58,237,.4);cursor:pointer}';
-  css+='.np-set input[type=number]{width:50px;background:rgba(124,58,237,.08);border:1px solid rgba(124,58,237,.12);';
-  css+='border-radius:7px;color:#c4b5fd;padding:5px;font-size:12px;text-align:center;font-weight:700;font-family:inherit;outline:none}';
-  css+='.np-set .vl{min-width:36px;text-align:right;color:#a78bfa;font-weight:700;font-size:11px}';
-  css+='.np-prg{padding:10px 18px 6px}';
-  css+='.np-bar-bg{height:5px;background:rgba(124,58,237,.1);border-radius:9px;overflow:hidden}';
-  css+='.np-bar-fg{height:100%;width:0;background:linear-gradient(90deg,#7c3aed,#a78bfa);border-radius:9px;transition:width .6s ease;box-shadow:0 0 10px rgba(124,58,237,.3)}';
+  css+='background:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.5);cursor:pointer}';
+  css+='.np-set input[type=number]{width:50px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.1);';
+  css+='border-radius:8px;color:#fff;padding:6px;font-size:12px;text-align:center;font-weight:700;font-family:inherit;outline:none}';
+  css+='.np-set .vl{min-width:36px;text-align:right;color:#fff;font-weight:700;font-size:11px}';
+  css+='.np-prg{padding:12px 20px 8px}';
+  css+='.np-bar-bg{height:6px;background:rgba(0,0,0,0.3);border-radius:9px;overflow:hidden;box-shadow:inset 0 1px 2px rgba(0,0,0,0.2)}';
+  css+='.np-bar-fg{height:100%;width:0;background:linear-gradient(90deg,#fff,#cbd5e1);border-radius:9px;transition:width .6s ease;box-shadow:0 0 10px rgba(255,255,255,0.2)}';
   css+='.np-prg-t{text-align:center;font-size:10px;color:rgba(255,255,255,.25);margin-top:6px;font-weight:600;letter-spacing:.3px}';
-  css+='.np-log{padding:4px 18px 12px;max-height:140px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(124,58,237,.15) transparent}';
-  css+='.np-log::-webkit-scrollbar{width:3px}.np-log::-webkit-scrollbar-thumb{background:rgba(124,58,237,.2);border-radius:3px}';
+  css+='.np-log{padding:4px 20px 16px;max-height:160px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.1) transparent}';
+  css+='.np-log::-webkit-scrollbar{width:4px}.np-log::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:4px}';
   css+='.l{padding:3px 0;font-size:10.5px;color:rgba(255,255,255,.35);line-height:1.5;display:flex;gap:6px;border-bottom:1px solid rgba(255,255,255,.02)}';
-  css+='.l .lt{color:rgba(124,58,237,.3);font-size:9px;font-family:monospace;flex-shrink:0}';
-  css+='.l.ok{color:#6ee7b7}.l.er{color:#fca5a5}.l.st{color:#c4b5fd;font-weight:700}';
-  css+='.np-ft{display:flex;justify-content:center;gap:20px;padding:10px 18px;border-top:1px solid rgba(124,58,237,.06);background:rgba(0,0,0,.15)}';
+  css+='.l .lt{color:rgba(255,255,255,.2);font-size:9px;font-family:monospace;flex-shrink:0}';
+  css+='.l.ok{color:#6ee7b7}.l.er{color:#fca5a5}.l.st{color:#fff;font-weight:700}';
+  css+='.np-ft{display:flex;justify-content:center;gap:24px;padding:12px 20px;border-top:1px solid rgba(255,255,255,.05);background:rgba(0,0,0,.2)}';
   css+='.np-ft-i{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700}';
   css+='.np-ft-i.g{color:#6ee7b7}.np-ft-i.r{color:#fca5a5}';
   css+='.np-dot{width:8px;height:8px;border-radius:50%}';
@@ -548,7 +701,7 @@ function makeUI(){
   html+='<div class="np-card">';
   html+='<div class="np-hd" id="np-hd">';
   html+='<div class="np-hd-l"><div class="np-ico">N</div><span class="np-ttl">NILAM Auto-Fill</span></div>';
-  html+='<div class="np-hd-r"><span class="np-ver">v9.1</span><button class="np-x" id="np-mn">-</button></div>';
+  html+='<div class="np-hd-r"><span class="np-ver">v10.3</span><button class="np-x" id="np-mn">-</button></div>';
   html+='</div>';
   html+='<div id="np-body">';
   html+='<div class="np-stats">';
