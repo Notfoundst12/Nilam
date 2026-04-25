@@ -1,4 +1,4 @@
-// NILAM Auto-Fill v10.9
+// NILAM Auto-Fill v10.10
 // 1117 buku sebenar. Zero arrow functions. Zero template literals. Max compatibility.
 (async function(){
 
@@ -33,6 +33,17 @@ function findField(text){
   for(i=0;i<labels.length;i++){lb=labels[i];
     if(lb.textContent.replace(/\*/g,'').trim().toLowerCase().indexOf(lo)<0)continue;
     if(lb.htmlFor){e=document.getElementById(lb.htmlFor);if(e&&vis(e))return e;}
+    
+    // Bootstrap 5: check siblings of label
+    var sib=lb.nextElementSibling;
+    while(sib){
+      if(/input|select|textarea/i.test(sib.tagName) && vis(sib) && !isOurPanel(sib)) return sib;
+      e=sib.querySelector('input,select,textarea');
+      if(e && vis(e) && !isOurPanel(e)) return e;
+      if(sib.tagName==='LABEL') break;
+      sib=sib.nextElementSibling;
+    }
+
     p=lb.parentElement;
     for(d=0;d<5&&p;d++){e=p.querySelector('input:not([type=hidden]):not([type=checkbox]):not([type=radio]):not([type=file]):not([type=button]):not([type=submit]),select,textarea');if(e&&vis(e)&&!isOurPanel(e))return e;p=p.parentElement;}
   }
@@ -173,17 +184,17 @@ async function fillDropdown(label,value,fbIdx){
   log('  [!] '+label+': tak jumpa');return false;
 }
 
-async function bruteForceVueSelect(labelKeywords, optionKeywords) {
-  var toggles = document.querySelectorAll('.v-select, [role=combobox], [role=listbox], input[readonly], .vs__dropdown-toggle, .v-input, .v-field, .v-input__control, .v-select__selections, .v-select__slot, .v-input__append-inner, [class*="select"]');
-  var foundToggle = null;
-  for (var i = 0; i < toggles.length; i++) {
-    var toggle = toggles[i];
-    if (!vis(toggle) || isOurPanel(toggle) || toggle.tagName === 'SELECT') continue;
-    var p = toggle.parentElement;
-    var matched = false;
-    for (var d = 0; d < 7 && p; d++) {
-      var text = (p.innerText || p.textContent || '').toLowerCase();
-      for(var k=0; k<labelKeywords.length; k++){
+async function bruteForceSelect(labelKeywords, optionKeywords) {
+  var i, j, k, toggle, p, d, text, matched, foundToggle = null;
+  var toggles = document.querySelectorAll('.v-select, [role=combobox], [role=listbox], input[readonly], .vs__dropdown-toggle, .v-input, .v-field, .v-input__control, .v-select__selections, .v-select__slot, .v-input__append-inner, [class*="select"], .form-select, .form-control');
+  for (i = 0; i < toggles.length; i++) {
+    toggle = toggles[i];
+    if (!vis(toggle) || isOurPanel(toggle)) continue;
+    p = toggle.parentElement;
+    matched = false;
+    for (d = 0; d < 7 && p; d++) {
+      text = (p.innerText || p.textContent || '').toLowerCase();
+      for (k = 0; k < labelKeywords.length; k++) {
         if (text.indexOf(labelKeywords[k].toLowerCase()) >= 0) { matched = true; break; }
       }
       if (matched) break;
@@ -192,35 +203,44 @@ async function bruteForceVueSelect(labelKeywords, optionKeywords) {
     if (matched) { foundToggle = toggle; break; }
   }
   
-  if(!foundToggle && (labelKeywords.indexOf('bahasa')>=0 || labelKeywords.indexOf('language')>=0)){
-    for(var i=0; i<toggles.length; i++){if(vis(toggles[i]) && !isOurPanel(toggles[i])){foundToggle=toggles[i]; break;}}
+  if (!foundToggle && (labelKeywords.indexOf('bahasa') >= 0 || labelKeywords.indexOf('language') >= 0)) {
+    for (i = 0; i < toggles.length; i++) { if (vis(toggles[i]) && !isOurPanel(toggles[i])) { foundToggle = toggles[i]; break; } }
   }
 
-    if (foundToggle) {
-      forceClick(foundToggle);
-      await sleep(1200);
-      var opts = document.querySelectorAll('.v-list-item, [role=option], .vs__dropdown-option, li, .v-list-item-title, .dropdown-item, .v-list-item__title, .v-label, .v-selection-control, .v-radio, label');
-      for (var j = 0; j < opts.length; j++) {
-        if (!vis(opts[j]) || isOurPanel(opts[j])) continue;
-        var ot = (opts[j].innerText || opts[j].textContent || '').toLowerCase();
-        for(var k=0; k<optionKeywords.length; k++){
-          if (ot.indexOf(optionKeywords[k].toLowerCase()) >= 0) {
-            forceClick(opts[j]);
-            await sleep(600);
-            var confirmBtns = document.querySelectorAll('.v-overlay-container button, .v-bottom-sheet button, .modal button');
-            for(var cb=0; cb<confirmBtns.length; cb++){
-              var cbt = (confirmBtns[cb].innerText||confirmBtns[cb].textContent||'').toLowerCase();
-              if(vis(confirmBtns[cb]) && (cbt.indexOf('seterusnya')>=0 || cbt.indexOf('pilih')>=0)) {
-                forceClick(confirmBtns[cb]); await sleep(400); break;
-              }
-            }
-            return true;
+  if (foundToggle) {
+    if (foundToggle.tagName === 'SELECT') {
+      for (k = 0; k < optionKeywords.length; k++) { if (setSel(foundToggle, optionKeywords[k])) return true; }
+    }
+    forceClick(foundToggle);
+    await sleep(1200);
+  }
+
+  var optSels = [
+    '.v-list-item', '[role=option]', '.vs__dropdown-option', 'li', '.v-list-item-title',
+    '.dropdown-item', '.v-list-item__title', '.v-label', '.v-selection-control', '.v-radio',
+    'label', '.list-group-item', '.modal-body button', '.list-group button', '#LanguageModal button',
+    '#LanguageModal .list-group-item'
+  ];
+  var opts = document.querySelectorAll(optSels.join(','));
+  for (j = 0; j < opts.length; j++) {
+    if (!vis(opts[j]) || isOurPanel(opts[j])) continue;
+    var ot = (opts[j].innerText || opts[j].textContent || '').toLowerCase();
+    for (k = 0; k < optionKeywords.length; k++) {
+      if (ot.indexOf(optionKeywords[k].toLowerCase()) >= 0) {
+        forceClick(opts[j]);
+        await sleep(600);
+        var confirmBtns = document.querySelectorAll('.v-overlay-container button, .v-bottom-sheet button, .modal button, .modal-footer button, .swal2-confirm');
+        for (var cb = 0; cb < confirmBtns.length; cb++) {
+          var cbt = (confirmBtns[cb].innerText || confirmBtns[cb].textContent || '').toLowerCase();
+          if (vis(confirmBtns[cb]) && (cbt.indexOf('seterusnya') >= 0 || cbt.indexOf('pilih') >= 0 || cbt.indexOf('ok') >= 0 || cbt.indexOf('tutup') >= 0)) {
+            forceClick(confirmBtns[cb]); await sleep(400); break;
           }
         }
+        return true;
       }
-      // DO NOT click document.body here; it dismisses the bottom sheet before fallbacks can try!
-      await sleep(300);
     }
+  }
+  await sleep(300);
   return false;
 }
 
@@ -231,7 +251,7 @@ async function clickLanguageDirectly(lang) {
   if (lo.indexOf('melayu') >= 0) targets.push('melayu');
   if (lo.indexOf('inggeris') >= 0 || lo.indexOf('english') >= 0) { targets.push('english'); targets.push('inggeris'); }
 
-  var els = document.querySelectorAll('button, span, div, a, .v-chip, .v-btn, .v-label, label, .v-list-item-title, .v-selection-control');
+  var els = document.querySelectorAll('button, span, div, a, .v-chip, .v-btn, .v-label, label, .v-list-item-title, .v-selection-control, .list-group-item');
   for (var i = 0; i < els.length; i++) {
     var el = els[i];
     if (!vis(el) || isOurPanel(el)) continue;
@@ -242,10 +262,10 @@ async function clickLanguageDirectly(lang) {
         log('  [Direct] Klik ' + t);
         forceClick(el);
         await sleep(600);
-        var confirmBtns = document.querySelectorAll('.v-overlay-container button, .v-bottom-sheet button, .modal button');
-        for(var cb=0; cb<confirmBtns.length; cb++){
-          var cbt = (confirmBtns[cb].innerText||confirmBtns[cb].textContent||'').toLowerCase();
-          if(vis(confirmBtns[cb]) && (cbt.indexOf('seterusnya')>=0 || cbt.indexOf('pilih')>=0)) {
+        var confirmBtns = document.querySelectorAll('.v-overlay-container button, .v-bottom-sheet button, .modal button, .modal-footer button');
+        for (var cb = 0; cb < confirmBtns.length; cb++) {
+          var cbt = (confirmBtns[cb].innerText || confirmBtns[cb].textContent || '').toLowerCase();
+          if (vis(confirmBtns[cb]) && (cbt.indexOf('seterusnya') >= 0 || cbt.indexOf('pilih') >= 0 || cbt.indexOf('ok') >= 0)) {
             forceClick(confirmBtns[cb]); await sleep(400); break;
           }
         }
@@ -487,7 +507,7 @@ async function doBook(book,idx,total){
   var kat=book.categoryLabel;
   var katOk=false;
   if(await fillDropdown('kategori',kat,0,true)){katOk=true;}
-  else if(await bruteForceVueSelect(['kategori'], [kat])){log('  [OK] kategori (vuetify)');katOk=true;}
+  else if(await bruteForceSelect(['kategori'], [kat])){log('  [OK] kategori (brute)');katOk=true;}
   else if(clickRadio(kat)||clickBtn(kat)){log('  [OK] kategori (radio/btn)');katOk=true;}
   else{log('  [!] kategori: tak jumpa');}
 
@@ -507,7 +527,7 @@ async function doBook(book,idx,total){
   
   if(await fillDropdown('bahasa',lang,1,true)){langOk=true;log('  [OK] bahasa (silent)');}
   else if(await fillDropdown('bahasa',langShort,1,true)){langOk=true;log('  [OK] bahasa (short silent)');}
-  else if(await bruteForceVueSelect(langKeys, [lang, langShort])){langOk=true;log('  [OK] bahasa (brute)');}
+  else if(await bruteForceSelect(langKeys, [lang, langShort])){langOk=true;log('  [OK] bahasa (brute)');}
   else if(await clickLanguageDirectly(lang)){langOk=true;}
   else if(clickRadio(lang)||clickBtn(lang)){log('  [OK] bahasa (radio/btn)');langOk=true;}
   else if(clickRadio(langShort)||clickBtn(langShort)){log('  [OK] bahasa ('+langShort+')');langOk=true;}
@@ -757,7 +777,7 @@ function makeUI(){
   html+='<div class="np-card">';
   html+='<div class="np-hd" id="np-hd">';
   html+='<div class="np-hd-l"><div class="np-ico">N</div><span class="np-ttl">NILAM Auto-Fill</span></div>';
-  html+='<div class="np-hd-r"><span class="np-ver">v10.9</span><button class="np-x" id="np-mn">-</button></div>';
+  html+='<div class="np-hd-r"><span class="np-ver">v10.10</span><button class="np-x" id="np-mn">-</button></div>';
   html+='</div>';
   html+='<div id="np-body">';
   html+='<div class="np-stats">';
