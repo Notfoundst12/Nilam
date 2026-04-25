@@ -1,4 +1,4 @@
-// NILAM Auto-Fill v10.10
+// NILAM Auto-Fill v10.11
 // 1117 buku sebenar. Zero arrow functions. Zero template literals. Max compatibility.
 (async function(){
 
@@ -525,12 +525,26 @@ async function doBook(book,idx,total){
   var langOk=false;
   var langKeys=['bahasa', 'bacaan', 'bahan', 'kategori', 'medium', 'pilihan', 'language', 'lang', 'pilih'];
   
-  if(await fillDropdown('bahasa',lang,1,true)){langOk=true;log('  [OK] bahasa (silent)');}
+  // Try 1: Brute force (most effective for Bootstrap modals)
+  if(await bruteForceSelect(langKeys, [lang, langShort])){langOk=true;log('  [OK] bahasa (brute)');}
+  // Try 2: Direct click on modal buttons (from HTML)
+  else if(await (async function(){
+    var m=document.querySelector('#LanguageModal');
+    if(!m) return false;
+    var btns=m.querySelectorAll('button.list-group-item');
+    for(var bi=0; bi<btns.length; bi++){
+      var bt=(btns[bi].innerText||btns[bi].textContent||'').trim().toLowerCase();
+      if(bt===lang.toLowerCase() || bt===langShort.toLowerCase() || bt.indexOf(langShort.toLowerCase())>=0){
+        forceClick(btns[bi]); await sleep(600); return true;
+      }
+    }
+    return false;
+  })()){langOk=true;log('  [OK] bahasa (modal-direct)');}
+  // Try 3: Silent select update
+  else if(await fillDropdown('bahasa',lang,1,true)){langOk=true;log('  [OK] bahasa (silent)');}
   else if(await fillDropdown('bahasa',langShort,1,true)){langOk=true;log('  [OK] bahasa (short silent)');}
-  else if(await bruteForceSelect(langKeys, [lang, langShort])){langOk=true;log('  [OK] bahasa (brute)');}
   else if(await clickLanguageDirectly(lang)){langOk=true;}
   else if(clickRadio(lang)||clickBtn(lang)){log('  [OK] bahasa (radio/btn)');langOk=true;}
-  else if(clickRadio(langShort)||clickBtn(langShort)){log('  [OK] bahasa ('+langShort+')');langOk=true;}
   else{log('  [!] bahasa: tak jumpa');}
 
   if(!katOk || !langOk) {
@@ -777,7 +791,7 @@ function makeUI(){
   html+='<div class="np-card">';
   html+='<div class="np-hd" id="np-hd">';
   html+='<div class="np-hd-l"><div class="np-ico">N</div><span class="np-ttl">NILAM Auto-Fill</span></div>';
-  html+='<div class="np-hd-r"><span class="np-ver">v10.10</span><button class="np-x" id="np-mn">-</button></div>';
+  html+='<div class="np-hd-r"><span class="np-ver">v10.11</span><button class="np-x" id="np-mn">-</button></div>';
   html+='</div>';
   html+='<div id="np-body">';
   html+='<div class="np-stats">';
