@@ -1,4 +1,4 @@
-// NILAM Auto-Fill v10.1
+// NILAM Auto-Fill v10.2
 // 1117 buku sebenar. Zero arrow functions. Zero template literals. Max compatibility.
 (async function(){
 
@@ -338,13 +338,29 @@ function swalClick(txt){
 function closeAllPopups(){
   var i,t;var btns=document.querySelectorAll('.swal2-confirm,.swal2-cancel,.swal2-close');
   for(i=0;i<btns.length;i++){forceClick(btns[i]);}
-  var overlays=document.querySelectorAll('.swal2-container,.swal2-backdrop');
-  for(i=0;i<overlays.length;i++){try{overlays[i].remove();}catch(x){}}
 }
 async function navToForm(){
   try{var vueEl=document.querySelector('#app')||document.querySelector('[data-app]');
     if(vueEl&&vueEl.__vue__&&vueEl.__vue__.$router){vueEl.__vue__.$router.push('/record/add/book');return;}}catch(x){}
   try{history.pushState({},'','/record/add/book');window.dispatchEvent(new PopStateEvent('popstate',{state:{}}));}catch(x){location.href='/record/add/book';}
+}
+async function resetForm(){
+  try{
+    var vueEl=document.querySelector('#app')||document.querySelector('[data-app]');
+    var router=vueEl&&vueEl.__vue__&&vueEl.__vue__.$router;
+    if(router){
+      router.push('/').catch(function(){});
+      await sleep(DELAY*2);
+      router.push('/record/add/book').catch(function(){});
+      await sleep(DELAY*6);
+      return true;
+    }
+  }catch(x){}
+
+  // Fallback if router fails
+  for(var i=0;i<3;i++){if(clickBtn('kembali'))await sleep(DELAY*2);}
+  if(clickBtn('tambah rekod')||clickBtn('tambah'))await sleep(DELAY*5);
+  return true;
 }
 
 // Click Seterusnya - with disabled bypass and form submit fallback
@@ -502,9 +518,17 @@ async function doBook(book,idx,total){
   // === STEP 3: Confirmation & Submit ===
   log('Step 3: Pengesahan & Hantar');
   var hasClickedHantar = false;
+  var hantarTimer = 0;
 
   for(var a=0;a<40;a++){
     if(!running)break;
+
+    if(hasClickedHantar) hantarTimer++;
+    if(hantarTimer > 6){
+      hasClickedHantar = false;
+      hantarTimer = 0;
+      log('  [!] Tiada popup muncul, cuba tekan semula...');
+    }
 
     // Check visible validation errors first
     var errs = document.querySelectorAll('.error--text, .text-danger, .invalid-feedback, [class*=error]');
@@ -599,15 +623,14 @@ async function startRun(){
       log('Sedia buku seterusnya...');await sleep(DELAY*2);
       closeAllPopups();await sleep(DELAY);
       if(res.dup||!res.ok){
-        log('Refresh borang baru...');
-        try{window.location.href='/record/add/book?_t='+Date.now();}catch(x){}
-        await sleep(DELAY*10);
+        log('Reset borang...');
+        await resetForm();
       } else {
         swalClick('ok');swalClick();await sleep(DELAY);
         if(!clickBtn('tambah lagi')){
           if(!clickBtn('tambah rekod')){
             log('Navigasi ke borang baru...');
-            await navToForm();await sleep(DELAY*10);
+            await resetForm();
           } else {await sleep(DELAY*8);}
         } else {await sleep(DELAY*8);}
       }
@@ -695,7 +718,7 @@ function makeUI(){
   html+='<div class="np-card">';
   html+='<div class="np-hd" id="np-hd">';
   html+='<div class="np-hd-l"><div class="np-ico">N</div><span class="np-ttl">NILAM Auto-Fill</span></div>';
-  html+='<div class="np-hd-r"><span class="np-ver">v10.1</span><button class="np-x" id="np-mn">-</button></div>';
+  html+='<div class="np-hd-r"><span class="np-ver">v10.2</span><button class="np-x" id="np-mn">-</button></div>';
   html+='</div>';
   html+='<div id="np-body">';
   html+='<div class="np-stats">';
