@@ -1,4 +1,4 @@
-// NILAM Auto-Fill v10.6
+// NILAM Auto-Fill v10.7
 // 1117 buku sebenar. Zero arrow functions. Zero template literals. Max compatibility.
 (async function(){
 
@@ -196,24 +196,31 @@ async function bruteForceVueSelect(labelKeywords, optionKeywords) {
     for(var i=0; i<toggles.length; i++){if(vis(toggles[i]) && !isOurPanel(toggles[i])){foundToggle=toggles[i]; break;}}
   }
 
-  if (foundToggle) {
-    forceClick(foundToggle);
-    await sleep(1200);
-    var opts = document.querySelectorAll('.v-list-item, [role=option], .vs__dropdown-option, li, .v-list-item-title, .dropdown-item, .v-list-item__title, .v-label, .v-selection-control, .v-radio, label');
-    for (var j = 0; j < opts.length; j++) {
-      if (!vis(opts[j]) || isOurPanel(opts[j])) continue;
-      var ot = (opts[j].innerText || opts[j].textContent || '').toLowerCase();
-      for(var k=0; k<optionKeywords.length; k++){
-        if (ot.indexOf(optionKeywords[k].toLowerCase()) >= 0) {
-          forceClick(opts[j]);
-          await sleep(400);
-          return true;
+    if (foundToggle) {
+      forceClick(foundToggle);
+      await sleep(1200);
+      var opts = document.querySelectorAll('.v-list-item, [role=option], .vs__dropdown-option, li, .v-list-item-title, .dropdown-item, .v-list-item__title, .v-label, .v-selection-control, .v-radio, label');
+      for (var j = 0; j < opts.length; j++) {
+        if (!vis(opts[j]) || isOurPanel(opts[j])) continue;
+        var ot = (opts[j].innerText || opts[j].textContent || '').toLowerCase();
+        for(var k=0; k<optionKeywords.length; k++){
+          if (ot.indexOf(optionKeywords[k].toLowerCase()) >= 0) {
+            forceClick(opts[j]);
+            await sleep(600);
+            var confirmBtns = document.querySelectorAll('.v-overlay-container button, .v-bottom-sheet button, .modal button');
+            for(var cb=0; cb<confirmBtns.length; cb++){
+              var cbt = (confirmBtns[cb].innerText||confirmBtns[cb].textContent||'').toLowerCase();
+              if(vis(confirmBtns[cb]) && (cbt.indexOf('seterusnya')>=0 || cbt.indexOf('pilih')>=0)) {
+                forceClick(confirmBtns[cb]); await sleep(400); break;
+              }
+            }
+            return true;
+          }
         }
       }
+      // DO NOT click document.body here; it dismisses the bottom sheet before fallbacks can try!
+      await sleep(300);
     }
-    document.body.click();
-    await sleep(300);
-  }
   return false;
 }
 
@@ -234,7 +241,14 @@ async function clickLanguageDirectly(lang) {
       if (t === targets[j] || (t.indexOf(targets[j]) >= 0 && t.length < targets[j].length + 5)) {
         log('  [Direct] Klik ' + t);
         forceClick(el);
-        await sleep(500);
+        await sleep(600);
+        var confirmBtns = document.querySelectorAll('.v-overlay-container button, .v-bottom-sheet button, .modal button');
+        for(var cb=0; cb<confirmBtns.length; cb++){
+          var cbt = (confirmBtns[cb].innerText||confirmBtns[cb].textContent||'').toLowerCase();
+          if(vis(confirmBtns[cb]) && (cbt.indexOf('seterusnya')>=0 || cbt.indexOf('pilih')>=0)) {
+            forceClick(confirmBtns[cb]); await sleep(400); break;
+          }
+        }
         return true;
       }
     }
@@ -740,7 +754,7 @@ function makeUI(){
   html+='<div class="np-card">';
   html+='<div class="np-hd" id="np-hd">';
   html+='<div class="np-hd-l"><div class="np-ico">N</div><span class="np-ttl">NILAM Auto-Fill</span></div>';
-  html+='<div class="np-hd-r"><span class="np-ver">v10.6</span><button class="np-x" id="np-mn">-</button></div>';
+  html+='<div class="np-hd-r"><span class="np-ver">v10.7</span><button class="np-x" id="np-mn">-</button></div>';
   html+='</div>';
   html+='<div id="np-body">';
   html+='<div class="np-stats">';
