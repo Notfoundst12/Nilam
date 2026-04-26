@@ -127,7 +127,9 @@ function forceClick(el){
   var rect=el.getBoundingClientRect();
   var cx=rect.left+(rect.width/2),cy=rect.top+(rect.height/2);
   var opts={bubbles:true,cancelable:true,clientX:cx,clientY:cy,screenX:cx,screenY:cy};
+  try{el.dispatchEvent(new PointerEvent('pointerdown',opts));}catch(x){}
   el.dispatchEvent(new MouseEvent('mousedown',opts));
+  try{el.dispatchEvent(new PointerEvent('pointerup',opts));}catch(x){}
   el.dispatchEvent(new MouseEvent('mouseup',opts));
   el.dispatchEvent(new MouseEvent('click',opts));
   try{el.click();}catch(x){}
@@ -597,6 +599,8 @@ async function navToForm(){
   try{history.pushState({},'','/record/add/book');window.dispatchEvent(new PopStateEvent('popstate',{state:{}}));}catch(x){location.href='/record/add/book';}
 }
 async function resetForm(){
+  var staleSwal=document.querySelectorAll('.swal2-container');
+  for(var si=0;si<staleSwal.length;si++){if(staleSwal[si].style.display==='none')staleSwal[si].remove();}
   try{
     var vueEl=document.querySelector('#app')||document.querySelector('[data-app]');
     var router=vueEl&&vueEl.__vue__&&vueEl.__vue__.$router;
@@ -677,6 +681,7 @@ async function doBook(book,idx,total){
   // === STEP 1: Maklumat Buku ===
   log('Step 1: Maklumat Buku');
   closeDatePicker();
+  if(!running)return{ok:false,title:book.title};
   await fillField('tajuk',book.title,['title']);await sleep(DELAY);
 
   // Automatically select Buku Fizikal — NEVER E-Buku (causes undefined URL crash)
@@ -694,11 +699,15 @@ async function doBook(book,idx,total){
   else{log('  [!] kategori: tak jumpa');}
 
   closeDatePicker();
-  await sleep(DELAY);await checkPause();
+  await sleep(DELAY);if(!running)return{ok:false,title:book.title};await checkPause();
 
+  if(!running)return{ok:false,title:book.title};
   await fillField('mukasurat',book.pages,['bilangan','muka','page']);await sleep(DELAY);
+  if(!running)return{ok:false,title:book.title};
   await fillField('penulis',book.author,['pengarang','author']);await sleep(DELAY);
+  if(!running)return{ok:false,title:book.title};
   await fillField('penerbit',book.publisher,['publisher']);await sleep(DELAY);
+  if(!running)return{ok:false,title:book.title};
   await fillField('tahun',book.year,['year']);await sleep(DELAY);
   closeDatePicker();await checkPause();
 
@@ -729,20 +738,23 @@ async function doBook(book,idx,total){
 
   closeDatePicker();
   await sleep(DELAY);
+  if(!running)return{ok:false,title:book.title};
 
   closeDatePicker();
   log('-> Seterusnya (1->2)');
   var next1=await clickNext();
   if(!next1){err('Gagal tekan Seterusnya step 1');logButtons();}
-  await sleep(DELAY*5);await checkPause();
+  await sleep(DELAY*5);if(!running)return{ok:false,title:book.title};await checkPause();
 
   // === STEP 2: Rumusan & Pengajaran & Rating ===
   log('Step 2: Rumusan & Penilaian');
+  if(!running)return{ok:false,title:book.title};
   await waitFor(function(){return allTxt().length>0?true:null;},15000);await sleep(DELAY*2);
   var txts=allTxt();
   if(txts[0]){setVal(txts[0],book.summary);log('  [OK] Rumusan (Unik)');await sleep(DELAY);}
   if(txts[1]){setVal(txts[1],book.review);log('  [OK] Pengajaran (Unik)');await sleep(DELAY);}
   await sleep(DELAY*3);
+  if(!running)return{ok:false,title:book.title};
 
   // Rating with retry
   closeDatePicker();
@@ -750,7 +762,7 @@ async function doBook(book,idx,total){
   var starOk=await clickStarRetry(stars);
   if(starOk){log('  [OK] Rating: '+stars+' bintang');}
   else{err('Rating GAGAL - skip buku (wajib)');closeDatePicker();return{ok:false,title:book.title};}
-  await sleep(DELAY*2);await checkPause();
+  await sleep(DELAY*2);if(!running)return{ok:false,title:book.title};await checkPause();
 
   closeDatePicker();
   log('-> Seterusnya (2->3)');
@@ -835,8 +847,8 @@ async function doBook(book,idx,total){
     if(sw){
       log('  [popup] '+sw.substring(0,100));
       if(/berjaya|success|disimpan|tahniah/i.test(sw)){log('BERJAYA!');
-        try{var sc=document.querySelector('.swal2-container');if(sc)sc.remove();}catch(x){}
-        try{var bo=document.querySelector('.swal2-backdrop-show');if(bo)bo.remove();}catch(x){}
+        var allSc=document.querySelectorAll('.swal2-container,.swal2-backdrop-show');
+        for(var si=0;si<allSc.length;si++){allSc[si].style.display='none';allSc[si].style.visibility='hidden';allSc[si].style.pointerEvents='none';}
         document.body.classList.remove('swal2-shown','swal2-height-auto');
         document.body.style.overflow='';document.body.style.paddingRight='';
         try{var ve=document.querySelector('#app')||document.querySelector('[data-app]');if(ve&&ve.__vue__&&ve.__vue__.$router){ve.__vue__.$router.push('/').catch(function(){});}}catch(x){}
