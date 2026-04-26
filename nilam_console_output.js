@@ -34,13 +34,13 @@ function findField(text){
   var labels=document.querySelectorAll('label');
   for(i=0;i<labels.length;i++){lb=labels[i];
     if(lb.textContent.replace(/\*/g,'').trim().toLowerCase().indexOf(lo)<0)continue;
-    if(lb.htmlFor){e=document.getElementById(lb.htmlFor);if(e&&vis(e))return e;}
-    
+    if(lb.htmlFor){e=document.getElementById(lb.htmlFor);if(e&&vis(e)&&!skipType[e.type])return e;}
+
     // Bootstrap 5: check siblings of label
     var sib=lb.nextElementSibling;
     while(sib){
-      if(/input|select|textarea/i.test(sib.tagName) && vis(sib) && !isOurPanel(sib)) return sib;
-      e=sib.querySelector('input,select,textarea');
+      if(/input|select|textarea/i.test(sib.tagName) && vis(sib) && !isOurPanel(sib) && !skipType[sib.type]) return sib;
+      e=sib.querySelector('input:not([type=date]):not([type=datetime-local]):not([type=time]):not([type=month]),select,textarea');
       if(e && vis(e) && !isOurPanel(e)) return e;
       if(sib.tagName==='LABEL') break;
       sib=sib.nextElementSibling;
@@ -343,10 +343,10 @@ function tryClickStar(n){
       var dt=vm.$data||vm;
 
       var isStar = (vm.$options && vm.$options.name && /star|rating|rate/i.test(vm.$options.name));
-      var hasRatingData = (dt.rating!==undefined || dt.star!==undefined || dt.penilaian!==undefined || dt.score!==undefined);
+      var hasRatingData = (dt.point!==undefined || dt.points!==undefined || dt.rating!==undefined || dt.star!==undefined || dt.penilaian!==undefined || dt.score!==undefined);
       if(!isStar && !hasRatingData) continue;
 
-      var keys=['rating','star','penilaian','score','rate','value','modelValue','currentValue','currentRating'];
+      var keys=['point','points','rating','star','penilaian','score','rate','value','modelValue','currentValue','currentRating'];
       for(j=0;j<keys.length;j++){
         if(dt[keys[j]]!==undefined && (typeof dt[keys[j]]==='number'||dt[keys[j]]===0||dt[keys[j]]==='')){
           dt[keys[j]]=n;
