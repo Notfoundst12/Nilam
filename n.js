@@ -710,8 +710,11 @@ async function doBook(book,idx,total){
     var sw=swalText();
     if(sw){
       log('  [popup] '+sw.substring(0,100));
-      if(/berjaya|success|disimpan|tahniah/i.test(sw)){log('BERJAYA!');swalClick('ok');swalClick();
-        try{var ve=document.querySelector('#app')||document.querySelector('[data-app]');if(ve&&ve.__vue__&&ve.__vue__.$router)ve.__vue__.$router.push('/record/add/book').catch(function(){});}catch(x){}
+      if(/berjaya|success|disimpan|tahniah/i.test(sw)){log('BERJAYA!');
+        try{if(window.Swal)Swal.close();}catch(x){}
+        var sc=document.querySelector('.swal2-container');if(sc)sc.style.display='none';
+        document.body.classList.remove('swal2-shown','swal2-height-auto');
+        try{var ve=document.querySelector('#app')||document.querySelector('[data-app]');if(ve&&ve.__vue__&&ve.__vue__.$router){ve.__vue__.$router.push('/').catch(function(){});}}catch(x){}
         return{ok:true,title:book.title};}
       if(/duplicate|pendua|sudah wujud|already exist|telah wujud|entry/i.test(sw)){log('DUPLIKAT - skip');closeAllPopups();await sleep(DELAY*2);return{ok:false,title:book.title,dup:true};}
       if(/gagal|error|ralat|fail/i.test(sw)){
@@ -762,13 +765,8 @@ async function startRun(){
         log('Reset borang...');
         await resetForm();
       } else {
-        swalClick('ok');swalClick();await sleep(DELAY);
-        if(!clickBtn('tambah lagi')){
-          if(!clickBtn('tambah rekod')){
-            log('Navigasi ke borang baru...');
-            await resetForm();
-          } else {await sleep(DELAY*8);}
-        } else {await sleep(DELAY*8);}
+        await sleep(DELAY*2);
+        await resetForm();
       }
     }
   }
