@@ -1,4 +1,4 @@
-// NILAM Auto-Fill v10.11
+// NILAM Auto-Fill v10.12
 // 1117 buku sebenar. Zero arrow functions. Zero template literals. Max compatibility.
 (async function(){
 
@@ -204,7 +204,8 @@ async function bruteForceSelect(labelKeywords, optionKeywords) {
   }
   
   if (!foundToggle && (labelKeywords.indexOf('bahasa') >= 0 || labelKeywords.indexOf('language') >= 0)) {
-    for (i = 0; i < toggles.length; i++) { if (vis(toggles[i]) && !isOurPanel(toggles[i])) { foundToggle = toggles[i]; break; } }
+    var langTrigger=document.querySelector('[data-bs-toggle="modal"][data-bs-target="#LanguageModal"]')||document.querySelector('[data-toggle="modal"][data-target="#LanguageModal"]');
+    if(langTrigger&&vis(langTrigger)){foundToggle=langTrigger;}
   }
 
   if (foundToggle) {
@@ -244,6 +245,56 @@ async function bruteForceSelect(labelKeywords, optionKeywords) {
   return false;
 }
 
+async function selectLanguageFromModal(lang) {
+  var lo=lang.toLowerCase();
+  var searchTerms=[];
+  if(/inggeris|english/i.test(lo))searchTerms=['english','inggeris','bahasa inggeris'];
+  else if(/melayu/i.test(lo))searchTerms=['melayu','bahasa melayu'];
+  else searchTerms=[lo];
+
+  var modal=document.querySelector('#LanguageModal');
+  if(!modal)return false;
+
+  if(!vis(modal)){
+    try{if(window.bootstrap&&window.bootstrap.Modal){bootstrap.Modal.getOrCreateInstance(modal).show();await sleep(800);}}catch(x){}
+  }
+  if(!vis(modal)){
+    var trigger=document.querySelector('[data-bs-toggle="modal"][data-bs-target="#LanguageModal"]')||document.querySelector('[data-toggle="modal"][data-target="#LanguageModal"]');
+    if(!trigger){
+      var lbs=document.querySelectorAll('label,span,div,p');
+      for(var li=0;li<lbs.length;li++){
+        if(isOurPanel(lbs[li])||!vis(lbs[li]))continue;
+        var lt=lbs[li].textContent.replace(/\*/g,'').trim().toLowerCase();
+        if(lt.indexOf('bahasa')>=0&&lt.length<30){
+          var pp=lbs[li].parentElement;
+          for(var dd=0;dd<5&&pp;dd++){
+            trigger=pp.querySelector('button:not([disabled]),[role=button],.btn,[data-bs-toggle],[data-toggle]');
+            if(trigger&&vis(trigger)&&!isOurPanel(trigger)&&!trigger.closest('#NP'))break;
+            trigger=null;pp=pp.parentElement;
+          }
+          if(trigger)break;
+        }
+      }
+    }
+    if(trigger){forceClick(trigger);await sleep(1000);}
+  }
+
+  if(modal&&(vis(modal)||modal.classList.contains('show'))){
+    var items=modal.querySelectorAll('.list-group-item,button,a');
+    for(var ii=0;ii<items.length;ii++){
+      var t=(items[ii].innerText||items[ii].textContent||'').trim().toLowerCase();
+      if(t.length<2||t.length>40)continue;
+      for(var jj=0;jj<searchTerms.length;jj++){
+        if(t===searchTerms[jj]||(t.indexOf(searchTerms[jj])>=0&&t.length<searchTerms[jj].length+10)){
+          forceClick(items[ii]);await sleep(600);
+          return true;
+        }
+      }
+    }
+  }
+  return false;
+}
+
 async function clickLanguageDirectly(lang) {
   var lo = lang.toLowerCase();
   var short = lo.replace('bahasa ', '').trim();
@@ -255,6 +306,7 @@ async function clickLanguageDirectly(lang) {
   for (var i = 0; i < els.length; i++) {
     var el = els[i];
     if (!vis(el) || isOurPanel(el)) continue;
+    var m=el.closest('.modal');if(m&&m.id==='LanguageModal')continue;
     var t = (el.innerText || el.textContent || '').trim().toLowerCase();
     if (t.length > 30 || t.length < 2) continue;
     for (var j = 0; j < targets.length; j++) {
@@ -392,11 +444,15 @@ function isDuplicate(){
 // SweetAlert helpers - exclude our panel
 function swalText(){
   var sels='.swal2-html-container,.swal2-title,.swal2-content,.swal2-popup';
-  var els=document.querySelectorAll(sels);var i;
+  var els=document.querySelectorAll(sels);var i,m;
   for(i=0;i<els.length;i++){if(vis(els[i])&&!isOurPanel(els[i])&&els[i].textContent.trim().length>5)return els[i].textContent.trim();}
   var sels2='.modal-body,.modal-content,[class*=dialog],[class*=alert],[class*=swal],[class*=sweet]';
   var els2=document.querySelectorAll(sels2);
-  for(i=0;i<els2.length;i++){if(vis(els2[i])&&!isOurPanel(els2[i])&&els2[i].textContent.trim().length>5)return els2[i].textContent.trim();}
+  for(i=0;i<els2.length;i++){
+    if(!vis(els2[i])||isOurPanel(els2[i])||els2[i].textContent.trim().length<=5)continue;
+    m=els2[i].closest('.modal');if(m&&m.id==='LanguageModal')continue;
+    return els2[i].textContent.trim();
+  }
   return '';
 }
 function swalClick(txt){
@@ -407,10 +463,15 @@ function swalClick(txt){
   return false;
 }
 function closeAllPopups(){
-  var i,t;var btns=document.querySelectorAll('.swal2-confirm,.swal2-cancel,.swal2-close,.modal .close,.modal [data-dismiss="modal"]');
-  for(i=0;i<btns.length;i++){forceClick(btns[i]);}
-  var overlays=document.querySelectorAll('.swal2-container,.swal2-backdrop,.modal-backdrop');
-  for(i=0;i<overlays.length;i++){try{overlays[i].remove();}catch(x){}}
+  var i,el,m;
+  var swalBtns=document.querySelectorAll('.swal2-confirm,.swal2-cancel,.swal2-close');
+  for(i=0;i<swalBtns.length;i++){if(vis(swalBtns[i]))forceClick(swalBtns[i]);}
+  var modalClose=document.querySelectorAll('.modal .close,.modal .btn-close,.modal [data-dismiss="modal"],.modal [data-bs-dismiss="modal"]');
+  for(i=0;i<modalClose.length;i++){
+    el=modalClose[i];if(!vis(el)||isOurPanel(el))continue;
+    m=el.closest('.modal');if(m&&m.id==='LanguageModal')continue;
+    forceClick(el);
+  }
 }
 async function navToForm(){
   try{var vueEl=document.querySelector('#app')||document.querySelector('[data-app]');
@@ -501,7 +562,7 @@ async function doBook(book,idx,total){
   await fillField('tajuk',book.title,['title']);await sleep(DELAY);
 
   // Automatically select Buku (Physical) instead of E-Buku so AINS doesn't ask for a URL!
-  if(clickBtn('buku fizikal')||clickBtn('buku bukan elektronik')||clickBtn('buku ')||clickRadio('buku')){/* prefer physical */}
+  if(clickBtn('buku fizikal')||clickBtn('buku bukan elektronik')||clickRadio('fizikal')||clickRadio('buku')){/* prefer physical */}
   await sleep(DELAY);
 
   var kat=book.categoryLabel;
@@ -523,27 +584,18 @@ async function doBook(book,idx,total){
   else if(/melayu/i.test(lang)) lang='Bahasa Melayu';
   var langShort=lang.replace('Bahasa ','').trim();
   var langOk=false;
-  var langKeys=['bahasa', 'bacaan', 'bahan', 'kategori', 'medium', 'pilihan', 'language', 'lang', 'pilih'];
-  
-  // Try 1: Brute force (most effective for Bootstrap modals)
-  if(await bruteForceSelect(langKeys, [lang, langShort])){langOk=true;log('  [OK] bahasa (brute)');}
-  // Try 2: Direct click on modal buttons (from HTML)
-  else if(await (async function(){
-    var m=document.querySelector('#LanguageModal');
-    if(!m) return false;
-    var btns=m.querySelectorAll('button.list-group-item');
-    for(var bi=0; bi<btns.length; bi++){
-      var bt=(btns[bi].innerText||btns[bi].textContent||'').trim().toLowerCase();
-      if(bt===lang.toLowerCase() || bt===langShort.toLowerCase() || bt.indexOf(langShort.toLowerCase())>=0){
-        forceClick(btns[bi]); await sleep(600); return true;
-      }
-    }
-    return false;
-  })()){langOk=true;log('  [OK] bahasa (modal-direct)');}
-  // Try 3: Silent select update
-  else if(await fillDropdown('bahasa',lang,1,true)){langOk=true;log('  [OK] bahasa (silent)');}
-  else if(await fillDropdown('bahasa',langShort,1,true)){langOk=true;log('  [OK] bahasa (short silent)');}
+  var langKeys=['bahasa', 'bacaan', 'bahan', 'medium', 'pilihan', 'language', 'lang', 'pilih'];
+
+  // Try 1: #LanguageModal (AINS uses Bootstrap 5 modal for language)
+  if(await selectLanguageFromModal(lang)){langOk=true;log('  [OK] bahasa (LanguageModal)');}
+  // Try 2: Brute force custom selects
+  else if(await bruteForceSelect(langKeys, [lang, langShort])){langOk=true;log('  [OK] bahasa (brute)');}
+  // Try 3: Direct click on visible elements
   else if(await clickLanguageDirectly(lang)){langOk=true;}
+  // Try 4: Standard select dropdown
+  else if(await fillDropdown('bahasa',lang,1)){langOk=true;log('  [OK] bahasa (dropdown)');}
+  else if(await fillDropdown('bahasa',langShort,1)){langOk=true;log('  [OK] bahasa (dropdown-short)');}
+  // Try 5: Radio/button fallback
   else if(clickRadio(lang)||clickBtn(lang)){log('  [OK] bahasa (radio/btn)');langOk=true;}
   else{log('  [!] bahasa: tak jumpa');}
 
@@ -791,7 +843,7 @@ function makeUI(){
   html+='<div class="np-card">';
   html+='<div class="np-hd" id="np-hd">';
   html+='<div class="np-hd-l"><div class="np-ico">N</div><span class="np-ttl">NILAM Auto-Fill</span></div>';
-  html+='<div class="np-hd-r"><span class="np-ver">v10.11</span><button class="np-x" id="np-mn">-</button></div>';
+  html+='<div class="np-hd-r"><span class="np-ver">v10.12</span><button class="np-x" id="np-mn">-</button></div>';
   html+='</div>';
   html+='<div id="np-body">';
   html+='<div class="np-stats">';
