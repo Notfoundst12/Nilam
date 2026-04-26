@@ -1,5 +1,6 @@
 // NILAM Auto-Fill v10.12
 // 1117 buku sebenar. Zero arrow functions. Zero template literals. Max compatibility.
+console.log('%c[NILAM] v10.12 sedang dimuatkan...','color:#a78bfa;font-weight:bold;font-size:14px');
 (async function(){
 
 var LIB_URL='https://cdn.jsdelivr.net/gh/Notfoundst12/Nilam@290c9e4/books_library.json';
