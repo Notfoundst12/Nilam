@@ -25,8 +25,9 @@ function vis(el){return el&&(el.offsetParent!==null||el.offsetWidth>0);}
 function isOurPanel(el){if(!el)return false;try{return el.closest&&el.closest('#NP');}catch(x){return false;}}
 function findField(text){
   var lo=text.toLowerCase();var i,d,p,e,lb,n,att;
+  var skipType={date:1,'datetime-local':1,time:1,month:1,week:1};
   var inps=document.querySelectorAll('input,select,textarea');
-  for(i=0;i<inps.length;i++){e=inps[i];if(!vis(e)||isOurPanel(e))continue;
+  for(i=0;i<inps.length;i++){e=inps[i];if(!vis(e)||isOurPanel(e)||skipType[e.type])continue;
     att=(e.placeholder||e.getAttribute('aria-label')||'').toLowerCase();
     if(att.indexOf(lo)>=0)return e;
   }
@@ -380,18 +381,6 @@ function tryClickStar(n){
         if(clickable.length>=3&&clickable.length<=10){forceClick(clickable[Math.min(n-1,clickable.length-1)]);return true;}
         parent=parent.parentElement;
       }
-    }
-  }
-  // Strategy 4: groups of 3-10 identical siblings
-  var wrappers=document.querySelectorAll('div,span,ul,ol,fieldset');
-  for(i=0;i<wrappers.length;i++){
-    el=wrappers[i];if(!vis(el)||isOurPanel(el))continue;
-    var ch=el.children;if(ch.length<3||ch.length>10)continue;
-    var tag0=ch[0].tagName;var allSame=true;
-    for(j=1;j<ch.length;j++){if(ch[j].tagName!==tag0){allSame=false;break;}}
-    if(!allSame)continue;
-    if(tag0==='SVG'||tag0==='I'||tag0==='SPAN'||tag0==='IMG'||tag0==='LABEL'||tag0==='A'||tag0==='BUTTON'||tag0==='LI'){
-      forceClick(ch[Math.min(n-1,ch.length-1)]);return true;
     }
   }
   // Strategy 5: radio inputs
