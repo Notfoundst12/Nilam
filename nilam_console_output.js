@@ -1,6 +1,6 @@
-// NILAM Auto-Fill v10.12
+// NILAM Auto-Fill v10.13
 // 1117 buku sebenar. Zero arrow functions. Zero template literals. Max compatibility.
-console.log('%c[NILAM] v10.12 sedang dimuatkan...','color:#a78bfa;font-weight:bold;font-size:14px');
+console.log('%c[NILAM] v10.13 sedang dimuatkan...','color:#a78bfa;font-weight:bold;font-size:14px');
 (async function(){
 
 var LIB_URL='https://cdn.jsdelivr.net/gh/Notfoundst12/Nilam@290c9e4/books_library.json';
@@ -23,38 +23,68 @@ function err(m){console.error('[NILAM] '+m);pLog('[X] '+m);}
 // DOM helpers
 function vis(el){return el&&(el.offsetParent!==null||el.offsetWidth>0);}
 function isOurPanel(el){if(!el)return false;try{return el.closest&&el.closest('#NP');}catch(x){return false;}}
+function isDateInput(el){
+  if(!el||el.tagName!=='INPUT')return false;
+  var t=el.type;if(t==='date'||t==='datetime-local'||t==='time'||t==='month'||t==='week')return true;
+  var cn=(el.className||'').toLowerCase();
+  if(/date|tarikh|calendar|datepicker/.test(cn))return true;
+  var v=(el.value||'');
+  if(el.readOnly&&(/^\d{1,2}[\/-]\d{1,2}[\/-]\d{2,4}$/.test(v)||/^\d{4}-\d{2}-\d{2}/.test(v)))return true;
+  var attr=(el.getAttribute('data-toggle')||el.getAttribute('data-bs-toggle')||el.getAttribute('placeholder')||el.getAttribute('name')||el.getAttribute('id')||'').toLowerCase();
+  if(/date|tarikh|calendar/i.test(attr))return true;
+  var p=el.parentElement;
+  for(var d=0;d<3&&p;d++){var pc=(p.className||'').toLowerCase();if(/date|tarikh|calendar|datepicker/.test(pc))return true;p=p.parentElement;}
+  return false;
+}
+function closeDatePicker(){
+  var modals=document.querySelectorAll('.modal,.v-dialog,.v-overlay,.datepicker,.flatpickr-calendar,[class*=calendar],[class*=datepicker],[class*=date-picker]');
+  for(var i=0;i<modals.length;i++){
+    if(!vis(modals[i])||isOurPanel(modals[i]))continue;
+    var txt=(modals[i].innerText||'').toLowerCase();
+    if(!/tarikh|date|calendar|januari|februari|mac|april|mei|jun|julai|ogos|september|oktober|november|disember|january|february|march|may|june|july|august|october|december|ahad|isnin|selasa|rabu|khamis|jumaat|sabtu|sun|mon|tue|wed|thu|fri|sat/.test(txt))continue;
+    var m=modals[i].closest('.modal');if(m&&m.id==='LanguageModal')continue;
+    var btns=modals[i].querySelectorAll('button,a,.btn,[role=button]');
+    for(var j=0;j<btns.length;j++){
+      var bt=(btns[j].innerText||btns[j].textContent||'').trim().toLowerCase();
+      if(bt==='batal'||bt==='cancel'||bt==='tutup'||bt==='close'){forceClick(btns[j]);return true;}
+    }
+  }
+  var fp=document.querySelector('.flatpickr-calendar.open,.datepicker.show,[class*=datepicker][class*=show],[class*=datepicker][class*=open]');
+  if(fp){var cl=fp.querySelector('button');if(cl)forceClick(cl);else fp.style.display='none';return true;}
+  return false;
+}
 function findField(text){
   var lo=text.toLowerCase();var i,d,p,e,lb,n,att;
   var skipType={date:1,'datetime-local':1,time:1,month:1,week:1};
   var inps=document.querySelectorAll('input,select,textarea');
-  for(i=0;i<inps.length;i++){e=inps[i];if(!vis(e)||isOurPanel(e)||skipType[e.type])continue;
+  for(i=0;i<inps.length;i++){e=inps[i];if(!vis(e)||isOurPanel(e)||skipType[e.type]||isDateInput(e))continue;
     att=(e.placeholder||e.getAttribute('aria-label')||'').toLowerCase();
     if(att.indexOf(lo)>=0)return e;
   }
   var labels=document.querySelectorAll('label');
   for(i=0;i<labels.length;i++){lb=labels[i];
     if(lb.textContent.replace(/\*/g,'').trim().toLowerCase().indexOf(lo)<0)continue;
-    if(lb.htmlFor){e=document.getElementById(lb.htmlFor);if(e&&vis(e)&&!skipType[e.type])return e;}
+    if(lb.htmlFor){e=document.getElementById(lb.htmlFor);if(e&&vis(e)&&!skipType[e.type]&&!isDateInput(e))return e;}
 
     // Bootstrap 5: check siblings of label
     var sib=lb.nextElementSibling;
     while(sib){
-      if(/input|select|textarea/i.test(sib.tagName) && vis(sib) && !isOurPanel(sib) && !skipType[sib.type]) return sib;
+      if(/input|select|textarea/i.test(sib.tagName) && vis(sib) && !isOurPanel(sib) && !skipType[sib.type] && !isDateInput(sib)) return sib;
       e=sib.querySelector('input:not([type=date]):not([type=datetime-local]):not([type=time]):not([type=month]),select,textarea');
-      if(e && vis(e) && !isOurPanel(e)) return e;
+      if(e && vis(e) && !isOurPanel(e) && !isDateInput(e)) return e;
       if(sib.tagName==='LABEL') break;
       sib=sib.nextElementSibling;
     }
 
     p=lb.parentElement;
-    for(d=0;d<5&&p;d++){e=p.querySelector('input:not([type=hidden]):not([type=checkbox]):not([type=radio]):not([type=file]):not([type=button]):not([type=submit]):not([type=date]):not([type=datetime-local]):not([type=time]):not([type=month]),select,textarea');if(e&&vis(e)&&!isOurPanel(e))return e;p=p.parentElement;}
+    for(d=0;d<5&&p;d++){e=p.querySelector('input:not([type=hidden]):not([type=checkbox]):not([type=radio]):not([type=file]):not([type=button]):not([type=submit]):not([type=date]):not([type=datetime-local]):not([type=time]):not([type=month]),select,textarea');if(e&&vis(e)&&!isOurPanel(e)&&!isDateInput(e))return e;p=p.parentElement;}
   }
   var nodes=document.querySelectorAll('span,div,p,td');
   for(i=0;i<nodes.length;i++){n=nodes[i];
     var txt=n.textContent.replace(/\*/g,'').trim();
     if(txt.length>50||txt.length<2||txt.toLowerCase().indexOf(lo)<0)continue;
     p=n.parentElement;
-    for(d=0;d<5&&p;d++){e=p.querySelector('input:not([type=hidden]):not([type=checkbox]):not([type=radio]):not([type=file]):not([type=button]):not([type=submit]):not([type=date]):not([type=datetime-local]):not([type=time]):not([type=month]),select,textarea');if(e&&vis(e)&&!isOurPanel(e))return e;p=p.parentElement;}
+    for(d=0;d<5&&p;d++){e=p.querySelector('input:not([type=hidden]):not([type=checkbox]):not([type=radio]):not([type=file]):not([type=button]):not([type=submit]):not([type=date]):not([type=datetime-local]):not([type=time]):not([type=month]),select,textarea');if(e&&vis(e)&&!isOurPanel(e)&&!isDateInput(e))return e;p=p.parentElement;}
   }
   return null;
 }
@@ -118,8 +148,8 @@ async function openAndSelect(labelText, optionText) {
   if(!targetLabel)return false;
   var p=targetLabel.parentElement;var toggle=null;
   for(var d=0;d<6&&p;d++){
-    toggle=p.querySelector('[role=combobox],[role=listbox],[class*=select],[class*=dropdown],input[readonly],.v-select,.vs__dropdown-toggle,.v-input');
-    if(toggle&&vis(toggle))break; p=p.parentElement;
+    toggle=p.querySelector('[role=combobox],[role=listbox],[class*=select],[class*=dropdown],.v-select,.vs__dropdown-toggle,.v-input');
+    if(toggle&&vis(toggle)&&!isDateInput(toggle))break; p=p.parentElement;
   }
   if(!toggle)toggle=targetLabel.parentElement;
   forceClick(toggle);await sleep(800);
@@ -151,10 +181,10 @@ async function fillDropdown(label,value,fbIdx){
   var sels=allSel();
   if(typeof fbIdx==='number'&&sels[fbIdx]&&setSel(sels[fbIdx],value)){log('  [OK] '+label+' [fb#'+fbIdx+']');return true;}
   for(i=0;i<sels.length;i++){if(setSel(sels[i],value)){log('  [OK] '+label+' [sel#'+i+']');return true;}}
-  var toggleSel='.vs__dropdown-toggle,[role=combobox],[role=listbox],[class*=v-select],[class*=dropdown],[class*=select],[class*=picker],[class*=chosen]';
+  var toggleSel='.vs__dropdown-toggle,[role=combobox],[role=listbox],[class*=v-select],[class*=dropdown],[class*=select],[class*=chosen]';
   var toggles=document.querySelectorAll(toggleSel);
   for(i=0;i<toggles.length;i++){
-    var toggle=toggles[i];if(!vis(toggle)||isOurPanel(toggle)||toggle.tagName==='SELECT')continue;var c=toggle;
+    var toggle=toggles[i];if(!vis(toggle)||isOurPanel(toggle)||toggle.tagName==='SELECT'||isDateInput(toggle))continue;var c=toggle;
     for(d=0;d<6&&c;d++){var lbl=c.querySelector('label,span,div,p');
       if(lbl&&lbl.textContent.replace(/\*/g,'').trim().toLowerCase().indexOf(lo)>=0){
         toggle.click();await sleep(800);
@@ -188,10 +218,10 @@ async function fillDropdown(label,value,fbIdx){
 
 async function bruteForceSelect(labelKeywords, optionKeywords) {
   var i, j, k, toggle, p, d, text, matched, foundToggle = null;
-  var toggles = document.querySelectorAll('.v-select, [role=combobox], [role=listbox], input[readonly], .vs__dropdown-toggle, .v-input, .v-field, .v-input__control, .v-select__selections, .v-select__slot, .v-input__append-inner, [class*="select"], .form-select, .form-control');
+  var toggles = document.querySelectorAll('.v-select, [role=combobox], [role=listbox], .vs__dropdown-toggle, .v-input, .v-field, .v-input__control, .v-select__selections, .v-select__slot, .v-input__append-inner, [class*="select"], .form-select, .form-control');
   for (i = 0; i < toggles.length; i++) {
     toggle = toggles[i];
-    if (!vis(toggle) || isOurPanel(toggle)) continue;
+    if (!vis(toggle) || isOurPanel(toggle) || isDateInput(toggle)) continue;
     p = toggle.parentElement;
     matched = false;
     for (d = 0; d < 7 && p; d++) {
@@ -336,7 +366,7 @@ function tryClickStar(n){
 
   // Strategy 1: Vue model injection (SAFEST)
   try{
-    var allEl=document.querySelectorAll('[class*=star],[class*=Star],[class*=rating],[class*=Rating],[class*=penilaian],[class*=rate]');
+    var allEl=document.querySelectorAll('[class*=star],[class*=Star],[class*=rating],[class*=Rating],[class*=penilaian],[class*=rate],[class*=v-rating],[class*=v_rating]');
     for(i=0;i<allEl.length;i++){
       if(isOurPanel(allEl[i]))continue;
       var vm=allEl[i].__vue__;if(!vm)continue;
@@ -359,8 +389,34 @@ function tryClickStar(n){
     }
   }catch(x){}
 
+  // Strategy 1b: Walk from rating/penilaian labels to find Vue component with 'point'
+  try{
+    var rLabels=document.querySelectorAll('label,span,div,p,h1,h2,h3,h4,h5,h6');
+    for(i=0;i<rLabels.length;i++){
+      if(isOurPanel(rLabels[i]))continue;
+      var rlt=(rLabels[i].textContent||'').trim().toLowerCase();
+      if(rlt.length>50||rlt.length<3)continue;
+      if(rlt.indexOf('penilaian')<0&&rlt.indexOf('rating')<0&&rlt.indexOf('bintang')<0&&rlt.indexOf('nilai')<0)continue;
+      var rp=rLabels[i].parentElement;
+      for(var rd=0;rd<8&&rp;rd++){
+        if(rp.__vue__){
+          var rvm=rp.__vue__;var rdt=rvm.$data||rvm;
+          if(rdt.point!==undefined){rdt.point=n;try{rvm.$emit('input',n);}catch(x){}try{rvm.$emit('change',n);}catch(x){}try{rvm.$forceUpdate();}catch(x){}log('  [Vue-label] Set point='+n);return true;}
+          if(rvm.$children){for(var ci=0;ci<rvm.$children.length;ci++){var cdt=rvm.$children[ci].$data||rvm.$children[ci];if(cdt.point!==undefined){cdt.point=n;try{rvm.$children[ci].$emit('input',n);}catch(x){}try{rvm.$children[ci].$emit('change',n);}catch(x){}try{rvm.$children[ci].$forceUpdate();}catch(x){}log('  [Vue-child] Set point='+n);return true;}}}
+        }
+        var rch=rp.querySelectorAll('div,span,i,svg,button');
+        for(var ri=0;ri<Math.min(rch.length,60);ri++){
+          if(rch[ri].__vue__){var rvm2=rch[ri].__vue__;var rdt2=rvm2.$data||rvm2;
+            if(rdt2.point!==undefined){rdt2.point=n;try{rvm2.$emit('input',n);}catch(x){}try{rvm2.$emit('change',n);}catch(x){}try{rvm2.$forceUpdate();}catch(x){}log('  [Vue-near] Set point='+n);return true;}
+          }
+        }
+        rp=rp.parentElement;
+      }
+    }
+  }catch(x){}
+
   // Strategy 2: container with star/rating class
-  var containers=document.querySelectorAll('[class*=star],[class*=Star],[class*=rating],[class*=Rating],[class*=penilaian],[class*=Penilaian],[class*=rate],[class*=Rate],[class*=review],[class*=Review]');
+  var containers=document.querySelectorAll('[class*=star],[class*=Star],[class*=rating],[class*=Rating],[class*=penilaian],[class*=Penilaian],[class*=rate],[class*=Rate],[class*=review],[class*=Review],[class*=v-rating],[class*=v_rating]');
   for(i=0;i<containers.length;i++){
     if(isOurPanel(containers[i]))continue;
     items=containers[i].querySelectorAll('svg,i,span,label,img,a,li,button');
@@ -561,6 +617,7 @@ async function doBook(book,idx,total){
 
   // === STEP 1: Maklumat Buku ===
   log('Step 1: Maklumat Buku');
+  closeDatePicker();
   await fillField('tajuk',book.title,['title']);await sleep(DELAY);
 
   // Automatically select Buku Fizikal — NEVER E-Buku (causes undefined URL crash)
@@ -611,6 +668,7 @@ async function doBook(book,idx,total){
 
   await sleep(DELAY);
 
+  closeDatePicker();
   log('-> Seterusnya (1->2)');
   var next1=await clickNext();
   if(!next1){err('Gagal tekan Seterusnya step 1');logButtons();}
@@ -628,9 +686,10 @@ async function doBook(book,idx,total){
   var stars=Math.floor(Math.random()*3)+3;
   var starOk=await clickStarRetry(stars);
   if(starOk){log('  [OK] Rating: '+stars+' bintang');}
-  else{log('  [!] Rating tak jumpa - teruskan tanpa rating');}
+  else{err('Rating GAGAL - skip buku (wajib)');closeDatePicker();return{ok:false,title:book.title};}
   await sleep(DELAY*2);await checkPause();
 
+  closeDatePicker();
   log('-> Seterusnya (2->3)');
   var next2=await clickNext();
   if(!next2){
@@ -647,6 +706,7 @@ async function doBook(book,idx,total){
 
   // === STEP 3: Confirmation & Submit ===
   log('Step 3: Pengesahan & Hantar');
+  closeDatePicker();
   var hasClickedHantar = false;
   var hantarTimer = 0;
 
@@ -711,9 +771,10 @@ async function doBook(book,idx,total){
     if(sw){
       log('  [popup] '+sw.substring(0,100));
       if(/berjaya|success|disimpan|tahniah/i.test(sw)){log('BERJAYA!');
-        try{if(window.Swal)Swal.close();}catch(x){}
-        var sc=document.querySelector('.swal2-container');if(sc)sc.style.display='none';
+        try{var sc=document.querySelector('.swal2-container');if(sc)sc.remove();}catch(x){}
+        try{var bo=document.querySelector('.swal2-backdrop-show');if(bo)bo.remove();}catch(x){}
         document.body.classList.remove('swal2-shown','swal2-height-auto');
+        document.body.style.overflow='';document.body.style.paddingRight='';
         try{var ve=document.querySelector('#app')||document.querySelector('[data-app]');if(ve&&ve.__vue__&&ve.__vue__.$router){ve.__vue__.$router.push('/').catch(function(){});}}catch(x){}
         return{ok:true,title:book.title};}
       if(/duplicate|pendua|sudah wujud|already exist|telah wujud|entry/i.test(sw)){log('DUPLIKAT - skip');closeAllPopups();await sleep(DELAY*2);return{ok:false,title:book.title,dup:true};}
@@ -852,7 +913,7 @@ function makeUI(){
   html+='<div class="np-card">';
   html+='<div class="np-hd" id="np-hd">';
   html+='<div class="np-hd-l"><div class="np-ico">N</div><span class="np-ttl">NILAM Auto-Fill</span></div>';
-  html+='<div class="np-hd-r"><span class="np-ver">v10.12</span><button class="np-x" id="np-mn">-</button></div>';
+  html+='<div class="np-hd-r"><span class="np-ver">v10.13</span><button class="np-x" id="np-mn">-</button></div>';
   html+='</div>';
   html+='<div id="np-body">';
   html+='<div class="np-stats">';
