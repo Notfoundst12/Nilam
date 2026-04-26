@@ -364,7 +364,28 @@ async function clickLanguageDirectly(lang) {
 function tryClickStar(n){
   var i,j,items,el;
 
-  // Strategy 1: Vue model injection (SAFEST)
+  // Strategy 0: BFS the Vue component tree to find ANY component with 'point' data (AINS stores rating here)
+  try{
+    var appEl=document.querySelector('#app')||document.querySelector('[data-app]');
+    if(appEl&&appEl.__vue__){
+      var queue=[appEl.__vue__];
+      var visited=0;
+      while(queue.length&&visited<200){
+        var comp=queue.shift();visited++;
+        var cd=comp.$data||comp;
+        if(cd.point!==undefined){
+          cd.point=n;
+          try{comp.$emit('input',n);}catch(x){}
+          try{comp.$emit('change',n);}catch(x){}
+          try{comp.$forceUpdate();}catch(x){}
+          log('  [Vue-tree] Set point='+n);return true;
+        }
+        if(comp.$children){for(var ci=0;ci<comp.$children.length;ci++){queue.push(comp.$children[ci]);}}
+      }
+    }
+  }catch(x){}
+
+  // Strategy 1: Vue model injection on star/rating elements
   try{
     var allEl=document.querySelectorAll('[class*=star],[class*=Star],[class*=rating],[class*=Rating],[class*=penilaian],[class*=rate],[class*=v-rating],[class*=v_rating]');
     for(i=0;i<allEl.length;i++){
@@ -709,6 +730,7 @@ async function doBook(book,idx,total){
   closeDatePicker();
   var hasClickedHantar = false;
   var hantarTimer = 0;
+  var pastiCount = 0;
 
   for(var a=0;a<40;a++){
     if(!running)break;
@@ -782,8 +804,14 @@ async function doBook(book,idx,total){
         if(/duplicate|pendua|entry|wujud/i.test(sw)){log('DUPLIKAT (error) - skip');closeAllPopups();await sleep(DELAY*2);return{ok:false,title:book.title,dup:true};}
         err('GAGAL: '+sw);swalClick();return{ok:false,title:book.title};
       }
-      if(/pasti|pastikan|sahkan|confirm/i.test(sw)){log('  -> Tekan Pasti (popup)');swalClick('pasti');swalClick('ya');swalClick('ok');swalClick();await sleep(DELAY*4);continue;}
-      if(/semak|kesilapan|ejaan|spell/i.test(sw)){log('  -> Dismiss semak ejaan');swalClick('ok');swalClick('teruskan');swalClick('tutup');swalClick();await dismissAnyPopup();await sleep(DELAY*3);continue;}
+      if(/pasti|pastikan|sahkan|confirm/i.test(sw)){
+        pastiCount++;
+        if(pastiCount>=3){err('Popup Pasti berulang 3x - rating/data gagal. Skip buku.');closeAllPopups();return{ok:false,title:book.title};}
+        log('  -> Tekan Pasti (popup) #'+pastiCount);swalClick('pasti');swalClick('ya');swalClick('ok');swalClick();await sleep(DELAY*4);continue;}
+      if(/semak|kesilapan|ejaan|spell/i.test(sw)){
+        pastiCount++;
+        if(pastiCount>=3){err('Popup semak berulang 3x - data gagal. Skip buku.');closeAllPopups();return{ok:false,title:book.title};}
+        log('  -> Dismiss semak ejaan');swalClick('ok');swalClick('teruskan');swalClick('tutup');swalClick();await dismissAnyPopup();await sleep(DELAY*3);continue;}
       if(/batalkan|cancel/i.test(sw)){log('  -> Dismiss popup');swalClick('teruskan');swalClick('ya');swalClick('ok');swalClick();await sleep(DELAY*3);continue;}
       swalClick('ok');swalClick('pasti');swalClick('ya');swalClick();await sleep(DELAY*3);continue;
     }
