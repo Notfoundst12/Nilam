@@ -46,14 +46,14 @@ function findField(text){
     }
 
     p=lb.parentElement;
-    for(d=0;d<5&&p;d++){e=p.querySelector('input:not([type=hidden]):not([type=checkbox]):not([type=radio]):not([type=file]):not([type=button]):not([type=submit]),select,textarea');if(e&&vis(e)&&!isOurPanel(e))return e;p=p.parentElement;}
+    for(d=0;d<5&&p;d++){e=p.querySelector('input:not([type=hidden]):not([type=checkbox]):not([type=radio]):not([type=file]):not([type=button]):not([type=submit]):not([type=date]):not([type=datetime-local]):not([type=time]):not([type=month]),select,textarea');if(e&&vis(e)&&!isOurPanel(e))return e;p=p.parentElement;}
   }
   var nodes=document.querySelectorAll('span,div,p,td');
   for(i=0;i<nodes.length;i++){n=nodes[i];
     var txt=n.textContent.replace(/\*/g,'').trim();
     if(txt.length>50||txt.length<2||txt.toLowerCase().indexOf(lo)<0)continue;
     p=n.parentElement;
-    for(d=0;d<5&&p;d++){e=p.querySelector('input:not([type=hidden]):not([type=checkbox]):not([type=radio]):not([type=file]):not([type=button]):not([type=submit]),select,textarea');if(e&&vis(e)&&!isOurPanel(e))return e;p=p.parentElement;}
+    for(d=0;d<5&&p;d++){e=p.querySelector('input:not([type=hidden]):not([type=checkbox]):not([type=radio]):not([type=file]):not([type=button]):not([type=submit]):not([type=date]):not([type=datetime-local]):not([type=time]):not([type=month]),select,textarea');if(e&&vis(e)&&!isOurPanel(e))return e;p=p.parentElement;}
   }
   return null;
 }
@@ -593,7 +593,7 @@ async function doBook(book,idx,total){
   await fillField('mukasurat',book.pages,['bilangan','muka','page']);await sleep(DELAY);
   await fillField('penulis',book.author,['pengarang','author']);await sleep(DELAY);
   await fillField('penerbit',book.publisher,['publisher']);await sleep(DELAY);
-  await fillField('tahun',book.year,['terbitan','year']);await sleep(DELAY);await checkPause();
+  await fillField('tahun',book.year,['year']);await sleep(DELAY);await checkPause();
 
   var lang=book.languageLabel;
   if(/inggeris|english/i.test(lang)) lang='English';
@@ -721,7 +721,9 @@ async function doBook(book,idx,total){
     var sw=swalText();
     if(sw){
       log('  [popup] '+sw.substring(0,100));
-      if(/berjaya|success|disimpan|tahniah/i.test(sw)){log('BERJAYA!');swalClick('ok');swalClick();return{ok:true,title:book.title};}
+      if(/berjaya|success|disimpan|tahniah/i.test(sw)){log('BERJAYA!');swalClick('ok');swalClick();
+        try{var ve=document.querySelector('#app')||document.querySelector('[data-app]');if(ve&&ve.__vue__&&ve.__vue__.$router)ve.__vue__.$router.push('/record/add/book').catch(function(){});}catch(x){}
+        return{ok:true,title:book.title};}
       if(/duplicate|pendua|sudah wujud|already exist|telah wujud|entry/i.test(sw)){log('DUPLIKAT - skip');closeAllPopups();await sleep(DELAY*2);return{ok:false,title:book.title,dup:true};}
       if(/gagal|error|ralat|fail/i.test(sw)){
         if(/duplicate|pendua|entry|wujud/i.test(sw)){log('DUPLIKAT (error) - skip');closeAllPopups();await sleep(DELAY*2);return{ok:false,title:book.title,dup:true};}
