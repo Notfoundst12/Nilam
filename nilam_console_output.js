@@ -7,6 +7,75 @@ var LIB_URL='https://cdn.jsdelivr.net/gh/Notfoundst12/Nilam@290c9e4/books_librar
 var UK='__nilam_used__';
 var BOOKS=[],DELAY=600,running=false,paused=false;
 
+// CRITICAL: Prevent ains.moe.gov.myundefined redirect
+// AINS's Swal success popup has a timer/callback that navigates to undefined URL
+function installNavGuard(){
+  // Guard 1: Intercept Swal.fire .then() callbacks after we handle success
+  if(window.Swal&&window.Swal.fire){
+    var _origFire=window.Swal.fire;
+    window.Swal.fire=function(){
+      var result=_origFire.apply(this,arguments);
+      if(result&&typeof result.then==='function'){
+        var _origThen=result.then;
+        result.then=function(onFulfilled,onRejected){
+          return _origThen.call(this,function(val){
+            if(window.__nilamBlock){window.__nilamBlock=false;return;}
+            if(typeof onFulfilled==='function')return onFulfilled(val);
+          },onRejected);
+        };
+      }
+      return result;
+    };
+  }
+  // Guard 2: Patch Vue router to reject undefined routes
+  try{
+    var ve=document.querySelector('#app')||document.querySelector('[data-app]');
+    if(ve&&ve.__vue__&&ve.__vue__.$router){
+      var router=ve.__vue__.$router;
+      var _origPush=router.push;
+      router.push=function(loc){
+        if(loc===undefined||loc===null||(typeof loc==='string'&&/undefined/.test(loc)))return Promise.resolve();
+        return _origPush.apply(router,arguments);
+      };
+      var _origReplace=router.replace;
+      router.replace=function(loc){
+        if(loc===undefined||loc===null||(typeof loc==='string'&&/undefined/.test(loc)))return Promise.resolve();
+        return _origReplace.apply(router,arguments);
+      };
+    }
+  }catch(x){}
+}
+
+// Patch submitRecord to inject point even if StarRating component crashed
+function installRatingGuard(){
+  try{
+    var appEl=document.querySelector('#app')||document.querySelector('[data-app]');
+    if(!appEl||!appEl.__vue__)return;
+    var queue=[appEl.__vue__];var visited=0;
+    while(queue.length&&visited<300){
+      var c=queue.shift();visited++;
+      if(typeof c.submitRecord==='function'&&!c.__nilamRG){
+        c.__nilamRG=true;
+        var _orig=c.submitRecord;
+        c.submitRecord=function(){
+          var rating=window.__nilamStarRating||4;
+          try{if(this.point===undefined||this.point===null||this.point===0)this.point=rating;}catch(x){}
+          try{if(this.$data&&(this.$data.point===undefined||this.$data.point===null||this.$data.point===0))this.$data.point=rating;}catch(x){}
+          if(this.$refs){
+            for(var key in this.$refs){
+              if(this.$refs[key]===undefined||this.$refs[key]===null){
+                this.$refs[key]={point:rating,value:rating,modelValue:rating};
+              }
+            }
+          }
+          return _orig.apply(this,arguments);
+        };
+      }
+      if(c.$children){for(var ci=0;ci<c.$children.length;ci++)queue.push(c.$children[ci]);}
+    }
+  }catch(x){}
+}
+
 function sleep(ms){return new Promise(function(r){setTimeout(r,ms)});}
 function qs(s){return document.querySelector(s);}
 function getUsed(){try{return JSON.parse(localStorage.getItem(UK))||[];}catch(e){return[];}}
@@ -46,34 +115,50 @@ function isDateInput(el){
   return false;
 }
 function closeDatePicker(){
-  // Method 1: Find "Pilih Tarikh" title text and click "Batal" nearby
-  var titles=document.querySelectorAll('div,h1,h2,h3,h4,h5,h6,p,span,header');
-  for(var i=0;i<titles.length;i++){
-    if(!vis(titles[i])||isOurPanel(titles[i]))continue;
-    var tt=(titles[i].textContent||'').trim();
-    if(tt==='Pilih Tarikh'||tt==='Select Date'||tt==='Choose Date'){
-      var parent=titles[i].parentElement;
-      for(var d=0;d<8&&parent;d++){
-        var btns=parent.querySelectorAll('button,a,.btn,[role=button],span');
-        for(var j=0;j<btns.length;j++){
-          var bt=(btns[j].innerText||btns[j].textContent||'').trim().toLowerCase();
-          if(bt==='batal'||bt==='cancel'||bt==='tutup'||bt==='close'){forceClick(btns[j]);log('  [closeDatePicker] Klik Batal');return true;}
-        }
-        parent=parent.parentElement;
+  var i,j,btns,bt;
+  // Method 1: Any visible element whose text starts with or equals "Pilih Tarikh"
+  var allEls=document.querySelectorAll('div,h1,h2,h3,h4,h5,h6,p,span,header,label,strong');
+  for(i=0;i<allEls.length;i++){
+    if(!vis(allEls[i])||isOurPanel(allEls[i]))continue;
+    var tt=(allEls[i].textContent||'').trim();
+    if(tt.length>200||tt.length<8)continue;
+    if(!/^Pilih Tarikh|^Select Date|^Choose Date/i.test(tt))continue;
+    var parent=allEls[i];
+    for(var d=0;d<10&&parent;d++){
+      btns=parent.querySelectorAll('button,a,.btn,[role=button],span');
+      for(j=0;j<btns.length;j++){
+        bt=(btns[j].innerText||btns[j].textContent||'').trim().toLowerCase();
+        if(bt==='batal'||bt==='cancel'||bt==='tutup'||bt==='close'){forceClick(btns[j]);return true;}
       }
+      parent=parent.parentElement;
     }
   }
-  // Method 2: Any visible overlay with month names (calendar)
-  var overlays=document.querySelectorAll('.modal,.v-dialog,.v-overlay,.v-overlay__content,[role=dialog],[class*=dialog],[class*=overlay],[class*=calendar],[class*=datepicker],[class*=date-picker],.flatpickr-calendar');
+  // Method 2: Find standalone "Batal" button inside ANY visible overlay/dialog
+  var overlays=document.querySelectorAll('.modal,.v-dialog,.v-overlay,.v-overlay__content,[role=dialog],[class*=dialog],[class*=overlay],[class*=picker],[class*=calendar],.flatpickr-calendar');
   for(i=0;i<overlays.length;i++){
     if(!vis(overlays[i])||isOurPanel(overlays[i]))continue;
-    var otxt=(overlays[i].innerText||'').toLowerCase();
-    if(!/tarikh|ahad|isnin|selasa|rabu|khamis|jumaat|sabtu|sun|mon|tue|wed|thu|fri|sat|januari|february|april 202/.test(otxt))continue;
     var m=overlays[i].closest('.modal');if(m&&m.id==='LanguageModal')continue;
-    var obtns=overlays[i].querySelectorAll('button,a,.btn,[role=button]');
-    for(j=0;j<obtns.length;j++){
-      var obt=(obtns[j].innerText||obtns[j].textContent||'').trim().toLowerCase();
-      if(obt==='batal'||obt==='cancel'||obt==='tutup'||obt==='close'){forceClick(obtns[j]);log('  [closeDatePicker] Klik Batal (overlay)');return true;}
+    var otxt=(overlays[i].innerText||'').toLowerCase();
+    if(!/tarikh|date|calendar|ahad|isnin|selasa|rabu|januari|februari|mac|april|mei|jun|julai|ogos|september|oktober|november|disember/.test(otxt))continue;
+    btns=overlays[i].querySelectorAll('button,a,.btn,[role=button]');
+    for(j=0;j<btns.length;j++){
+      bt=(btns[j].innerText||btns[j].textContent||'').trim().toLowerCase();
+      if(bt==='batal'||bt==='cancel'||bt==='tutup'||bt==='close'){forceClick(btns[j]);return true;}
+    }
+  }
+  // Method 3: Just find ANY visible "Batal" button that's NOT in our panel or LanguageModal
+  var allBtns=document.querySelectorAll('button,a,.btn,[role=button]');
+  for(i=0;i<allBtns.length;i++){
+    if(!vis(allBtns[i])||isOurPanel(allBtns[i]))continue;
+    var mm=allBtns[i].closest('.modal');if(mm&&mm.id==='LanguageModal')continue;
+    bt=(allBtns[i].innerText||allBtns[i].textContent||'').trim();
+    if(bt==='Batal'){
+      var nearCal=allBtns[i].parentElement;
+      for(var dd=0;dd<5&&nearCal;dd++){
+        var pt=(nearCal.innerText||'').toLowerCase();
+        if(/tarikh|date|ahad|isnin|selasa|januari|februari|april|calendar/.test(pt)){forceClick(allBtns[i]);return true;}
+        nearCal=nearCal.parentElement;
+      }
     }
   }
   return false;
@@ -702,13 +787,13 @@ async function doBook(book,idx,total){
   await sleep(DELAY);if(!running)return{ok:false,title:book.title};await checkPause();
 
   if(!running)return{ok:false,title:book.title};
-  await fillField('mukasurat',book.pages,['bilangan','muka','page']);await sleep(DELAY);
+  await fillField('mukasurat',book.pages,['bilangan','muka','page']);closeDatePicker();await sleep(DELAY);
   if(!running)return{ok:false,title:book.title};
-  await fillField('penulis',book.author,['pengarang','author']);await sleep(DELAY);
+  await fillField('penulis',book.author,['pengarang','author']);closeDatePicker();await sleep(DELAY);
   if(!running)return{ok:false,title:book.title};
-  await fillField('penerbit',book.publisher,['publisher']);await sleep(DELAY);
+  await fillField('penerbit',book.publisher,['publisher']);closeDatePicker();await sleep(DELAY);
   if(!running)return{ok:false,title:book.title};
-  await fillField('tahun',book.year,['year']);await sleep(DELAY);
+  await fillField('tahun',book.year,['year']);closeDatePicker();await sleep(DELAY);
   closeDatePicker();await checkPause();
 
   var lang=book.languageLabel;
@@ -759,9 +844,11 @@ async function doBook(book,idx,total){
   // Rating with retry
   closeDatePicker();
   var stars=Math.floor(Math.random()*3)+3;
+  window.__nilamStarRating=stars;
+  installRatingGuard();
   var starOk=await clickStarRetry(stars);
   if(starOk){log('  [OK] Rating: '+stars+' bintang');}
-  else{err('Rating GAGAL - skip buku (wajib)');closeDatePicker();return{ok:false,title:book.title};}
+  else{log('  [!] Rating klik gagal - submitRecord guard akan inject point='+stars);}
   await sleep(DELAY*2);if(!running)return{ok:false,title:book.title};await checkPause();
 
   closeDatePicker();
@@ -847,6 +934,7 @@ async function doBook(book,idx,total){
     if(sw){
       log('  [popup] '+sw.substring(0,100));
       if(/berjaya|success|disimpan|tahniah/i.test(sw)){log('BERJAYA!');
+        window.__nilamBlock=true;
         var allSc=document.querySelectorAll('.swal2-container,.swal2-backdrop-show');
         for(var si=0;si<allSc.length;si++){allSc[si].style.display='none';allSc[si].style.visibility='hidden';allSc[si].style.pointerEvents='none';}
         document.body.classList.remove('swal2-shown','swal2-height-auto');
@@ -880,6 +968,8 @@ async function doBook(book,idx,total){
 // Main runner
 async function startRun(){
   if(running||!BOOKS.length)return;running=true;paused=false;
+  installNavGuard();
+  installRatingGuard();
   btnState('run');
   var used0=getUsed();
   var avail0=[];for(var x=0;x<BOOKS.length;x++){if(used0.indexOf(BOOKS[x].title)<0)avail0.push(BOOKS[x]);}
@@ -1058,6 +1148,8 @@ function makeUI(){
 
 // Init
 makeUI();
+installNavGuard();
+installRatingGuard();
 log('Memuat turun 1117 buku...');
 
 try{
