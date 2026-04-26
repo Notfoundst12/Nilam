@@ -474,6 +474,19 @@ function closeAllPopups(){
     forceClick(el);
   }
 }
+async function dismissAnyPopup(){
+  var sels='.swal2-confirm,.swal2-cancel,.modal-footer button,.modal button,.v-dialog button,.v-card-actions button,button';
+  var els=document.querySelectorAll(sels);
+  for(var i=0;i<els.length;i++){
+    if(!vis(els[i])||isOurPanel(els[i])||els[i].disabled)continue;
+    var m=els[i].closest('.modal');if(m&&m.id==='LanguageModal')continue;
+    var t=(els[i].innerText||els[i].textContent||'').trim().toLowerCase();
+    if(t==='ok'||t==='pasti'||t==='ya'||t==='teruskan'||t==='tutup'||t==='setuju'||t==='faham'||t==='confirm'){
+      forceClick(els[i]);await sleep(500);return true;
+    }
+  }
+  return false;
+}
 async function navToForm(){
   try{var vueEl=document.querySelector('#app')||document.querySelector('[data-app]');
     if(vueEl&&vueEl.__vue__&&vueEl.__vue__.$router){vueEl.__vue__.$router.push('/record/add/book');return;}}catch(x){}
@@ -486,14 +499,16 @@ async function resetForm(){
     if(router){
       router.push('/').catch(function(){});
       await sleep(DELAY*2);
+      await dismissAnyPopup();await sleep(DELAY);
+      await dismissAnyPopup();await sleep(DELAY);
       router.push('/record/add/book').catch(function(){});
       await sleep(DELAY*6);
+      await dismissAnyPopup();await sleep(DELAY);
       return true;
     }
   }catch(x){}
 
-  // Fallback if router fails
-  for(var i=0;i<3;i++){if(clickBtn('kembali'))await sleep(DELAY*2);}
+  for(var i=0;i<3;i++){if(clickBtn('kembali')){await sleep(DELAY*2);await dismissAnyPopup();await sleep(DELAY);}}
   if(clickBtn('tambah rekod')||clickBtn('tambah'))await sleep(DELAY*5);
   return true;
 }
@@ -533,18 +548,15 @@ async function doBook(book,idx,total){
   book.publisher=String(book.publisher||'').replace(/[\r\n]+/g,' ').trim();
   // Unique Rumusan & Pengajaran without templates to avoid admin detection
   var rawSum=String(book.summary||'').trim();
-  if(!rawSum){rawSum=book.title;}
+  if(!rawSum){rawSum='Buku bertajuk '+book.title+' oleh '+book.author+' diterbitkan oleh '+book.publisher+' pada tahun '+book.year+'. Buku ini mengandungi '+book.pages+' muka surat.';}
   var words=rawSum.split(/\s+/);
-  if(words.length>12){
-    var mid=Math.floor(words.length/2);
-    // Split the summary: first half becomes rumusan, second half becomes pengajaran
-    book.summary=words.slice(0,mid).join(' ')+'...';
-    var p=words.slice(mid).join(' ');
-    // Capitalize first letter of pengajaran
-    book.review='...'+p;
+  if(words.length>=20){
+    var cut1=Math.floor(words.length*0.6);
+    book.summary=words.slice(0,cut1).join(' ');
+    book.review=words.slice(words.length-cut1).join(' ');
   }else{
     book.summary=rawSum;
-    book.review=rawSum;
+    book.review='Buku '+book.title+' oleh '+book.author+' memberi banyak pengetahuan. '+rawSum+' Buku ini mengandungi '+book.pages+' muka surat dan diterbitkan oleh '+book.publisher+'.';
   }
 
   qs('#np-prog').textContent=(idx+1)+' / '+total;
@@ -562,9 +574,12 @@ async function doBook(book,idx,total){
   log('Step 1: Maklumat Buku');
   await fillField('tajuk',book.title,['title']);await sleep(DELAY);
 
-  // Automatically select Buku (Physical) instead of E-Buku so AINS doesn't ask for a URL!
-  if(clickBtn('buku fizikal')||clickBtn('buku bukan elektronik')||clickRadio('fizikal')||clickRadio('buku')){/* prefer physical */}
+  // Automatically select Buku Fizikal — NEVER E-Buku (causes undefined URL crash)
+  if(clickBtn('buku fizikal')||clickBtn('buku bukan elektronik')||clickRadio('fizikal')){}
   await sleep(DELAY);
+  // Safeguard: if URL/pautan field appeared (E-Buku selected by mistake), clear it
+  var urlField=findField('pautan')||findField('url')||findField('laman');
+  if(urlField){urlField.value='';log('  [!] URL field detected & cleared — E-Buku mungkin terpilih');}
 
   var kat=book.categoryLabel;
   var katOk=false;
@@ -712,6 +727,10 @@ async function doBook(book,idx,total){
         if(/duplicate|pendua|entry|wujud/i.test(sw)){log('DUPLIKAT (error) - skip');closeAllPopups();await sleep(DELAY*2);return{ok:false,title:book.title,dup:true};}
         err('GAGAL: '+sw);swalClick();return{ok:false,title:book.title};
       }
+      if(/pasti|pastikan|sahkan|confirm/i.test(sw)){log('  -> Tekan Pasti (popup)');swalClick('pasti');swalClick('ya');swalClick('ok');swalClick();await sleep(DELAY*4);continue;}
+      if(/semak|kesilapan|ejaan|spell/i.test(sw)){log('  -> Dismiss semak ejaan');swalClick('ok');swalClick('teruskan');swalClick('tutup');swalClick();await dismissAnyPopup();await sleep(DELAY*3);continue;}
+      if(/batalkan|cancel/i.test(sw)){log('  -> Dismiss popup');swalClick('teruskan');swalClick('ya');swalClick('ok');swalClick();await sleep(DELAY*3);continue;}
+      swalClick('ok');swalClick('pasti');swalClick('ya');swalClick();await sleep(DELAY*3);continue;
     }
 
     // Every 10 iterations log diagnostics
@@ -735,7 +754,7 @@ async function startRun(){
   while(ok+fail<target&&running){
     var used=getUsed();
     var avail=[];for(var y=0;y<BOOKS.length;y++){if(used.indexOf(BOOKS[y].title)<0)avail.push(BOOKS[y]);}
-    if(!avail.length){err('Semua buku habis! Tekan Reset.');break;}
+    if(!avail.length){log('Semua buku habis! Auto-reset...');resetUsedList();updateStats();avail=BOOKS.slice();}
     var book=avail[0];
     markUsed(book.title);
     updateStats();
