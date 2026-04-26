@@ -34,23 +34,48 @@ function isDateInput(el){
   if(/date|tarikh|calendar/i.test(attr))return true;
   var p=el.parentElement;
   for(var d=0;d<3&&p;d++){var pc=(p.className||'').toLowerCase();if(/date|tarikh|calendar|datepicker/.test(pc))return true;p=p.parentElement;}
+  if(el.readOnly&&el.type==='text'){
+    var sib=el.previousElementSibling;
+    if(sib){var st=(sib.textContent||'').trim().toLowerCase();if(st.length<30&&/tarikh|date/i.test(st))return true;}
+    var par=el.parentElement;
+    if(par){
+      var lbl=par.querySelector('label,span');
+      if(lbl){var lt=(lbl.textContent||'').trim().toLowerCase();if(lt.length<30&&/tarikh|date/i.test(lt))return true;}
+    }
+  }
   return false;
 }
 function closeDatePicker(){
-  var modals=document.querySelectorAll('.modal,.v-dialog,.v-overlay,.datepicker,.flatpickr-calendar,[class*=calendar],[class*=datepicker],[class*=date-picker]');
-  for(var i=0;i<modals.length;i++){
-    if(!vis(modals[i])||isOurPanel(modals[i]))continue;
-    var txt=(modals[i].innerText||'').toLowerCase();
-    if(!/tarikh|date|calendar|januari|februari|mac|april|mei|jun|julai|ogos|september|oktober|november|disember|january|february|march|may|june|july|august|october|december|ahad|isnin|selasa|rabu|khamis|jumaat|sabtu|sun|mon|tue|wed|thu|fri|sat/.test(txt))continue;
-    var m=modals[i].closest('.modal');if(m&&m.id==='LanguageModal')continue;
-    var btns=modals[i].querySelectorAll('button,a,.btn,[role=button]');
-    for(var j=0;j<btns.length;j++){
-      var bt=(btns[j].innerText||btns[j].textContent||'').trim().toLowerCase();
-      if(bt==='batal'||bt==='cancel'||bt==='tutup'||bt==='close'){forceClick(btns[j]);return true;}
+  // Method 1: Find "Pilih Tarikh" title text and click "Batal" nearby
+  var titles=document.querySelectorAll('div,h1,h2,h3,h4,h5,h6,p,span,header');
+  for(var i=0;i<titles.length;i++){
+    if(!vis(titles[i])||isOurPanel(titles[i]))continue;
+    var tt=(titles[i].textContent||'').trim();
+    if(tt==='Pilih Tarikh'||tt==='Select Date'||tt==='Choose Date'){
+      var parent=titles[i].parentElement;
+      for(var d=0;d<8&&parent;d++){
+        var btns=parent.querySelectorAll('button,a,.btn,[role=button],span');
+        for(var j=0;j<btns.length;j++){
+          var bt=(btns[j].innerText||btns[j].textContent||'').trim().toLowerCase();
+          if(bt==='batal'||bt==='cancel'||bt==='tutup'||bt==='close'){forceClick(btns[j]);log('  [closeDatePicker] Klik Batal');return true;}
+        }
+        parent=parent.parentElement;
+      }
     }
   }
-  var fp=document.querySelector('.flatpickr-calendar.open,.datepicker.show,[class*=datepicker][class*=show],[class*=datepicker][class*=open]');
-  if(fp){var cl=fp.querySelector('button');if(cl)forceClick(cl);else fp.style.display='none';return true;}
+  // Method 2: Any visible overlay with month names (calendar)
+  var overlays=document.querySelectorAll('.modal,.v-dialog,.v-overlay,.v-overlay__content,[role=dialog],[class*=dialog],[class*=overlay],[class*=calendar],[class*=datepicker],[class*=date-picker],.flatpickr-calendar');
+  for(i=0;i<overlays.length;i++){
+    if(!vis(overlays[i])||isOurPanel(overlays[i]))continue;
+    var otxt=(overlays[i].innerText||'').toLowerCase();
+    if(!/tarikh|ahad|isnin|selasa|rabu|khamis|jumaat|sabtu|sun|mon|tue|wed|thu|fri|sat|januari|february|april 202/.test(otxt))continue;
+    var m=overlays[i].closest('.modal');if(m&&m.id==='LanguageModal')continue;
+    var obtns=overlays[i].querySelectorAll('button,a,.btn,[role=button]');
+    for(j=0;j<obtns.length;j++){
+      var obt=(obtns[j].innerText||obtns[j].textContent||'').trim().toLowerCase();
+      if(obt==='batal'||obt==='cancel'||obt==='tutup'||obt==='close'){forceClick(obtns[j]);log('  [closeDatePicker] Klik Batal (overlay)');return true;}
+    }
+  }
   return false;
 }
 function findField(text){
@@ -364,21 +389,34 @@ async function clickLanguageDirectly(lang) {
 function tryClickStar(n){
   var i,j,items,el;
 
-  // Strategy 0: BFS the Vue component tree to find ANY component with 'point' data (AINS stores rating here)
+  // Strategy 0: BFS Vue tree — find StarRating component and CLICK its star elements (NOT inject data)
   try{
     var appEl=document.querySelector('#app')||document.querySelector('[data-app]');
     if(appEl&&appEl.__vue__){
       var queue=[appEl.__vue__];
       var visited=0;
-      while(queue.length&&visited<200){
+      while(queue.length&&visited<300){
         var comp=queue.shift();visited++;
+        if(!comp.$el||!vis(comp.$el)){if(comp.$children){for(var ci2=0;ci2<comp.$children.length;ci2++)queue.push(comp.$children[ci2]);}continue;}
         var cd=comp.$data||comp;
-        if(cd.point!==undefined){
-          cd.point=n;
-          try{comp.$emit('input',n);}catch(x){}
-          try{comp.$emit('change',n);}catch(x){}
-          try{comp.$forceUpdate();}catch(x){}
-          log('  [Vue-tree] Set point='+n);return true;
+        var hasPoint=(cd.point!==undefined||cd.rating!==undefined||cd.modelValue!==undefined);
+        if(hasPoint){
+          var cel=comp.$el;
+          var rect=cel.getBoundingClientRect();
+          if(rect.width<500&&rect.height<200&&rect.width>20){
+            var starKids=cel.querySelectorAll('svg,i,span,button,label,div');
+            var clickable=[];
+            for(var si=0;si<starKids.length;si++){
+              if(vis(starKids[si])&&!isOurPanel(starKids[si])){
+                var sr=starKids[si].getBoundingClientRect();
+                if(sr.width>5&&sr.width<80&&sr.height>5&&sr.height<80)clickable.push(starKids[si]);
+              }
+            }
+            if(clickable.length>=3&&clickable.length<=15){
+              forceClick(clickable[Math.min(n-1,clickable.length-1)]);
+              log('  [Vue-el] Clicked star '+n+'/'+clickable.length);return true;
+            }
+          }
         }
         if(comp.$children){for(var ci=0;ci<comp.$children.length;ci++){queue.push(comp.$children[ci]);}}
       }
@@ -410,7 +448,7 @@ function tryClickStar(n){
     }
   }catch(x){}
 
-  // Strategy 1b: Walk from rating/penilaian labels to find Vue component with 'point'
+  // Strategy 1b: Walk from rating/penilaian labels, CLICK star-like children (don't inject data)
   try{
     var rLabels=document.querySelectorAll('label,span,div,p,h1,h2,h3,h4,h5,h6');
     for(i=0;i<rLabels.length;i++){
@@ -420,16 +458,16 @@ function tryClickStar(n){
       if(rlt.indexOf('penilaian')<0&&rlt.indexOf('rating')<0&&rlt.indexOf('bintang')<0&&rlt.indexOf('nilai')<0)continue;
       var rp=rLabels[i].parentElement;
       for(var rd=0;rd<8&&rp;rd++){
-        if(rp.__vue__){
-          var rvm=rp.__vue__;var rdt=rvm.$data||rvm;
-          if(rdt.point!==undefined){rdt.point=n;try{rvm.$emit('input',n);}catch(x){}try{rvm.$emit('change',n);}catch(x){}try{rvm.$forceUpdate();}catch(x){}log('  [Vue-label] Set point='+n);return true;}
-          if(rvm.$children){for(var ci=0;ci<rvm.$children.length;ci++){var cdt=rvm.$children[ci].$data||rvm.$children[ci];if(cdt.point!==undefined){cdt.point=n;try{rvm.$children[ci].$emit('input',n);}catch(x){}try{rvm.$children[ci].$emit('change',n);}catch(x){}try{rvm.$children[ci].$forceUpdate();}catch(x){}log('  [Vue-child] Set point='+n);return true;}}}
+        var rch=rp.querySelectorAll('svg,i,span,button,div,img');
+        var rClickable=[];
+        for(var ri=0;ri<rch.length;ri++){
+          if(!vis(rch[ri])||isOurPanel(rch[ri])||rch[ri]===rLabels[i])continue;
+          var rr=rch[ri].getBoundingClientRect();
+          if(rr.width>5&&rr.width<80&&rr.height>5&&rr.height<80)rClickable.push(rch[ri]);
         }
-        var rch=rp.querySelectorAll('div,span,i,svg,button');
-        for(var ri=0;ri<Math.min(rch.length,60);ri++){
-          if(rch[ri].__vue__){var rvm2=rch[ri].__vue__;var rdt2=rvm2.$data||rvm2;
-            if(rdt2.point!==undefined){rdt2.point=n;try{rvm2.$emit('input',n);}catch(x){}try{rvm2.$emit('change',n);}catch(x){}try{rvm2.$forceUpdate();}catch(x){}log('  [Vue-near] Set point='+n);return true;}
-          }
+        if(rClickable.length>=3&&rClickable.length<=15){
+          forceClick(rClickable[Math.min(n-1,rClickable.length-1)]);
+          log('  [Label-click] Clicked star '+n+'/'+rClickable.length);return true;
         }
         rp=rp.parentElement;
       }
@@ -655,12 +693,14 @@ async function doBook(book,idx,total){
   else if(clickRadio(kat)||clickBtn(kat)){log('  [OK] kategori (radio/btn)');katOk=true;}
   else{log('  [!] kategori: tak jumpa');}
 
+  closeDatePicker();
   await sleep(DELAY);await checkPause();
 
   await fillField('mukasurat',book.pages,['bilangan','muka','page']);await sleep(DELAY);
   await fillField('penulis',book.author,['pengarang','author']);await sleep(DELAY);
   await fillField('penerbit',book.publisher,['publisher']);await sleep(DELAY);
-  await fillField('tahun',book.year,['year']);await sleep(DELAY);await checkPause();
+  await fillField('tahun',book.year,['year']);await sleep(DELAY);
+  closeDatePicker();await checkPause();
 
   var lang=book.languageLabel;
   if(/inggeris|english/i.test(lang)) lang='English';
@@ -687,6 +727,7 @@ async function doBook(book,idx,total){
     return {ok:false, title:book.title};
   }
 
+  closeDatePicker();
   await sleep(DELAY);
 
   closeDatePicker();
@@ -704,6 +745,7 @@ async function doBook(book,idx,total){
   await sleep(DELAY*3);
 
   // Rating with retry
+  closeDatePicker();
   var stars=Math.floor(Math.random()*3)+3;
   var starOk=await clickStarRetry(stars);
   if(starOk){log('  [OK] Rating: '+stars+' bintang');}
