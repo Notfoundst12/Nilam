@@ -3,7 +3,7 @@
 console.log('%c[NILAM] v10.13 sedang dimuatkan...','color:#a78bfa;font-weight:bold;font-size:14px');
 (async function(){
 
-var LIB_URL='https://cdn.jsdelivr.net/gh/Notfoundst12/Nilam@290c9e4/books_library.json';
+var LIB_URL='https://cdn.jsdelivr.net/gh/Notfoundst12/Nilam@85d60ce/books_library.json';
 var UK='__nilam_used__';
 var BOOKS=[],DELAY=600,running=false,paused=false;
 
