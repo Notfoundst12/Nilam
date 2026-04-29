@@ -1,5 +1,5 @@
 // NILAM Auto-Fill v10.13
-// 817 buku sebenar. Zero arrow functions. Zero template literals. Max compatibility.
+// 417 buku sebenar. Zero arrow functions. Zero template literals. Max compatibility.
 console.log('%c[NILAM] v10.13 sedang dimuatkan...','color:#a78bfa;font-weight:bold;font-size:14px');
 (async function(){
 
@@ -7,10 +7,10 @@ var LIB_URL='https://cdn.jsdelivr.net/gh/Notfoundst12/Nilam@85d60ce/books_librar
 var UK='__nilam_used__';
 var BOOKS=[],DELAY=600,running=false,paused=false;
 
-// CRITICAL: Prevent ains.moe.gov.myundefined redirect
-// AINS's Swal success popup has a timer/callback that navigates to undefined URL
+// CRITICAL: Prevent ains.moe.gov.myundefined redirect + FORCE inject rating point
 function installNavGuard(){
-  // Guard 1: Intercept Swal.fire .then() callbacks after we handle success
+  // Guard 1: Intercept Swal.fire .then() callbacks
+  // Must return a pending promise to HALT the AINS redirect execution chain completely
   if(window.Swal&&window.Swal.fire){
     var _origFire=window.Swal.fire;
     window.Swal.fire=function(){
@@ -19,12 +19,53 @@ function installNavGuard(){
         var _origThen=result.then;
         result.then=function(onFulfilled,onRejected){
           return _origThen.call(this,function(val){
-            if(window.__nilamBlock){window.__nilamBlock=false;return;}
+            if(window.__nilamBlock){window.__nilamBlock=false;return new Promise(function(){});}
             if(typeof onFulfilled==='function')return onFulfilled(val);
           },onRejected);
         };
       }
       return result;
+    };
+  }
+
+  // Guard 2: Network Interceptor - FORCE inject "point" into JSON payload before it leaves browser
+  if(!window.__nilamXhrPatched){
+    window.__nilamXhrPatched=true;
+    // Intercept XMLHttpRequest
+    var _origSend=XMLHttpRequest.prototype.send;
+    XMLHttpRequest.prototype.send=function(body){
+      if(typeof body==='string'&&body.indexOf('"type":"book"')>=0){
+        try{
+          var j=JSON.parse(body);
+          if(j&&j.data&&j.data.type==='book'){
+            if(j.data.point===undefined||j.data.point===null){
+              var rtg=window.__nilamStarRating||5;
+              j.data.point=rtg;
+              body=JSON.stringify(j);
+              console.log('[NILAM] XHR Intercept: Injected point='+rtg+' into payload!');
+            }
+          }
+        }catch(x){}
+      }
+      return _origSend.call(this,body);
+    };
+    // Intercept Fetch API
+    var _origFetch=window.fetch;
+    window.fetch=function(){
+      if(arguments[1]&&typeof arguments[1].body==='string'&&arguments[1].body.indexOf('"type":"book"')>=0){
+        try{
+          var j=JSON.parse(arguments[1].body);
+          if(j&&j.data&&j.data.type==='book'){
+            if(j.data.point===undefined||j.data.point===null){
+              var rtg=window.__nilamStarRating||5;
+              j.data.point=rtg;
+              arguments[1].body=JSON.stringify(j);
+              console.log('[NILAM] Fetch Intercept: Injected point='+rtg+' into payload!');
+            }
+          }
+        }catch(x){}
+      }
+      return _origFetch.apply(this,arguments);
     };
   }
   // Guard 2: Patch Vue router to reject undefined routes
@@ -1150,7 +1191,7 @@ function makeUI(){
 makeUI();
 installNavGuard();
 installRatingGuard();
-log('Memuat turun 817 buku...');
+log('Memuat turun 417 buku...');
 
 try{
   var r=await fetch(LIB_URL);if(!r.ok)throw new Error('HTTP '+r.status);
