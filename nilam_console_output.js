@@ -1,5 +1,5 @@
 // NILAM Auto-Fill v10.14
-// 417 buku sebenar. Zero arrow functions. Zero template literals. Max compatibility.
+// 1091 buku sebenar. Zero arrow functions. Zero template literals. Max compatibility.
 console.log('%c[NILAM] v10.14 sedang dimuatkan...','color:#a78bfa;font-weight:bold;font-size:14px');
 (async function(){
 
@@ -1191,7 +1191,7 @@ function makeUI(){
 makeUI();
 installNavGuard();
 installRatingGuard();
-log('Memuat turun 417 buku...');
+log('Memuat turun 1091 buku...');
 
 try{
   var r=await fetch(LIB_URL);if(!r.ok)throw new Error('HTTP '+r.status);
