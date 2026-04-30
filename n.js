@@ -1,6 +1,6 @@
-// NILAM Auto-Fill v10.16
-// 1091 buku sebenar. Zero arrow functions. Zero template literals. Max compatibility.
-console.log('%c[NILAM] v10.16 sedang dimuatkan...','color:#a78bfa;font-weight:bold;font-size:14px');
+// NILAM Auto-Fill v10.17
+// 10,000 buku sintetik. Zero arrow functions. Zero template literals. Max compatibility.
+console.log('%c[NILAM] v10.17 sedang dimuatkan...','color:#a78bfa;font-weight:bold;font-size:14px');
 (async function(){
 
 var LIB_URL='https://cdn.jsdelivr.net/gh/Notfoundst12/Nilam@8e8bf1a/books_library.json';
@@ -1042,10 +1042,10 @@ async function startRun(){
   while(ok+fail<target&&running){
     var used=await getUsed();
     var avail=[];for(var y=0;y<BOOKS.length;y++){if(used.indexOf(BOOKS[y].title)<0)avail.push(BOOKS[y]);}
-    if(!avail.length){log('Semua buku habis! Auto-reset...');await resetUsedList();await await updateStats();avail=BOOKS.slice();}
+    if(!avail.length){log('Semua buku habis! Auto-reset...');await resetUsedList();await updateStats();avail=BOOKS.slice();}
     var book=avail[0];
     await markUsed(book.title);
-    await await updateStats();
+    await updateStats();
     var res=await doBook(book,idx,target);
     if(res.ok){ok++;}
     else if(res.dup){dup++;log('Duplikat #'+dup+' - cuba buku lain...');}
@@ -1146,7 +1146,7 @@ function makeUI(){
   html+='<div class="np-card">';
   html+='<div class="np-hd" id="np-hd">';
   html+='<div class="np-hd-l"><div class="np-ico">N</div><span class="np-ttl">NILAM Auto-Fill</span></div>';
-  html+='<div class="np-hd-r"><span class="np-ver">v10.16</span><button class="np-x" id="np-mn">-</button></div>';
+  html+='<div class="np-hd-r"><span class="np-ver">v10.17</span><button class="np-x" id="np-mn">-</button></div>';
   html+='</div>';
   html+='<div id="np-body">';
   html+='<div class="np-stats">';
@@ -1204,7 +1204,7 @@ function makeUI(){
   document.getElementById('np-go').onclick=startRun;
   document.getElementById('np-pa').onclick=function(){paused=!paused;document.getElementById('np-pa').textContent=paused?'Sambung':'Pause';log(paused?'DIJEDA':'Disambung');};
   document.getElementById('np-st').onclick=function(){running=false;paused=false;log('DIHENTIKAN');btnState('idle');};
-  document.getElementById('np-rs').onclick=async function(){if(confirm('Reset semua buku yang sudah dipakai?')){await resetUsedList();await await updateStats();log('Senarai direset');}};
+  document.getElementById('np-rs').onclick=async function(){if(confirm('Reset semua buku yang sudah dipakai?')){await resetUsedList();await updateStats();log('Senarai direset');}};
 }
 
 // Init

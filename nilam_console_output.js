@@ -1,11 +1,16 @@
-// NILAM Auto-Fill v10.15
-// 1091 buku sebenar. Zero arrow functions. Zero template literals. Max compatibility.
-console.log('%c[NILAM] v10.15 sedang dimuatkan...','color:#a78bfa;font-weight:bold;font-size:14px');
+// NILAM Auto-Fill v10.17
+// 10,000 buku sintetik. Zero arrow functions. Zero template literals. Max compatibility.
+console.log('%c[NILAM] v10.17 sedang dimuatkan...','color:#a78bfa;font-weight:bold;font-size:14px');
 (async function(){
 
-var LIB_URL='https://cdn.jsdelivr.net/gh/Notfoundst12/Nilam@98b4ce1/books_library.json';
+var LIB_URL='https://cdn.jsdelivr.net/gh/Notfoundst12/Nilam@8e8bf1a/books_library.json';
 var UK='__nilam_used__';
 var BOOKS=[],DELAY=600,running=false,paused=false;
+
+// Supabase Cloud Memory config
+var SUPA_URL = 'https://yzjsmtxhpdlsniqpcuoa.supabase.co/rest/v1/nilam_used_books';
+var SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl6anNtdHhocGRsc25pcXBjdW9hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ5Mzk2ODQsImV4cCI6MjA4MDUxNTY4NH0.jMq8BwvYlODSWiFv7ysM7KiDCjzviMEJFdn1Vfst3mw';
+
 
 // CRITICAL: Prevent ains.moe.gov.myundefined redirect + FORCE inject rating point
 function installNavGuard(){
@@ -119,9 +124,24 @@ function installRatingGuard(){
 
 function sleep(ms){return new Promise(function(r){setTimeout(r,ms)});}
 function qs(s){return document.querySelector(s);}
-function getUsed(){try{return JSON.parse(localStorage.getItem(UK))||[];}catch(e){return[];}}
-function markUsed(t){var u=getUsed();if(u.indexOf(t)<0){u.push(t);localStorage.setItem(UK,JSON.stringify(u));}}
-function resetUsedList(){localStorage.removeItem(UK);}
+// Cloud Memory using Supabase
+async function getUsed(){
+  try{
+    var r=await fetch(SUPA_URL+'?select=title',{headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}});
+    if(r.ok){var d=await r.json();return d.map(function(x){return x.title});}
+  }catch(e){}
+  try{return JSON.parse(localStorage.getItem(UK))||[];}catch(e){return[];}
+}
+async function markUsed(t){
+  try{
+    var u=JSON.parse(localStorage.getItem(UK))||[];if(u.indexOf(t)<0){u.push(t);localStorage.setItem(UK,JSON.stringify(u));}
+    fetch(SUPA_URL,{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Prefer':'resolution=ignore-duplicates'},body:JSON.stringify({title:t})});
+  }catch(e){}
+}
+async function resetUsedList(){
+  localStorage.removeItem(UK);
+  try{await fetch(SUPA_URL+'?title=not.eq.random_string',{method:'DELETE',headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}});}catch(e){}
+}
 
 function pLog(m){var el=document.getElementById('nl');if(!el)return;
   var t=new Date().toLocaleTimeString('ms-MY',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
@@ -1012,7 +1032,7 @@ async function startRun(){
   installNavGuard();
   installRatingGuard();
   btnState('run');
-  var used0=getUsed();
+  var used0=await getUsed();
   var avail0=[];for(var x=0;x<BOOKS.length;x++){if(used0.indexOf(BOOKS[x].title)<0)avail0.push(BOOKS[x]);}
   if(!avail0.length){err('Semua buku habis! Tekan Reset.');running=false;btnState('idle');return;}
   log('Memulakan... ('+avail0.length+' buku tersedia)');
@@ -1020,12 +1040,12 @@ async function startRun(){
   var ok=0,fail=0,dup=0,target=Math.min(parseInt(qs('#np-cnt').value)||5,100);
   var idx=0;
   while(ok+fail<target&&running){
-    var used=getUsed();
+    var used=await getUsed();
     var avail=[];for(var y=0;y<BOOKS.length;y++){if(used.indexOf(BOOKS[y].title)<0)avail.push(BOOKS[y]);}
-    if(!avail.length){log('Semua buku habis! Auto-reset...');resetUsedList();updateStats();avail=BOOKS.slice();}
+    if(!avail.length){log('Semua buku habis! Auto-reset...');await resetUsedList();await updateStats();avail=BOOKS.slice();}
     var book=avail[0];
-    markUsed(book.title);
-    updateStats();
+    await markUsed(book.title);
+    await updateStats();
     var res=await doBook(book,idx,target);
     if(res.ok){ok++;}
     else if(res.dup){dup++;log('Duplikat #'+dup+' - cuba buku lain...');}
@@ -1049,8 +1069,8 @@ async function startRun(){
 }
 
 // UI
-function updateStats(){
-  var used=getUsed();
+async function updateStats(){
+  var used=await getUsed();
   qs('#np-lib').textContent=BOOKS.length;
   qs('#np-rem').textContent=BOOKS.length-used.length;
   qs('#np-usd').textContent=used.length;
@@ -1126,7 +1146,7 @@ function makeUI(){
   html+='<div class="np-card">';
   html+='<div class="np-hd" id="np-hd">';
   html+='<div class="np-hd-l"><div class="np-ico">N</div><span class="np-ttl">NILAM Auto-Fill</span></div>';
-  html+='<div class="np-hd-r"><span class="np-ver">v10.15</span><button class="np-x" id="np-mn">-</button></div>';
+  html+='<div class="np-hd-r"><span class="np-ver">v10.17</span><button class="np-x" id="np-mn">-</button></div>';
   html+='</div>';
   html+='<div id="np-body">';
   html+='<div class="np-stats">';
@@ -1184,7 +1204,7 @@ function makeUI(){
   document.getElementById('np-go').onclick=startRun;
   document.getElementById('np-pa').onclick=function(){paused=!paused;document.getElementById('np-pa').textContent=paused?'Sambung':'Pause';log(paused?'DIJEDA':'Disambung');};
   document.getElementById('np-st').onclick=function(){running=false;paused=false;log('DIHENTIKAN');btnState('idle');};
-  document.getElementById('np-rs').onclick=function(){if(confirm('Reset semua buku yang sudah dipakai?')){resetUsedList();updateStats();log('Senarai direset');}};
+  document.getElementById('np-rs').onclick=async function(){if(confirm('Reset semua buku yang sudah dipakai?')){await resetUsedList();await updateStats();log('Senarai direset');}};
 }
 
 // Init
@@ -1197,7 +1217,7 @@ try{
   var r=await fetch(LIB_URL);if(!r.ok)throw new Error('HTTP '+r.status);
   BOOKS=await r.json();
   log(BOOKS.length+' buku sebenar dimuatkan');
-  updateStats();
+  await updateStats();
   var go=document.getElementById('np-go');
   go.disabled=false;go.textContent='Mula';go.className='np-btn b-go';
   document.getElementById('np-prog').textContent='Sedia. Tekan MULA.';
