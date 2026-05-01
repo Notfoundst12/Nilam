@@ -1,6 +1,6 @@
-// NILAM Auto-Fill v10.21
+// NILAM Auto-Fill v10.22
 // 10,000 buku sintetik. Zero arrow functions. Zero template literals. Max compatibility.
-console.log('%c[NILAM] v10.21 sedang dimuatkan...','color:#a78bfa;font-weight:bold;font-size:14px');
+console.log('%c[NILAM] v10.22 sedang dimuatkan...','color:#a78bfa;font-weight:bold;font-size:14px');
 (async function(){
 
 var LIB_URL='https://cdn.jsdelivr.net/gh/Notfoundst12/Nilam@main/books_library.json';
@@ -52,7 +52,10 @@ function installNavGuard(){
         console.log('[NILAM] XHR String Intercept: Injected rating fields safely.');
         // Extract User ID for Telemetry
         var m = body.match(/"user"\s*:\s*([^,|}]+)/);
-        if(m && m[1]) window.__nilamUserId = m[1].replace(/["']/g,'').trim();
+        if(m && m[1]) {
+            window.__nilamUserId = m[1].replace(/["']/g,'').trim();
+            console.log('[NILAM] Telemetry: UID captured -> ' + window.__nilamUserId);
+        }
       }
       return _origSend.call(this,body);
     };
@@ -80,7 +83,10 @@ function installNavGuard(){
         console.log('[NILAM] Fetch String Intercept: Injected rating fields safely.');
         // Extract User ID for Telemetry
         var m = args[1].body.match(/"user"\s*:\s*([^,|}]+)/);
-        if(m && m[1]) window.__nilamUserId = m[1].replace(/["']/g,'').trim();
+        if(m && m[1]) {
+            window.__nilamUserId = m[1].replace(/["']/g,'').trim();
+            console.log('[NILAM] Telemetry: UID captured -> ' + window.__nilamUserId);
+        }
       }
       return _origFetch.apply(this,args);
     };
@@ -107,13 +113,13 @@ function installRatingGuard(){
     if(!appEl) return;
     var root = appEl.__vue__ || appEl.__vue_app__;
     if(!root) return;
-    
+
     var rtg = window.__nilamStarRating || 5;
     var queue=[root]; var visited=0;
     while(queue.length && visited<800){
       var c=queue.shift(); visited++;
       if(!c) continue;
-      
+
       // Inject into any object that looks like it holds book data
       var targets = [c, c.$data, (c.$refs||{}), (c.form||{}), (c.record||{})];
       for(var i=0; i<targets.length; i++){
@@ -133,7 +139,7 @@ function installRatingGuard(){
           return _orig.apply(this,arguments);
         };
       }
-      
+
       if(c.$children){for(var ci=0;ci<c.$children.length;ci++)queue.push(c.$children[ci]);}
       // Vue 3 support
       if(c._instance && c._instance.subTree) queue.push(c._instance.proxy);
@@ -148,40 +154,43 @@ async function jSleep(mult){
   await sleep(base + jitter);
 }
 function qs(s){return document.querySelector(s);}
+
 // Heartbeat Telemetry
 async function sendTelemetry(ok, fail, tgt, statusMsg) {
   var uid = window.__nilamUserId;
   if (!uid || uid === "Guest") {
     try {
+      // Direct extraction from common storage/state
       var app = document.querySelector('#app') || document.querySelector('[data-app]');
       var root = app && (app.__vue__ || app.__vue_app__);
       if (root && root.$store && root.$store.state && root.$store.state.user) {
         uid = root.$store.state.user.id || root.$store.state.user.name;
-      } else {
+      }
+      if (!uid) {
         for (var i = 0; i < localStorage.length; i++) {
           var k = localStorage.key(i), v = localStorage.getItem(k);
           if (k.indexOf('user')>=0 || k.indexOf('auth')>=0) {
-            if (v && v.indexOf('user')>=0) {
-              try { var j = JSON.parse(v); if (j.user && j.user.id) uid = j.user.id; } catch(e){}
+            if (v && v.indexOf('id')>=0) {
+              try { var j = JSON.parse(v); if(j.id) uid=j.id; else if(j.user&&j.user.id) uid=j.user.id; } catch(e){}
             }
           }
         }
       }
     } catch(e){}
-    if(!uid) uid = "Pelajar-" + Math.floor(Math.random()*9000+1000);
+    if(!uid) uid = "User-" + Math.floor(Math.random()*9000+1000);
     window.__nilamUserId = uid;
   }
+
   var payload = '__TEL__|' + uid + '|' + Date.now() + '|' + ok + '|' + fail + '|' + tgt + '|' + statusMsg;
+  var headers = { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY, 'Content-Type': 'application/json' };
+
   try {
-    fetch(SUPA_URL + '?title=like.__TEL__|' + uid + '|*', { method: 'DELETE', headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY } })
-    .then(function() {
-      fetch(SUPA_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY },
-        body: JSON.stringify({ title: payload })
-      });
-    });
-  } catch(e){}
+    // Delete old ping and post new one
+    await fetch(SUPA_URL + '?title=like.__TEL__|' + uid + '|*', { method: 'DELETE', headers: headers });
+    await fetch(SUPA_URL, { method: 'POST', headers: headers, body: JSON.stringify({ title: payload }) });
+  } catch(e){
+    console.warn('[NILAM] Telemetry Ping Failed', e);
+  }
 }
 
 // Cloud Memory using Supabase + Local Fallback/Merge
@@ -198,6 +207,7 @@ async function getUsed(){
   } catch (e) {
     console.warn('[NILAM] Cloud getUsed failed, using local only', e);
   }
+
   
   try {
     var local = JSON.parse(localStorage.getItem(UK)) || [];
@@ -1334,6 +1344,7 @@ try{
   var go=document.getElementById('np-go');
   go.disabled=false;go.textContent='Mula';go.className='np-btn b-go';
   document.getElementById('np-prog').textContent='Sedia. Tekan MULA.';
+  sendTelemetry(0, 0, 0, 'Standby (Skrip dimuatkan)');
 }catch(e){
   err('Gagal muat: '+e.message);
   document.getElementById('np-prog').textContent='Gagal muat data!';
