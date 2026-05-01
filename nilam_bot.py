@@ -20,7 +20,7 @@ def send_welcome(message):
     
     bot.send_message(
         message.chat.id, 
-        "👋 *NILAM Automation Bot Active*\n\nSistem Pemantauan AINS v10.19\nSila pilih operasi di bawah:",
+        "👋 *NILAM Automation Bot Active*\n\nSistem Pemantauan AINS v10.20 (Bypass Edition)\nSila pilih operasi di bawah:",
         parse_mode="Markdown",
         reply_markup=markup
     )
@@ -44,7 +44,8 @@ def handle_query(call):
             msg = (
                 "📊 *STATISTIK NILAM AUTO-FILL*\n\n"
                 f"📚 *Buku Tersedia:* {total_books:,} buku\n"
-                "🟢 *Status Sistem:* Aktif (v10.19)\n"
+                "🟢 *Status Sistem:* Aktif (v10.20)\n"
+                "🛡️ *Bypass Mode:* Jitter + URL Spoofing + Auto-Sleep\n"
                 "🌐 *Penyelarasan:* CDN + Supabase"
             )
             bot.send_message(call.message.chat.id, msg, parse_mode="Markdown")
@@ -53,7 +54,8 @@ def handle_query(call):
 
     elif call.data == "script_latest":
         script_code = (
-            "🛠 *SKRIP NILAM AUTO-FILL TERKINI (v10.19)*\n\n"
+            "🛠 *SKRIP NILAM AUTO-FILL TERKINI (v10.20)*\n\n"
+            "✨ *Fitur:* Bypass Rate Limit & Auto-Sleep Aktif.\n\n"
             "Salin (copy) kod di bawah:\n\n"
             "`var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/gh/Notfoundst12/Nilam@main/n.js?v='+Date.now();document.head.appendChild(s);`"
         )
