@@ -1,6 +1,6 @@
-// NILAM Auto-Fill v10.18
+// NILAM Auto-Fill v10.19
 // 10,000 buku sintetik. Zero arrow functions. Zero template literals. Max compatibility.
-console.log('%c[NILAM] v10.18 sedang dimuatkan...','color:#a78bfa;font-weight:bold;font-size:14px');
+console.log('%c[NILAM] v10.19 sedang dimuatkan...','color:#a78bfa;font-weight:bold;font-size:14px');
 (async function(){
 
 var LIB_URL='https://cdn.jsdelivr.net/gh/Notfoundst12/Nilam@main/books_library.json';
@@ -14,7 +14,7 @@ var SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJ
 
 // CRITICAL: Prevent ains.moe.gov.myundefined redirect + FORCE inject rating point
 function installNavGuard(){
-  // Guard 1: Intercept Swal.fire .then() callbacks
+  // Guard 1: Intercept Swal.fire
   if(window.Swal&&window.Swal.fire){
     var _origFire=window.Swal.fire;
     window.Swal.fire=function(){
@@ -32,68 +32,47 @@ function installNavGuard(){
     };
   }
 
-  // Helper to deep inject rating into object
-  function deepInject(obj){
-    if(!obj || typeof obj !== 'object') return false;
-    var found = false;
-    if(obj.data && obj.data.type === 'book'){
-      var rtg = window.__nilamStarRating || 5;
-      var keys = ['point', 'rating', 'score', 'star'];
-      for(var k=0; k<keys.length; k++){
-        if(obj.data[keys[k]] === undefined || obj.data[keys[k]] === null || obj.data[keys[k]] === 0){
-          obj.data[keys[k]] = rtg;
-          found = true;
-        }
-      }
-      return found;
-    }
-    for(var key in obj){
-      if(typeof obj[key] === 'object') {
-        if(deepInject(obj[key])) found = true;
-      } else if(typeof obj[key] === 'string' && obj[key].indexOf('{"data"') >= 0){
-        try {
-          var inner = JSON.parse(obj[key]);
-          if(deepInject(inner)) {
-            obj[key] = JSON.stringify(inner);
-            found = true;
-          }
-        } catch(e){}
-      }
-    }
-    return found;
-  }
-
-  // Guard 2: Network Interceptor
+  // Guard 2: SAFE Network Interceptor (REGEX ONLY - DO NOT PARSE JSON)
+  // This preserves key order, encryption signatures (provider field), and whitespace.
   if(!window.__nilamXhrPatched){
     window.__nilamXhrPatched=true;
     var _origSend=XMLHttpRequest.prototype.send;
     XMLHttpRequest.prototype.send=function(body){
       if(typeof body==='string' && body.indexOf('"type":"book"')>=0){
-        try{
-          var j=JSON.parse(body);
-          if(deepInject(j)){
-            body=JSON.stringify(j);
-            console.log('[NILAM] XHR Intercept: Injected rating points into payload!');
+        var rtg = window.__nilamStarRating || 5;
+        // Inject fields if missing (handles both escaped and non-escaped JSON)
+        var fields = ['point','rating','score','star'];
+        for(var i=0; i<fields.length; i++){
+          var f = fields[i];
+          if(body.indexOf('"'+f+'":') < 0 && body.indexOf('\\"'+f+'\\":') < 0){
+            body = body.replace('"type":"book"', '"type":"book","'+f+'":'+rtg);
+            body = body.replace('\\"type\\":\\"book\\"', '\\"type\\":\\"book\\",\\"'+f+'\\":'+rtg);
           }
-        }catch(x){}
+        }
+        console.log('[NILAM] XHR String Intercept: Injected rating fields safely.');
       }
       return _origSend.call(this,body);
     };
+
     var _origFetch=window.fetch;
     window.fetch=function(){
       var args = arguments;
       if(args[1] && typeof args[1].body==='string' && args[1].body.indexOf('"type":"book"')>=0){
-        try{
-          var j=JSON.parse(args[1].body);
-          if(deepInject(j)){
-            args[1].body=JSON.stringify(j);
-            console.log('[NILAM] Fetch Intercept: Injected rating points into payload!');
+        var rtg = window.__nilamStarRating || 5;
+        var fields = ['point','rating','score','star'];
+        for(var i=0; i<fields.length; i++){
+          var f = fields[i];
+          if(args[1].body.indexOf('"'+f+'":') < 0 && args[1].body.indexOf('\\"'+f+'\\":') < 0){
+            args[1].body = args[1].body.replace('"type":"book"', '"type":"book","'+f+'":'+rtg);
+            args[1].body = args[1].body.replace('\\"type\\":\\"book\\"', '\\"type\\":\\"book\\",\\"'+f+'\\":'+rtg);
           }
-        }catch(x){}
+        }
+        console.log('[NILAM] Fetch String Intercept: Injected rating fields safely.');
       }
       return _origFetch.apply(this,args);
     };
   }
+
   // Guard 3: Patch Vue router
   try{
     var ve=document.querySelector('#app')||document.querySelector('[data-app]');
@@ -108,31 +87,43 @@ function installNavGuard(){
   }catch(x){}
 }
 
-// Patch submitRecord to inject point even if StarRating component crashed
+// Aggressive Vue tree scanner to force set rating data
 function installRatingGuard(){
   try{
     var appEl=document.querySelector('#app')||document.querySelector('[data-app]');
-    if(!appEl || (!appEl.__vue__ && !appEl.__vue_app__)) return;
+    if(!appEl) return;
     var root = appEl.__vue__ || appEl.__vue_app__;
+    if(!root) return;
+    
+    var rtg = window.__nilamStarRating || 5;
     var queue=[root]; var visited=0;
-    while(queue.length && visited<500){
+    while(queue.length && visited<800){
       var c=queue.shift(); visited++;
+      if(!c) continue;
+      
+      // Inject into any object that looks like it holds book data
+      var targets = [c, c.$data, (c.$refs||{}), (c.form||{}), (c.record||{})];
+      for(var i=0; i<targets.length; i++){
+        var t = targets[i]; if(!t || typeof t !== 'object') continue;
+        if(t.type === 'book' || t.title !== undefined || t.point !== undefined || t.rating !== undefined){
+          if(t.point===undefined||t.point===null||t.point===0) t.point=rtg;
+          if(t.rating===undefined||t.rating===null||t.rating===0) t.rating=rtg;
+          if(t.score===undefined||t.score===null||t.score===0) t.score=rtg;
+        }
+      }
+
       if(typeof c.submitRecord==='function' && !c.__nilamRG){
         c.__nilamRG=true;
         var _orig=c.submitRecord;
         c.submitRecord=function(){
-          var rtg=window.__nilamStarRating||5;
-          var targets = [this, this.$data, (this.$refs||{})];
-          for(var i=0; i<targets.length; i++){
-            var t = targets[i]; if(!t) continue;
-            if(t.point===undefined||t.point===null||t.point===0) t.point=rtg;
-            if(t.rating===undefined||t.rating===null||t.rating===0) t.rating=rtg;
-            if(t.score===undefined||t.score===null||t.score===0) t.score=rtg;
-          }
+          installRatingGuard(); // Re-scan before submit
           return _orig.apply(this,arguments);
         };
       }
+      
       if(c.$children){for(var ci=0;ci<c.$children.length;ci++)queue.push(c.$children[ci]);}
+      // Vue 3 support
+      if(c._instance && c._instance.subTree) queue.push(c._instance.proxy);
     }
   }catch(x){}
 }
