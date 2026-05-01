@@ -3,7 +3,7 @@
 console.log('%c[NILAM] v10.17 sedang dimuatkan...','color:#a78bfa;font-weight:bold;font-size:14px');
 (async function(){
 
-var LIB_URL='https://cdn.jsdelivr.net/gh/Notfoundst12/Nilam@8e8bf1a/books_library.json';
+var LIB_URL='https://cdn.jsdelivr.net/gh/Notfoundst12/Nilam@main/books_library.json';
 var UK='__nilam_used__';
 var BOOKS=[],DELAY=600,running=false,paused=false;
 
@@ -124,19 +124,53 @@ function installRatingGuard(){
 
 function sleep(ms){return new Promise(function(r){setTimeout(r,ms)});}
 function qs(s){return document.querySelector(s);}
-// Cloud Memory using Supabase
+// Cloud Memory using Supabase + Local Fallback/Merge
 async function getUsed(){
-  try{
-    var r=await fetch(SUPA_URL+'?select=title',{headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}});
-    if(r.ok){var d=await r.json();return d.map(function(x){return x.title});}
-  }catch(e){}
-  try{return JSON.parse(localStorage.getItem(UK))||[];}catch(e){return[];}
+  var combined = [];
+  try {
+    var r = await fetch(SUPA_URL + '?select=title', {
+      headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
+    });
+    if (r.ok) {
+      var d = await r.json();
+      combined = d.map(function(x) { return x.title });
+    }
+  } catch (e) {
+    console.warn('[NILAM] Cloud getUsed failed, using local only', e);
+  }
+  
+  try {
+    var local = JSON.parse(localStorage.getItem(UK)) || [];
+    for (var i = 0; i < local.length; i++) {
+      if (combined.indexOf(local[i]) < 0) combined.push(local[i]);
+    }
+  } catch (e) {}
+  
+  return combined;
 }
+
 async function markUsed(t){
-  try{
-    var u=JSON.parse(localStorage.getItem(UK))||[];if(u.indexOf(t)<0){u.push(t);localStorage.setItem(UK,JSON.stringify(u));}
-    fetch(SUPA_URL,{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Prefer':'resolution=ignore-duplicates'},body:JSON.stringify({title:t})});
-  }catch(e){}
+  try {
+    // Local first for immediate feedback
+    var u = JSON.parse(localStorage.getItem(UK)) || [];
+    if (u.indexOf(t) < 0) {
+      u.push(t);
+      localStorage.setItem(UK, JSON.stringify(u));
+    }
+    // Cloud second with await to prevent race conditions
+    await fetch(SUPA_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': SUPA_KEY,
+        'Authorization': 'Bearer ' + SUPA_KEY,
+        'Prefer': 'resolution=ignore-duplicates'
+      },
+      body: JSON.stringify({ title: t })
+    });
+  } catch (e) {
+    console.error('[NILAM] markUsed failed', e);
+  }
 }
 async function resetUsedList(){
   localStorage.removeItem(UK);
@@ -1211,10 +1245,10 @@ function makeUI(){
 makeUI();
 installNavGuard();
 installRatingGuard();
-log('Memuat turun 1091 buku...');
+log('Memuat turun 10,000 buku...');
 
 try{
-  var r=await fetch(LIB_URL);if(!r.ok)throw new Error('HTTP '+r.status);
+  var r=await fetch(LIB_URL + '?v=' + Date.now());if(!r.ok)throw new Error('HTTP '+r.status);
   BOOKS=await r.json();
   log(BOOKS.length+' buku sebenar dimuatkan');
   await updateStats();
