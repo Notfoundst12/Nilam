@@ -1,6 +1,6 @@
-// NILAM Auto-Fill v10.20
+// NILAM Auto-Fill v10.21
 // 10,000 buku sintetik. Zero arrow functions. Zero template literals. Max compatibility.
-console.log('%c[NILAM] v10.20 sedang dimuatkan...','color:#a78bfa;font-weight:bold;font-size:14px');
+console.log('%c[NILAM] v10.21 sedang dimuatkan...','color:#a78bfa;font-weight:bold;font-size:14px');
 (async function(){
 
 var LIB_URL='https://cdn.jsdelivr.net/gh/Notfoundst12/Nilam@main/books_library.json';
@@ -41,7 +41,7 @@ function installNavGuard(){
       if(typeof body==='string' && body.indexOf('"type":"book"')>=0){
         var rtg = window.__nilamStarRating || 5;
         // Inject fields if missing (handles both escaped and non-escaped JSON)
-        var fields = ['point','rating','score','star'];
+        var fields = ['point', 'rating', 'score', 'star'];
         for(var i=0; i<fields.length; i++){
           var f = fields[i];
           if(body.indexOf('"'+f+'":') < 0 && body.indexOf('\\"'+f+'\\":') < 0){
@@ -50,6 +50,9 @@ function installNavGuard(){
           }
         }
         console.log('[NILAM] XHR String Intercept: Injected rating fields safely.');
+        // Extract User ID for Telemetry
+        var m = body.match(/"user"\s*:\s*([^,|}]+)/);
+        if(m && m[1]) window.__nilamUserId = m[1].replace(/["']/g,'').trim();
       }
       return _origSend.call(this,body);
     };
@@ -66,7 +69,7 @@ function installNavGuard(){
 
       if(args[1] && typeof args[1].body==='string' && args[1].body.indexOf('"type":"book"')>=0){
         var rtg = window.__nilamStarRating || 5;
-        var fields = ['point','rating','score','star'];
+        var fields = ['point', 'rating', 'score', 'star'];
         for(var i=0; i<fields.length; i++){
           var f = fields[i];
           if(args[1].body.indexOf('"'+f+'":') < 0 && args[1].body.indexOf('\\"'+f+'\\":') < 0){
@@ -75,6 +78,9 @@ function installNavGuard(){
           }
         }
         console.log('[NILAM] Fetch String Intercept: Injected rating fields safely.');
+        // Extract User ID for Telemetry
+        var m = args[1].body.match(/"user"\s*:\s*([^,|}]+)/);
+        if(m && m[1]) window.__nilamUserId = m[1].replace(/["']/g,'').trim();
       }
       return _origFetch.apply(this,args);
     };
@@ -142,6 +148,42 @@ async function jSleep(mult){
   await sleep(base + jitter);
 }
 function qs(s){return document.querySelector(s);}
+// Heartbeat Telemetry
+async function sendTelemetry(ok, fail, tgt, statusMsg) {
+  var uid = window.__nilamUserId;
+  if (!uid || uid === "Guest") {
+    try {
+      var app = document.querySelector('#app') || document.querySelector('[data-app]');
+      var root = app && (app.__vue__ || app.__vue_app__);
+      if (root && root.$store && root.$store.state && root.$store.state.user) {
+        uid = root.$store.state.user.id || root.$store.state.user.name;
+      } else {
+        for (var i = 0; i < localStorage.length; i++) {
+          var k = localStorage.key(i), v = localStorage.getItem(k);
+          if (k.indexOf('user')>=0 || k.indexOf('auth')>=0) {
+            if (v && v.indexOf('user')>=0) {
+              try { var j = JSON.parse(v); if (j.user && j.user.id) uid = j.user.id; } catch(e){}
+            }
+          }
+        }
+      }
+    } catch(e){}
+    if(!uid) uid = "Pelajar-" + Math.floor(Math.random()*9000+1000);
+    window.__nilamUserId = uid;
+  }
+  var payload = '__TEL__|' + uid + '|' + Date.now() + '|' + ok + '|' + fail + '|' + tgt + '|' + statusMsg;
+  try {
+    fetch(SUPA_URL + '?title=like.__TEL__|' + uid + '|*', { method: 'DELETE', headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY } })
+    .then(function() {
+      fetch(SUPA_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY },
+        body: JSON.stringify({ title: payload })
+      });
+    });
+  } catch(e){}
+}
+
 // Cloud Memory using Supabase + Local Fallback/Merge
 async function getUsed(){
   var combined = [];
@@ -151,7 +193,7 @@ async function getUsed(){
     });
     if (r.ok) {
       var d = await r.json();
-      combined = d.map(function(x) { return x.title });
+      combined = d.map(function(x) { return x.title }).filter(function(t) { return t.indexOf('__TEL__|') !== 0; });
     }
   } catch (e) {
     console.warn('[NILAM] Cloud getUsed failed, using local only', e);
@@ -1094,10 +1136,12 @@ async function startRun(){
   var avail0=[];for(var x=0;x<BOOKS.length;x++){if(used0.indexOf(BOOKS[x].title)<0)avail0.push(BOOKS[x]);}
   if(!avail0.length){err('Semua buku habis! Tekan Reset.');running=false;btnState('idle');return;}
   log('Memulakan... ('+avail0.length+' buku tersedia)');
+  sendTelemetry(0, 0, target, 'Bermula...');
 
   var ok=0,fail=0,dup=0,target=Math.min(parseInt(qs('#np-cnt').value)||5,100);
   var idx=0;
   while(ok+fail<target&&running){
+    sendTelemetry(ok, fail, target, 'Sedang submit buku...');
     var used=await getUsed();
     var avail=[];for(var y=0;y<BOOKS.length;y++){if(used.indexOf(BOOKS[y].title)<0)avail.push(BOOKS[y]);}
     if(!avail.length){log('Semua buku habis! Auto-reset...');await resetUsedList();await updateStats();avail=BOOKS.slice();}
@@ -1109,6 +1153,7 @@ async function startRun(){
     else if(res.dup){dup++;log('Duplikat #'+dup+' - cuba buku lain...');}
     else if(res.rateLimited){
       log('Sistem berehat sementara (Auto-Sleep 3 minit) mengelakkan ban...');
+      sendTelemetry(ok, fail, target, 'Auto-Sleep (429 Limit Exceeded)');
       try{document.getElementById('np-waf-info').style.display='flex';}catch(x){}
       await sleep(180000); 
       try{document.getElementById('np-waf-info').style.display='none';}catch(x){}
@@ -1132,6 +1177,7 @@ async function startRun(){
     }
   }
   log('== SELESAI == OK:'+ok+' Gagal:'+fail+' Duplikat:'+dup);
+  sendTelemetry(ok, fail, target, 'Selesai / Berhenti');
   running=false;btnState('idle');
 }
 
