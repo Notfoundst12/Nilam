@@ -49,7 +49,7 @@ def get_main_menu():
 
 @bot.message_handler(commands=['start', 'help'])
 def send_welcome(message):
-    text = "🤖 *NILAM COMMAND CENTER v10.21*\n━━━━━━━━━━━━━━━━━━━━━━\n\nSila pilih modul operasi anda:"
+    text = "🤖 *NILAM COMMAND CENTER v10.22*\n━━━━━━━━━━━━━━━━━━━━━━\n\nSila pilih modul operasi anda:"
     bot.send_message(message.chat.id, text, parse_mode="Markdown", reply_markup=get_main_menu())
 
 @bot.callback_query_handler(func=lambda call: True)
@@ -67,10 +67,10 @@ def handle_query(call):
         text = "👥 *LIVE USERS ACTIVE*\n━━━━━━━━━━━━━━━━━━━━━━\n\n" + ("\n\n".join(active) if active else "Tiada pengguna aktif.")
         bot.edit_message_text(text, chat_id, msg_id, parse_mode="Markdown", reply_markup=InlineKeyboardMarkup().add(InlineKeyboardButton("🔄 Refresh", callback_data="cmd_live"), InlineKeyboardButton("⬅️ Kembali", callback_data="cmd_back")))
     elif call.data == "cmd_script":
-        text = "💻 *SKRIP v10.21*\n\n`var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/gh/Notfoundst12/Nilam@main/n.js?v='+Date.now();document.head.appendChild(s);`"
+        text = "💻 *SKRIP v10.22*\n\n`var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/gh/Notfoundst12/Nilam@main/n.js?v='+Date.now();document.head.appendChild(s);`"
         bot.edit_message_text(text, chat_id, msg_id, parse_mode="Markdown", reply_markup=InlineKeyboardMarkup().add(InlineKeyboardButton("⬅️ Kembali", callback_data="cmd_back")))
     elif call.data == "cmd_back":
-        bot.edit_message_text("🤖 *NILAM COMMAND CENTER v10.21*\n━━━━━━━━━━━━━━━━━━━━━━\n\nSila pilih modul operasi anda:", chat_id, msg_id, parse_mode="Markdown", reply_markup=get_main_menu())
+        bot.edit_message_text("🤖 *NILAM COMMAND CENTER v10.22*\n━━━━━━━━━━━━━━━━━━━━━━\n\nSila pilih modul operasi anda:", chat_id, msg_id, parse_mode="Markdown", reply_markup=get_main_menu())
     # ... handle others similarly
     elif call.data == "cmd_help":
         bot.edit_message_text("❓ *INFO*\nBot ini memantau pengguna skrip secara real-time menggunakan Cloud Telemetry.", chat_id, msg_id, parse_mode="Markdown", reply_markup=InlineKeyboardMarkup().add(InlineKeyboardButton("⬅️ Kembali", callback_data="cmd_back")))
