@@ -1,6 +1,6 @@
-// NILAM Auto-Fill v10.17
+// NILAM Auto-Fill v10.18
 // 10,000 buku sintetik. Zero arrow functions. Zero template literals. Max compatibility.
-console.log('%c[NILAM] v10.17 sedang dimuatkan...','color:#a78bfa;font-weight:bold;font-size:14px');
+console.log('%c[NILAM] v10.18 sedang dimuatkan...','color:#a78bfa;font-weight:bold;font-size:14px');
 (async function(){
 
 var LIB_URL='https://cdn.jsdelivr.net/gh/Notfoundst12/Nilam@main/books_library.json';
@@ -15,7 +15,6 @@ var SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJ
 // CRITICAL: Prevent ains.moe.gov.myundefined redirect + FORCE inject rating point
 function installNavGuard(){
   // Guard 1: Intercept Swal.fire .then() callbacks
-  // Must return a pending promise to HALT the AINS redirect execution chain completely
   if(window.Swal&&window.Swal.fire){
     var _origFire=window.Swal.fire;
     window.Swal.fire=function(){
@@ -33,60 +32,77 @@ function installNavGuard(){
     };
   }
 
-  // Guard 2: Network Interceptor - FORCE inject "point" into JSON payload before it leaves browser
+  // Helper to deep inject rating into object
+  function deepInject(obj){
+    if(!obj || typeof obj !== 'object') return false;
+    var found = false;
+    if(obj.data && obj.data.type === 'book'){
+      var rtg = window.__nilamStarRating || 5;
+      var keys = ['point', 'rating', 'score', 'star'];
+      for(var k=0; k<keys.length; k++){
+        if(obj.data[keys[k]] === undefined || obj.data[keys[k]] === null || obj.data[keys[k]] === 0){
+          obj.data[keys[k]] = rtg;
+          found = true;
+        }
+      }
+      return found;
+    }
+    for(var key in obj){
+      if(typeof obj[key] === 'object') {
+        if(deepInject(obj[key])) found = true;
+      } else if(typeof obj[key] === 'string' && obj[key].indexOf('{"data"') >= 0){
+        try {
+          var inner = JSON.parse(obj[key]);
+          if(deepInject(inner)) {
+            obj[key] = JSON.stringify(inner);
+            found = true;
+          }
+        } catch(e){}
+      }
+    }
+    return found;
+  }
+
+  // Guard 2: Network Interceptor
   if(!window.__nilamXhrPatched){
     window.__nilamXhrPatched=true;
-    // Intercept XMLHttpRequest
     var _origSend=XMLHttpRequest.prototype.send;
     XMLHttpRequest.prototype.send=function(body){
-      if(typeof body==='string'&&body.indexOf('"type":"book"')>=0){
+      if(typeof body==='string' && body.indexOf('"type":"book"')>=0){
         try{
           var j=JSON.parse(body);
-          if(j&&j.data&&j.data.type==='book'){
-            if(j.data.point===undefined||j.data.point===null){
-              var rtg=window.__nilamStarRating||5;
-              j.data.point=rtg;
-              body=JSON.stringify(j);
-              console.log('[NILAM] XHR Intercept: Injected point='+rtg+' into payload!');
-            }
+          if(deepInject(j)){
+            body=JSON.stringify(j);
+            console.log('[NILAM] XHR Intercept: Injected rating points into payload!');
           }
         }catch(x){}
       }
       return _origSend.call(this,body);
     };
-    // Intercept Fetch API
     var _origFetch=window.fetch;
     window.fetch=function(){
-      if(arguments[1]&&typeof arguments[1].body==='string'&&arguments[1].body.indexOf('"type":"book"')>=0){
+      var args = arguments;
+      if(args[1] && typeof args[1].body==='string' && args[1].body.indexOf('"type":"book"')>=0){
         try{
-          var j=JSON.parse(arguments[1].body);
-          if(j&&j.data&&j.data.type==='book'){
-            if(j.data.point===undefined||j.data.point===null){
-              var rtg=window.__nilamStarRating||5;
-              j.data.point=rtg;
-              arguments[1].body=JSON.stringify(j);
-              console.log('[NILAM] Fetch Intercept: Injected point='+rtg+' into payload!');
-            }
+          var j=JSON.parse(args[1].body);
+          if(deepInject(j)){
+            args[1].body=JSON.stringify(j);
+            console.log('[NILAM] Fetch Intercept: Injected rating points into payload!');
           }
         }catch(x){}
       }
-      return _origFetch.apply(this,arguments);
+      return _origFetch.apply(this,args);
     };
   }
-  // Guard 2: Patch Vue router to reject undefined routes
+  // Guard 3: Patch Vue router
   try{
     var ve=document.querySelector('#app')||document.querySelector('[data-app]');
-    if(ve&&ve.__vue__&&ve.__vue__.$router){
-      var router=ve.__vue__.$router;
+    var router = (ve && ve.__vue__ && ve.__vue__.$router) || (ve && ve.__vue_app__ && ve.__vue_app__.config.globalProperties.$router);
+    if(router){
       var _origPush=router.push;
       router.push=function(loc){
-        if(loc===undefined||loc===null||(typeof loc==='string'&&/undefined/.test(loc)))return Promise.resolve();
+        if(!loc || (typeof loc==='string' && /undefined/.test(loc))) return Promise.resolve();
         return _origPush.apply(router,arguments);
-      };
-      var _origReplace=router.replace;
-      router.replace=function(loc){
-        if(loc===undefined||loc===null||(typeof loc==='string'&&/undefined/.test(loc)))return Promise.resolve();
-        return _origReplace.apply(router,arguments);
       };
     }
   }catch(x){}
@@ -96,23 +112,22 @@ function installNavGuard(){
 function installRatingGuard(){
   try{
     var appEl=document.querySelector('#app')||document.querySelector('[data-app]');
-    if(!appEl||!appEl.__vue__)return;
-    var queue=[appEl.__vue__];var visited=0;
-    while(queue.length&&visited<300){
-      var c=queue.shift();visited++;
-      if(typeof c.submitRecord==='function'&&!c.__nilamRG){
+    if(!appEl || (!appEl.__vue__ && !appEl.__vue_app__)) return;
+    var root = appEl.__vue__ || appEl.__vue_app__;
+    var queue=[root]; var visited=0;
+    while(queue.length && visited<500){
+      var c=queue.shift(); visited++;
+      if(typeof c.submitRecord==='function' && !c.__nilamRG){
         c.__nilamRG=true;
         var _orig=c.submitRecord;
         c.submitRecord=function(){
-          var rating=window.__nilamStarRating||4;
-          try{if(this.point===undefined||this.point===null||this.point===0)this.point=rating;}catch(x){}
-          try{if(this.$data&&(this.$data.point===undefined||this.$data.point===null||this.$data.point===0))this.$data.point=rating;}catch(x){}
-          if(this.$refs){
-            for(var key in this.$refs){
-              if(this.$refs[key]===undefined||this.$refs[key]===null){
-                this.$refs[key]={point:rating,value:rating,modelValue:rating};
-              }
-            }
+          var rtg=window.__nilamStarRating||5;
+          var targets = [this, this.$data, (this.$refs||{})];
+          for(var i=0; i<targets.length; i++){
+            var t = targets[i]; if(!t) continue;
+            if(t.point===undefined||t.point===null||t.point===0) t.point=rtg;
+            if(t.rating===undefined||t.rating===null||t.rating===0) t.rating=rtg;
+            if(t.score===undefined||t.score===null||t.score===0) t.score=rtg;
           }
           return _orig.apply(this,arguments);
         };
