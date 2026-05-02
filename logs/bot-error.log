@@ -7362,3 +7362,622 @@
 2026-05-01T11:26:29:     raise ApiTelegramException(method_name, result, result_json)
 2026-05-01T11:26:29: telebot.apihelper.ApiTelegramException: A request to the Telegram API was unsuccessful. Error code: 400. Description: Bad Request: message is not modified: specified new message content and reply markup are exactly the same as a current content and reply markup of the message
 2026-05-01T11:26:29: "
+2026-05-01T11:33:13: 2026-05-01 11:33:13,255 (__init__.py:1254 MainThread) ERROR - TeleBot: "Threaded polling exception: A request to the Telegram API was unsuccessful. Error code: 400. Description: Bad Request: message is not modified: specified new message content and reply markup are exactly the same as a current content and reply markup of the message"
+2026-05-01T11:33:13: 2026-05-01 11:33:13,256 (__init__.py:1256 MainThread) ERROR - TeleBot: "Exception traceback:
+2026-05-01T11:33:13: Traceback (most recent call last):
+2026-05-01T11:33:13:   File "/usr/local/lib/python3.10/dist-packages/telebot/__init__.py", line 1248, in __threaded_polling
+2026-05-01T11:33:13:     self.worker_pool.raise_exceptions()
+2026-05-01T11:33:13:   File "/usr/local/lib/python3.10/dist-packages/telebot/util.py", line 155, in raise_exceptions
+2026-05-01T11:33:13:     raise self.exception_info
+2026-05-01T11:33:13:   File "/usr/local/lib/python3.10/dist-packages/telebot/util.py", line 98, in run
+2026-05-01T11:33:13:     task(*args, **kwargs)
+2026-05-01T11:33:13:   File "/usr/local/lib/python3.10/dist-packages/telebot/__init__.py", line 10609, in _run_middlewares_and_handler
+2026-05-01T11:33:13:     result = handler['function'](message)
+2026-05-01T11:33:13:   File "/root/NilamAutomationTools/nilam_bot.py", line 68, in handle_query
+2026-05-01T11:33:13:     bot.edit_message_text(text, chat_id, msg_id, parse_mode="Markdown", reply_markup=InlineKeyboardMarkup().add(InlineKeyboardButton("🔄 Refresh", callback_data="cmd_live"), InlineKeyboardButton("⬅️ Kembali", callback_data="cmd_back")))
+2026-05-01T11:33:13:   File "/usr/local/lib/python3.10/dist-packages/telebot/__init__.py", line 5513, in edit_message_text
+2026-05-01T11:33:13:     result = apihelper.edit_message_text(
+2026-05-01T11:33:13:   File "/usr/local/lib/python3.10/dist-packages/telebot/apihelper.py", line 1688, in edit_message_text
+2026-05-01T11:33:13:     return _make_request(token, method_url, params=payload, method='post')
+2026-05-01T11:33:13:   File "/usr/local/lib/python3.10/dist-packages/telebot/apihelper.py", line 168, in _make_request
+2026-05-01T11:33:13:     json_result = _check_result(method_name, result)
+2026-05-01T11:33:13:   File "/usr/local/lib/python3.10/dist-packages/telebot/apihelper.py", line 197, in _check_result
+2026-05-01T11:33:13:     raise ApiTelegramException(method_name, result, result_json)
+2026-05-01T11:33:13: telebot.apihelper.ApiTelegramException: A request to the Telegram API was unsuccessful. Error code: 400. Description: Bad Request: message is not modified: specified new message content and reply markup are exactly the same as a current content and reply markup of the message
+2026-05-01T11:33:13: "
+2026-05-01T17:02:22: Traceback (most recent call last):
+2026-05-01T17:02:22:   File "/usr/lib/python3/dist-packages/urllib3/connectionpool.py", line 700, in urlopen
+2026-05-01T17:02:22:     httplib_response = self._make_request(
+2026-05-01T17:02:22:   File "/usr/lib/python3/dist-packages/urllib3/connectionpool.py", line 446, in _make_request
+2026-05-01T17:02:22:     six.raise_from(e, None)
+2026-05-01T17:02:22:   File "<string>", line 3, in raise_from
+2026-05-01T17:02:22:   File "/usr/lib/python3/dist-packages/urllib3/connectionpool.py", line 441, in _make_request
+2026-05-01T17:02:22:     httplib_response = conn.getresponse()
+2026-05-01T17:02:22:   File "/usr/lib/python3.10/http/client.py", line 1395, in getresponse
+2026-05-01T17:02:22:     response.begin()
+2026-05-01T17:02:22:   File "/usr/lib/python3.10/http/client.py", line 323, in begin
+2026-05-01T17:02:22:     version, status, reason = self._read_status()
+2026-05-01T17:02:22:   File "/usr/lib/python3.10/http/client.py", line 292, in _read_status
+2026-05-01T17:02:22:     raise RemoteDisconnected("Remote end closed connection without"
+2026-05-01T17:02:22: http.client.RemoteDisconnected: Remote end closed connection without response
+2026-05-01T17:02:22: 
+2026-05-01T17:02:22: During handling of the above exception, another exception occurred:
+2026-05-01T17:02:22: 
+2026-05-01T17:02:22: Traceback (most recent call last):
+2026-05-01T17:02:22:   File "/usr/lib/python3/dist-packages/requests/adapters.py", line 439, in send
+2026-05-01T17:02:22:     resp = conn.urlopen(
+2026-05-01T17:02:22:   File "/usr/lib/python3/dist-packages/urllib3/connectionpool.py", line 756, in urlopen
+2026-05-01T17:02:22:     retries = retries.increment(
+2026-05-01T17:02:22:   File "/usr/lib/python3/dist-packages/urllib3/util/retry.py", line 534, in increment
+2026-05-01T17:02:22:     raise six.reraise(type(error), error, _stacktrace)
+2026-05-01T17:02:22:   File "/usr/lib/python3/dist-packages/six.py", line 718, in reraise
+2026-05-01T17:02:22:     raise value.with_traceback(tb)
+2026-05-01T17:02:22:   File "/usr/lib/python3/dist-packages/urllib3/connectionpool.py", line 700, in urlopen
+2026-05-01T17:02:22:     httplib_response = self._make_request(
+2026-05-01T17:02:22:   File "/usr/lib/python3/dist-packages/urllib3/connectionpool.py", line 446, in _make_request
+2026-05-01T17:02:22:     six.raise_from(e, None)
+2026-05-01T17:02:22:   File "<string>", line 3, in raise_from
+2026-05-01T17:02:22:   File "/usr/lib/python3/dist-packages/urllib3/connectionpool.py", line 441, in _make_request
+2026-05-01T17:02:22:     httplib_response = conn.getresponse()
+2026-05-01T17:02:22:   File "/usr/lib/python3.10/http/client.py", line 1395, in getresponse
+2026-05-01T17:02:22:     response.begin()
+2026-05-01T17:02:22:   File "/usr/lib/python3.10/http/client.py", line 323, in begin
+2026-05-01T17:02:22:     version, status, reason = self._read_status()
+2026-05-01T17:02:22:   File "/usr/lib/python3.10/http/client.py", line 292, in _read_status
+2026-05-01T17:02:22:     
+2026-05-01T17:02:22: raise RemoteDisconnected("Remote end closed connection without"
+2026-05-01T17:02:22: : ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-05-01T17:02:22: 
+2026-05-01T17:02:22: During handling of the above exception, another exception occurred:
+2026-05-01T17:02:22: 
+2026-05-01T17:02:22: Traceback (most recent call last):
+2026-05-01T17:02:22:   File "/root/NilamAutomationTools/nilam_bot.py", line 79, in <module>
+2026-05-01T17:02:22:     bot.polling(none_stop=True)
+2026-05-01T17:02:22:   File "/usr/local/lib/python3.10/dist-packages/telebot/__init__.py", line 1211, in polling
+2026-05-01T17:02:22:     self.__threaded_polling(non_stop=non_stop, interval=interval, timeout=timeout, long_polling_timeout=long_polling_timeout,
+2026-05-01T17:02:22:   File "/usr/local/lib/python3.10/dist-packages/telebot/__init__.py", line 1286, in __threaded_polling
+2026-05-01T17:02:22:     raise e
+2026-05-01T17:02:22:   File "/usr/local/lib/python3.10/dist-packages/telebot/__init__.py", line 1247, in __threaded_polling
+2026-05-01T17:02:22:     polling_thread.raise_exceptions()
+2026-05-01T17:02:22:   File "/usr/local/lib/python3.10/dist-packages/telebot/util.py", line 116, in raise_exceptions
+2026-05-01T17:02:22:     raise self.exception_info
+2026-05-01T17:02:22:   File "/usr/local/lib/python3.10/dist-packages/telebot/util.py", line 98, in run
+2026-05-01T17:02:22:     task(*args, **kwargs)
+2026-05-01T17:02:22:   File "/usr/local/lib/python3.10/dist-packages/telebot/__init__.py", line 689, in __retrieve_updates
+2026-05-01T17:02:22:     updates = self.get_updates(offset=(self.last_update_id + 1),
+2026-05-01T17:02:22:   File "/usr/local/lib/python3.10/dist-packages/telebot/__init__.py", line 661, in get_updates
+2026-05-01T17:02:22:     json_updates = apihelper.get_updates(
+2026-05-01T17:02:22:   File "/usr/local/lib/python3.10/dist-packages/telebot/apihelper.py", line 339, in get_updates
+2026-05-01T17:02:22:     return _make_request(token, method_url, params=payload)
+2026-05-01T17:02:22:   File "/usr/local/lib/python3.10/dist-packages/telebot/apihelper.py", line 162, in _make_request
+2026-05-01T17:02:22:     result = _get_req_session().request(
+2026-05-01T17:02:22:   File "/usr/lib/python3/dist-packages/requests/sessions.py", line 544, in request
+2026-05-01T17:02:22:     resp = self.send(prep, **send_kwargs)
+2026-05-01T17:02:22:   File "/usr/lib/python3/dist-packages/requests/sessions.py", line 657, in send
+2026-05-01T17:02:22:     r = adapter.send(request, **kwargs)
+2026-05-01T17:02:22:   File "/usr/lib/python3/dist-packages/requests/adapters.py", line 498, in send
+2026-05-01T17:02:22:     raise ConnectionError(err, request=request)
+2026-05-01T17:02:22: requests.exceptions.ConnectionError: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-05-01T18:41:44: Traceback (most recent call last):
+2026-05-01T18:41:44:   File "/usr/lib/python3/dist-packages/urllib3/connectionpool.py", line 700, in urlopen
+2026-05-01T18:41:44:     httplib_response = self._make_request(
+2026-05-01T18:41:44:   File "/usr/lib/python3/dist-packages/urllib3/connectionpool.py", line 446, in _make_request
+2026-05-01T18:41:44:     six.raise_from(e, None)
+2026-05-01T18:41:44:   File "<string>", line 3, in raise_from
+2026-05-01T18:41:44:   File "/usr/lib/python3/dist-packages/urllib3/connectionpool.py", line 441, in _make_request
+2026-05-01T18:41:44:     httplib_response = conn.getresponse()
+2026-05-01T18:41:44:   File "/usr/lib/python3.10/http/client.py", line 1395, in getresponse
+2026-05-01T18:41:44:     response.begin()
+2026-05-01T18:41:44:   File "/usr/lib/python3.10/http/client.py", line 323, in begin
+2026-05-01T18:41:44:     version, status, reason = self._read_status()
+2026-05-01T18:41:44:   File "/usr/lib/python3.10/http/client.py", line 292, in _read_status
+2026-05-01T18:41:44:     raise RemoteDisconnected("Remote end closed connection without"
+2026-05-01T18:41:44: http.client.RemoteDisconnected: Remote end closed connection without response
+2026-05-01T18:41:44: 
+2026-05-01T18:41:44: During handling of the above exception, another exception occurred:
+2026-05-01T18:41:44: 
+2026-05-01T18:41:44: Traceback (most recent call last):
+2026-05-01T18:41:44:   File "/usr/lib/python3/dist-packages/requests/adapters.py", line 439, in send
+2026-05-01T18:41:44:     resp = conn.urlopen(
+2026-05-01T18:41:44:   File "/usr/lib/python3/dist-packages/urllib3/connectionpool.py", line 756, in urlopen
+2026-05-01T18:41:44:     retries = retries.increment(
+2026-05-01T18:41:44:   File "/usr/lib/python3/dist-packages/urllib3/util/retry.py", line 534, in increment
+2026-05-01T18:41:44:     raise six.reraise(type(error), error, _stacktrace)
+2026-05-01T18:41:44:   File "/usr/lib/python3/dist-packages/six.py", line 718, in reraise
+2026-05-01T18:41:44:     raise value.with_traceback(tb)
+2026-05-01T18:41:44:   File "/usr/lib/python3/dist-packages/urllib3/connectionpool.py", line 700, in urlopen
+2026-05-01T18:41:44:     httplib_response = self._make_request(
+2026-05-01T18:41:44:   File "/usr/lib/python3/dist-packages/urllib3/connectionpool.py", line 446, in _make_request
+2026-05-01T18:41:44:     six.raise_from(e, None)
+2026-05-01T18:41:44:   File "<string>", line 3, in raise_from
+2026-05-01T18:41:44:   File "/usr/lib/python3/dist-packages/urllib3/connectionpool.py", line 441, in _make_request
+2026-05-01T18:41:44:     httplib_response = conn.getresponse()
+2026-05-01T18:41:44:   File "/usr/lib/python3.10/http/client.py", line 1395, in getresponse
+2026-05-01T18:41:44:     response.begin()
+2026-05-01T18:41:44:   File "/usr/lib/python3.10/http/client.py", line 323, in begin
+2026-05-01T18:41:44:     version, status, reason = self._read_status()
+2026-05-01T18:41:44:   File "/usr/lib/python3.10/http/client.py", line 292, in _read_status
+2026-05-01T18:41:44:     
+2026-05-01T18:41:44: raise RemoteDisconnected("Remote end closed connection without"
+2026-05-01T18:41:44: 
+2026-05-01T18:41:44: urllib3.exceptions
+2026-05-01T18:41:44: .
+2026-05-01T18:41:44: ProtocolError: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-05-01T18:41:44: 
+2026-05-01T18:41:44: During handling of the above exception, another exception occurred:
+2026-05-01T18:41:44: 
+2026-05-01T18:41:44: Traceback (most recent call last):
+2026-05-01T18:41:44:   File "/root/NilamAutomationTools/nilam_bot.py", line 79, in <module>
+2026-05-01T18:41:44:     bot.polling(none_stop=True)
+2026-05-01T18:41:44:   File "/usr/local/lib/python3.10/dist-packages/telebot/__init__.py", line 1211, in polling
+2026-05-01T18:41:44:     self.__threaded_polling(non_stop=non_stop, interval=interval, timeout=timeout, long_polling_timeout=long_polling_timeout,
+2026-05-01T18:41:44:   File "/usr/local/lib/python3.10/dist-packages/telebot/__init__.py", line 1286, in __threaded_polling
+2026-05-01T18:41:44:     raise e
+2026-05-01T18:41:44:   File "/usr/local/lib/python3.10/dist-packages/telebot/__init__.py", line 1247, in __threaded_polling
+2026-05-01T18:41:44:     polling_thread.raise_exceptions()
+2026-05-01T18:41:44:   File "/usr/local/lib/python3.10/dist-packages/telebot/util.py", line 116, in raise_exceptions
+2026-05-01T18:41:44:     raise self.exception_info
+2026-05-01T18:41:44:   File "/usr/local/lib/python3.10/dist-packages/telebot/util.py", line 98, in run
+2026-05-01T18:41:44: task(*args, **kwargs)
+2026-05-01T18:41:44:   File "/usr/local/lib/python3.10/dist-packages/telebot/__init__.py", line 689, in __retrieve_updates
+2026-05-01T18:41:44:     updates = self.get_updates(offset=(self.last_update_id + 1),
+2026-05-01T18:41:44:   File "/usr/local/lib/python3.10/dist-packages/telebot/__init__.py", line 661, in get_updates
+2026-05-01T18:41:44:     json_updates = apihelper.get_updates(
+2026-05-01T18:41:44:   File "/usr/local/lib/python3.10/dist-packages/telebot/apihelper.py", line 339, in get_updates
+2026-05-01T18:41:44:     return _make_request(token, method_url, params=payload)
+2026-05-01T18:41:44:   File "/usr/local/lib/python3.10/dist-packages/telebot/apihelper.py", line 162, in _make_request
+2026-05-01T18:41:44:     result = _get_req_session().request(
+2026-05-01T18:41:44:   File "/usr/lib/python3/dist-packages/requests/sessions.py", line 544, in request
+2026-05-01T18:41:44:     resp = self.send(prep, **send_kwargs)
+2026-05-01T18:41:44:   File "/usr/lib/python3/dist-packages/requests/sessions.py", line 657, in send
+2026-05-01T18:41:44:     r = adapter.send(request, **kwargs)
+2026-05-01T18:41:44:   File "/usr/lib/python3/dist-packages/requests/adapters.py", line 498, in send
+2026-05-01T18:41:44:     raise ConnectionError(err, request=request)
+2026-05-01T18:41:44: requests.exceptions.ConnectionError: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-05-01T21:50:41: Traceback (most recent call last):
+2026-05-01T21:50:41:   File "/usr/lib/python3/dist-packages/urllib3/connectionpool.py", line 700, in urlopen
+2026-05-01T21:50:41:     httplib_response = self._make_request(
+2026-05-01T21:50:41:   File "/usr/lib/python3/dist-packages/urllib3/connectionpool.py", line 446, in _make_request
+2026-05-01T21:50:41:     six.raise_from(e, None)
+2026-05-01T21:50:41:   File "<string>", line 3, in raise_from
+2026-05-01T21:50:41:   File "/usr/lib/python3/dist-packages/urllib3/connectionpool.py", line 441, in _make_request
+2026-05-01T21:50:41:     httplib_response = conn.getresponse()
+2026-05-01T21:50:41:   File "/usr/lib/python3.10/http/client.py", line 1395, in getresponse
+2026-05-01T21:50:41:     response.begin()
+2026-05-01T21:50:41:   File "/usr/lib/python3.10/http/client.py", line 323, in begin
+2026-05-01T21:50:41:     version, status, reason = self._read_status()
+2026-05-01T21:50:41:   File "/usr/lib/python3.10/http/client.py", line 292, in _read_status
+2026-05-01T21:50:41:     raise RemoteDisconnected("Remote end closed connection without"
+2026-05-01T21:50:41: http.client.RemoteDisconnected: Remote end closed connection without response
+2026-05-01T21:50:41: 
+2026-05-01T21:50:41: During handling of the above exception, another exception occurred:
+2026-05-01T21:50:41: 
+2026-05-01T21:50:41: Traceback (most recent call last):
+2026-05-01T21:50:41:   File "/usr/lib/python3/dist-packages/requests/adapters.py", line 439, in send
+2026-05-01T21:50:41:     resp = conn.urlopen(
+2026-05-01T21:50:41:   File "/usr/lib/python3/dist-packages/urllib3/connectionpool.py", line 756, in urlopen
+2026-05-01T21:50:41:     retries = retries.increment(
+2026-05-01T21:50:41:   File "/usr/lib/python3/dist-packages/urllib3/util/retry.py", line 534, in increment
+2026-05-01T21:50:41:     raise six.reraise(type(error), error, _stacktrace)
+2026-05-01T21:50:41:   File "/usr/lib/python3/dist-packages/six.py", line 718, in reraise
+2026-05-01T21:50:41:     raise value.with_traceback(tb)
+2026-05-01T21:50:41:   File "/usr/lib/python3/dist-packages/urllib3/connectionpool.py", line 700, in urlopen
+2026-05-01T21:50:41:     httplib_response = self._make_request(
+2026-05-01T21:50:41:   File "/usr/lib/python3/dist-packages/urllib3/connectionpool.py", line 446, in _make_request
+2026-05-01T21:50:41:     six.raise_from(e, None)
+2026-05-01T21:50:41:   File "<string>", line 3, in raise_from
+2026-05-01T21:50:41:   File "/usr/lib/python3/dist-packages/urllib3/connectionpool.py", line 441, in _make_request
+2026-05-01T21:50:41:     httplib_response = conn.getresponse()
+2026-05-01T21:50:41:   File "/usr/lib/python3.10/http/client.py", line 1395, in getresponse
+2026-05-01T21:50:41:     response.begin()
+2026-05-01T21:50:41:   File "/usr/lib/python3.10/http/client.py", line 323, in begin
+2026-05-01T21:50:41:     version, status, reason = self._read_status()
+2026-05-01T21:50:41:   File "/usr/lib/python3.10/http/client.py", line 292, in _read_status
+2026-05-01T21:50:41:     raise RemoteDisconnected("Remote end closed connection without"
+2026-05-01T21:50:41: urllib3.exceptions.ProtocolError: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-05-01T21:50:41: 
+2026-05-01T21:50:41: During handling of the above exception, another exception occurred:
+2026-05-01T21:50:41: 
+2026-05-01T21:50:41: Traceback (most recent call last):
+2026-05-01T21:50:41:   File "/root/NilamAutomationTools/nilam_bot.py", line 79, in <module>
+2026-05-01T21:50:41:     bot.polling(none_stop=True)
+2026-05-01T21:50:41:   File "/usr/local/lib/python3.10/dist-packages/telebot/__init__.py", line 1211, in polling
+2026-05-01T21:50:41:     self.__threaded_polling(non_stop=non_stop, interval=interval, timeout=timeout, long_polling_timeout=long_polling_timeout,
+2026-05-01T21:50:41:   File "/usr/local/lib/python3.10/dist-packages/telebot/__init__.py", line 1286, in __threaded_polling
+2026-05-01T21:50:41:     raise e
+2026-05-01T21:50:41:   File "/usr/local/lib/python3.10/dist-packages/telebot/__init__.py", line 1247, in __threaded_polling
+2026-05-01T21:50:41:     polling_thread.raise_exceptions()
+2026-05-01T21:50:41:   File "/usr/local/lib/python3.10/dist-packages/telebot/util.py", line 116, in raise_exceptions
+2026-05-01T21:50:41:     raise self.exception_info
+2026-05-01T21:50:41:   File "/usr/local/lib/python3.10/dist-packages/telebot/util.py", line 98, in run
+2026-05-01T21:50:41:     task(*args, **kwargs)
+2026-05-01T21:50:41:   File "/usr/local/lib/python3.10/dist-packages/telebot/__init__.py", line 689, in __retrieve_updates
+2026-05-01T21:50:41:     updates = self.get_updates(offset=(self.last_update_id + 1),
+2026-05-01T21:50:41:   File "/usr/local/lib/python3.10/dist-packages/telebot/__init__.py", line 661, in get_updates
+2026-05-01T21:50:41:     json_updates = apihelper.get_updates(
+2026-05-01T21:50:41:   File "/usr/local/lib/python3.10/dist-packages/telebot/apihelper.py", line 339, in get_updates
+2026-05-01T21:50:41:     return _make_request(token, method_url, params=payload)
+2026-05-01T21:50:41:   File "/usr/local/lib/python3.10/dist-packages/telebot/apihelper.py", line 162, in _make_request
+2026-05-01T21:50:41:     result = _get_req_session().request(
+2026-05-01T21:50:41:   File "/usr/lib/python3/dist-packages/requests/sessions.py", line 544, in request
+2026-05-01T21:50:41:     resp = self.send(prep, **send_kwargs)
+2026-05-01T21:50:41:   File "/usr/lib/python3/dist-packages/requests/sessions.py", line 657, in send
+2026-05-01T21:50:41:     r = adapter.send(request, **kwargs)
+2026-05-01T21:50:41:   File "/usr/lib/python3/dist-packages/requests/adapters.py", line 498, in send
+2026-05-01T21:50:41:     raise ConnectionError(err, request=request)
+2026-05-01T21:50:41: .ConnectionError: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-05-02T00:07:11: Traceback (most recent call last):
+2026-05-02T00:07:11:   File "/usr/lib/python3/dist-packages/urllib3/connectionpool.py", line 700, in urlopen
+2026-05-02T00:07:11:     httplib_response = self._make_request(
+2026-05-02T00:07:11:   File "/usr/lib/python3/dist-packages/urllib3/connectionpool.py", line 446, in _make_request
+2026-05-02T00:07:11:     six.raise_from(e, None)
+2026-05-02T00:07:11:   File "<string>", line 3, in raise_from
+2026-05-02T00:07:11:   File "/usr/lib/python3/dist-packages/urllib3/connectionpool.py", line 441, in _make_request
+2026-05-02T00:07:11:     httplib_response = conn.getresponse()
+2026-05-02T00:07:11:   File "/usr/lib/python3.10/http/client.py", line 1395, in getresponse
+2026-05-02T00:07:11:     
+2026-05-02T00:07:11: response.begin()
+2026-05-02T00:07:11:   File "/usr/lib/python3.10/http/client.py", line 323, in begin
+2026-05-02T00:07:11:     version, status, reason = self._read_status()
+2026-05-02T00:07:11:   File "/usr/lib/python3.10/http/client.py", line 292, in _read_status
+2026-05-02T00:07:11:     raise RemoteDisconnected("Remote end closed connection without"
+2026-05-02T00:07:11: http.client.RemoteDisconnected: Remote end closed connection without response
+2026-05-02T00:07:11: 
+2026-05-02T00:07:11: During handling of the above exception, another exception occurred:
+2026-05-02T00:07:11: 
+2026-05-02T00:07:11: Traceback (most recent call last):
+2026-05-02T00:07:11:   File "/usr/lib/python3/dist-packages/requests/adapters.py", line 439, in send
+2026-05-02T00:07:11:     resp = conn.urlopen(
+2026-05-02T00:07:11:   File "/usr/lib/python3/dist-packages/urllib3/connectionpool.py", line 756, in urlopen
+2026-05-02T00:07:11:     retries = retries.increment(
+2026-05-02T00:07:11:   File "/usr/lib/python3/dist-packages/urllib3/util/retry.py", line 534, in increment
+2026-05-02T00:07:11:     raise six.reraise(type(error), error, _stacktrace)
+2026-05-02T00:07:11:   File "/usr/lib/python3/dist-packages/six.py", line 718, in reraise
+2026-05-02T00:07:11:     raise value.with_traceback(tb)
+2026-05-02T00:07:11:   File "/usr/lib/python3/dist-packages/urllib3/connectionpool.py", line 700, in urlopen
+2026-05-02T00:07:11:     httplib_response = self._make_request(
+2026-05-02T00:07:11:   File "/usr/lib/python3/dist-packages/urllib3/connectionpool.py", line 446, in _make_request
+2026-05-02T00:07:11:     six.raise_from(e, None)
+2026-05-02T00:07:11:   File "<string>", line 3, in raise_from
+2026-05-02T00:07:11:   File "/usr/lib/python3/dist-packages/urllib3/connectionpool.py", line 441, in _make_request
+2026-05-02T00:07:11:     httplib_response = conn.getresponse()
+2026-05-02T00:07:11:   File "/usr/lib/python3.10/http/client.py", line 1395, in getresponse
+2026-05-02T00:07:11:     response.begin()
+2026-05-02T00:07:11:   File "/usr/lib/python3.10/http/client.py", line 323, in begin
+2026-05-02T00:07:11:     version, status, reason = self._read_status()
+2026-05-02T00:07:11:   File "/usr/lib/python3.10/http/client.py", line 292, in _read_status
+2026-05-02T00:07:11:     raise RemoteDisconnected("Remote end closed connection without"
+2026-05-02T00:07:11: urllib3.exceptions.ProtocolError: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-05-02T00:07:11: 
+2026-05-02T00:07:11: During handling of the above exception, another exception occurred:
+2026-05-02T00:07:11: 
+2026-05-02T00:07:11: Traceback (most recent call last):
+2026-05-02T00:07:11:   File "/root/NilamAutomationTools/nilam_bot.py", line 79, in <module>
+2026-05-02T00:07:11:     bot.polling(none_stop=True)
+2026-05-02T00:07:11:   File "/usr/local/lib/python3.10/dist-packages/telebot/__init__.py", line 1211, in polling
+2026-05-02T00:07:11:     self.__threaded_polling(non_stop=non_stop, interval=interval, timeout=timeout, long_polling_timeout=long_polling_timeout,
+2026-05-02T00:07:11:   File "/usr/local/lib/python3.10/dist-packages/telebot/__init__.py", line 1286, in __threaded_polling
+2026-05-02T00:07:11:     raise e
+2026-05-02T00:07:11:   File "/usr/local/lib/python3.10/dist-packages/telebot/__init__.py", line 1247, in __threaded_polling
+2026-05-02T00:07:11:     polling_thread.raise_exceptions()
+2026-05-02T00:07:11:   File "/usr/local/lib/python3.10/dist-packages/telebot/util.py", line 116, in raise_exceptions
+2026-05-02T00:07:11:     raise self.exception_info
+2026-05-02T00:07:11:   File "/usr/local/lib/python3.10/dist-packages/telebot/util.py", line 98, in run
+2026-05-02T00:07:11:     task(*args, **kwargs)
+2026-05-02T00:07:11:   File "/usr/local/lib/python3.10/dist-packages/telebot/__init__.py", line 689, in __retrieve_updates
+2026-05-02T00:07:11:     updates = self.get_updates(offset=(self.last_update_id + 1),
+2026-05-02T00:07:11:   File "/usr/local/lib/python3.10/dist-packages/telebot/__init__.py", line 661, in get_updates
+2026-05-02T00:07:11:     json_updates = apihelper.get_updates(
+2026-05-02T00:07:11:   File "/usr/local/lib/python3.10/dist-packages/telebot/apihelper.py", line 339, in get_updates
+2026-05-02T00:07:11:     return _make_request(token, method_url, params=payload)
+2026-05-02T00:07:11:   File "/usr/local/lib/python3.10/dist-packages/telebot/apihelper.py", line 162, in _make_request
+2026-05-02T00:07:11:     result = _get_req_session().request(
+2026-05-02T00:07:11:   File "/usr/lib/python3/dist-packages/requests/sessions.py", line 544, in request
+2026-05-02T00:07:11:     resp = self.send(prep, **send_kwargs)
+2026-05-02T00:07:11:   File "/usr/lib/python3/dist-packages/requests/sessions.py", line 657, in send
+2026-05-02T00:07:11:     r = adapter.send(request, **kwargs)
+2026-05-02T00:07:11:   File "/usr/lib/python3/dist-packages/requests/adapters.py", line 498, in send
+2026-05-02T00:07:11:     raise ConnectionError(err, request=request)
+2026-05-02T00:07:11: requests.exceptions.ConnectionError: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-05-02T00:13:16: Traceback (most recent call last):
+2026-05-02T00:13:16:   File "/usr/lib/python3/dist-packages/urllib3/connectionpool.py", line 700, in urlopen
+2026-05-02T00:13:16:     httplib_response = self._make_request(
+2026-05-02T00:13:16:   File "/usr/lib/python3/dist-packages/urllib3/connectionpool.py", line 446, in _make_request
+2026-05-02T00:13:16:     six.raise_from(e, None)
+2026-05-02T00:13:16:   File "<string>", line 3, in raise_from
+2026-05-02T00:13:16:   File "/usr/lib/python3/dist-packages/urllib3/connectionpool.py", line 441, in _make_request
+2026-05-02T00:13:16:     httplib_response = conn.getresponse()
+2026-05-02T00:13:16:   File "/usr/lib/python3.10/http/client.py", line 1395, in getresponse
+2026-05-02T00:13:16:     response.begin()
+2026-05-02T00:13:16:   File "/usr/lib/python3.10/http/client.py", line 323, in begin
+2026-05-02T00:13:16:     version, status, reason = self._read_status()
+2026-05-02T00:13:16:   File "/usr/lib/python3.10/http/client.py", line 292, in _read_status
+2026-05-02T00:13:16:     raise RemoteDisconnected("Remote end closed connection without"
+2026-05-02T00:13:16: http.client.RemoteDisconnected: Remote end closed connection without response
+2026-05-02T00:13:16: 
+2026-05-02T00:13:16: During handling of the above exception, another exception occurred:
+2026-05-02T00:13:16: 
+2026-05-02T00:13:16: Traceback (most recent call last):
+2026-05-02T00:13:16:   File "/usr/lib/python3/dist-packages/requests/adapters.py", line 439, in send
+2026-05-02T00:13:16:     resp = conn.urlopen(
+2026-05-02T00:13:16:   File "/usr/lib/python3/dist-packages/urllib3/connectionpool.py", line 756, in urlopen
+2026-05-02T00:13:16:     retries = retries.increment(
+2026-05-02T00:13:16:   File "/usr/lib/python3/dist-packages/urllib3/util/retry.py", line 534, in increment
+2026-05-02T00:13:16:     raise six.reraise(type(error), error, _stacktrace)
+2026-05-02T00:13:16:   File "/usr/lib/python3/dist-packages/six.py", line 718, in reraise
+2026-05-02T00:13:16:     raise value.with_traceback(tb)
+2026-05-02T00:13:16:   File "/usr/lib/python3/dist-packages/urllib3/connectionpool.py", line 700, in urlopen
+2026-05-02T00:13:16:     httplib_response = self._make_request(
+2026-05-02T00:13:16:   File "/usr/lib/python3/dist-packages/urllib3/connectionpool.py", line 446, in _make_request
+2026-05-02T00:13:16:     six.raise_from(e, None)
+2026-05-02T00:13:16:   File "<string>", line 3, in raise_from
+2026-05-02T00:13:16:   File "/usr/lib/python3/dist-packages/urllib3/connectionpool.py", line 441, in _make_request
+2026-05-02T00:13:16:     httplib_response = conn.getresponse()
+2026-05-02T00:13:16:   File "/usr/lib/python3.10/http/client.py", line 1395, in getresponse
+2026-05-02T00:13:16:     response.begin()
+2026-05-02T00:13:16:   File "/usr/lib/python3.10/http/client.py", line 323, in begin
+2026-05-02T00:13:16:     version, status, reason = self._read_status()
+2026-05-02T00:13:16:   File "/usr/lib/python3.10/http/client.py", line 292, in _read_status
+2026-05-02T00:13:16:     raise RemoteDisconnected("Remote end closed connection without"
+2026-05-02T00:13:16: urllib3.exceptions.ProtocolError: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-05-02T00:13:16: 
+2026-05-02T00:13:16: During handling of the above exception, another exception occurred:
+2026-05-02T00:13:16: 
+2026-05-02T00:13:16: Traceback (most recent call last):
+2026-05-02T00:13:16:   File "/root/NilamAutomationTools/nilam_bot.py", line 79, in <module>
+2026-05-02T00:13:16:     bot.polling(none_stop=True)
+2026-05-02T00:13:16:   File "/usr/local/lib/python3.10/dist-packages/telebot/__init__.py", line 1211, in polling
+2026-05-02T00:13:16:     self.__threaded_polling(non_stop=non_stop, interval=interval, timeout=timeout, long_polling_timeout=long_polling_timeout,
+2026-05-02T00:13:16:   File "/usr/local/lib/python3.10/dist-packages/telebot/__init__.py", line 1286, in __threaded_polling
+2026-05-02T00:13:16:     raise e
+2026-05-02T00:13:16:   File "/usr/local/lib/python3.10/dist-packages/telebot/__init__.py", line 1247, in __threaded_polling
+2026-05-02T00:13:16:     polling_thread.raise_exceptions()
+2026-05-02T00:13:16:   File "/usr/local/lib/python3.10/dist-packages/telebot/util.py", line 116, in raise_exceptions
+2026-05-02T00:13:16:     raise self.exception_info
+2026-05-02T00:13:16:   File "/usr/local/lib/python3.10/dist-packages/telebot/util.py", line 98, in run
+2026-05-02T00:13:16:     task(*args, **kwargs)
+2026-05-02T00:13:16:   File "/usr/local/lib/python3.10/dist-packages/telebot/__init__.py", line 689, in __retrieve_updates
+2026-05-02T00:13:16:     updates = self.get_updates(offset=(self.last_update_id + 1),
+2026-05-02T00:13:16:   File "/usr/local/lib/python3.10/dist-packages/telebot/__init__.py", line 661, in get_updates
+2026-05-02T00:13:16:     json_updates = apihelper.get_updates(
+2026-05-02T00:13:16:   File "/usr/local/lib/python3.10/dist-packages/telebot/apihelper.py", line 339, in get_updates
+2026-05-02T00:13:16:     return _make_request(token, method_url, params=payload)
+2026-05-02T00:13:16:   File "/usr/local/lib/python3.10/dist-packages/telebot/apihelper.py", line 162, in _make_request
+2026-05-02T00:13:16:     result = _get_req_session().request(
+2026-05-02T00:13:16:   File "/usr/lib/python3/dist-packages/requests/sessions.py", line 544, in request
+2026-05-02T00:13:16:     resp = self.send(prep, **send_kwargs)
+2026-05-02T00:13:16:   File "/usr/lib/python3/dist-packages/requests/sessions.py", line 657, in send
+2026-05-02T00:13:16:     r = adapter.send(request, **kwargs)
+2026-05-02T00:13:16:   File "/usr/lib/python3/dist-packages/requests/adapters.py", line 498, in send
+2026-05-02T00:13:16:     raise ConnectionError(err, request=request)
+2026-05-02T00:13:16: requests.exceptions.ConnectionError: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-05-02T00:33:51: Traceback (most recent call last):
+2026-05-02T00:33:51:   File "/usr/lib/python3/dist-packages/urllib3/connectionpool.py", line 700, in urlopen
+2026-05-02T00:33:51:     httplib_response = self._make_request(
+2026-05-02T00:33:51:   File "/usr/lib/python3/dist-packages/urllib3/connectionpool.py", line 446, in _make_request
+2026-05-02T00:33:51:     six.raise_from(e, None)
+2026-05-02T00:33:51:   File "<string>", line 3, in raise_from
+2026-05-02T00:33:51:   File "/usr/lib/python3/dist-packages/urllib3/connectionpool.py", line 441, in _make_request
+2026-05-02T00:33:51:     httplib_response = conn.getresponse()
+2026-05-02T00:33:51:   File "/usr/lib/python3.10/http/client.py", line 1395, in getresponse
+2026-05-02T00:33:51:     response.begin()
+2026-05-02T00:33:51:   File "/usr/lib/python3.10/http/client.py", line 323, in begin
+2026-05-02T00:33:51:     version, status, reason = self._read_status()
+2026-05-02T00:33:51:   File "/usr/lib/python3.10/http/client.py", line 292, in _read_status
+2026-05-02T00:33:51:     raise RemoteDisconnected("Remote end closed connection without"
+2026-05-02T00:33:51: http.client.RemoteDisconnected: Remote end closed connection without response
+2026-05-02T00:33:51: 
+2026-05-02T00:33:51: During handling of the above exception, another exception occurred:
+2026-05-02T00:33:51: 
+2026-05-02T00:33:51: Traceback (most recent call last):
+2026-05-02T00:33:51:   File "/usr/lib/python3/dist-packages/requests/adapters.py", line 439, in send
+2026-05-02T00:33:51:     resp = conn.urlopen(
+2026-05-02T00:33:51:   File "/usr/lib/python3/dist-packages/urllib3/connectionpool.py", line 756, in urlopen
+2026-05-02T00:33:51:     retries = retries.increment(
+2026-05-02T00:33:51:   File "/usr/lib/python3/dist-packages/urllib3/util/retry.py", line 534, in increment
+2026-05-02T00:33:51:     raise six.reraise(type(error), error, _stacktrace)
+2026-05-02T00:33:51:   File "/usr/lib/python3/dist-packages/six.py", line 718, in reraise
+2026-05-02T00:33:51:     raise value.with_traceback(tb)
+2026-05-02T00:33:51:   File "/usr/lib/python3/dist-packages/urllib3/connectionpool.py", line 700, in urlopen
+2026-05-02T00:33:51:     httplib_response = self._make_request(
+2026-05-02T00:33:51:   File "/usr/lib/python3/dist-packages/urllib3/connectionpool.py", line 446, in _make_request
+2026-05-02T00:33:51:     six.raise_from(e, None)
+2026-05-02T00:33:51:   File "<string>", line 3, in raise_from
+2026-05-02T00:33:51:   File "/usr/lib/python3/dist-packages/urllib3/connectionpool.py", line 441, in _make_request
+2026-05-02T00:33:51:     httplib_response = conn.getresponse()
+2026-05-02T00:33:51:   File "/usr/lib/python3.10/http/client.py", line 1395, in getresponse
+2026-05-02T00:33:51:     response.begin()
+2026-05-02T00:33:51:   File "/usr/lib/python3.10/http/client.py", line 323, in begin
+2026-05-02T00:33:51:     version, status, reason = self._read_status()
+2026-05-02T00:33:51:   File "/usr/lib/python3.10/http/client.py", line 292, in _read_status
+2026-05-02T00:33:51:     raise RemoteDisconnected("Remote end closed connection without"
+2026-05-02T00:33:51: urllib3.exceptions.ProtocolError: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-05-02T00:33:51: 
+2026-05-02T00:33:51: During handling of the above exception, another exception occurred:
+2026-05-02T00:33:51: 
+2026-05-02T00:33:51: Traceback (most recent call last):
+2026-05-02T00:33:51:   File "/root/NilamAutomationTools/nilam_bot.py", line 79, in <module>
+2026-05-02T00:33:51:     bot.polling(none_stop=True)
+2026-05-02T00:33:51:   File "/usr/local/lib/python3.10/dist-packages/telebot/__init__.py", line 1211, in polling
+2026-05-02T00:33:51:     self.__threaded_polling(non_stop=non_stop, interval=interval, timeout=timeout, long_polling_timeout=long_polling_timeout,
+2026-05-02T00:33:51:   File "/usr/local/lib/python3.10/dist-packages/telebot/__init__.py", line 1286, in __threaded_polling
+2026-05-02T00:33:51:     raise e
+2026-05-02T00:33:51:   File "/usr/local/lib/python3.10/dist-packages/telebot/__init__.py", line 1247, in __threaded_polling
+2026-05-02T00:33:51:     polling_thread.raise_exceptions()
+2026-05-02T00:33:51:   File "/usr/local/lib/python3.10/dist-packages/telebot/util.py", line 116, in raise_exceptions
+2026-05-02T00:33:51:     raise self.exception_info
+2026-05-02T00:33:51:   File "/usr/local/lib/python3.10/dist-packages/telebot/util.py", line 98, in run
+2026-05-02T00:33:51:     task(*args, **kwargs)
+2026-05-02T00:33:51:   File "/usr/local/lib/python3.10/dist-packages/telebot/__init__.py", line 689, in __retrieve_updates
+2026-05-02T00:33:51:     updates = self.get_updates(offset=(self.last_update_id + 1),
+2026-05-02T00:33:51:   File "/usr/local/lib/python3.10/dist-packages/telebot/__init__.py", line 661, in get_updates
+2026-05-02T00:33:51:     json_updates = apihelper.get_updates(
+2026-05-02T00:33:51:   File "/usr/local/lib/python3.10/dist-packages/telebot/apihelper.py", line 339, in get_updates
+2026-05-02T00:33:51:     return _make_request(token, method_url, params=payload)
+2026-05-02T00:33:51:   File "/usr/local/lib/python3.10/dist-packages/telebot/apihelper.py", line 162, in _make_request
+2026-05-02T00:33:51:     result = _get_req_session().request(
+2026-05-02T00:33:51:   File "/usr/lib/python3/dist-packages/requests/sessions.py", line 544, in request
+2026-05-02T00:33:51:     resp = self.send(prep, **send_kwargs)
+2026-05-02T00:33:51:   File "/usr/lib/python3/dist-packages/requests/sessions.py", line 657, in send
+2026-05-02T00:33:51:     r = adapter.send(request, **kwargs)
+2026-05-02T00:33:51:   File "/usr/lib/python3/dist-packages/requests/adapters.py", line 498, in send
+2026-05-02T00:33:51:     raise ConnectionError(err, request=request)
+2026-05-02T00:33:51: requests.exceptions.ConnectionError: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-05-02T04:46:48: 2026-05-02 04:46:48,710 (__init__.py:1254 MainThread) ERROR - TeleBot: "Threaded polling exception: A request to the Telegram API was unsuccessful. Error code: 400. Description: Bad Request: message is not modified: specified new message content and reply markup are exactly the same as a current content and reply markup of the message"
+2026-05-02T04:46:48: 2026-05-02 04:46:48,711 (__init__.py:1256 MainThread) ERROR - TeleBot: "Exception traceback:
+2026-05-02T04:46:48: Traceback (most recent call last):
+2026-05-02T04:46:48:   File "/usr/local/lib/python3.10/dist-packages/telebot/__init__.py", line 1248, in __threaded_polling
+2026-05-02T04:46:48:     self.worker_pool.raise_exceptions()
+2026-05-02T04:46:48:   File "/usr/local/lib/python3.10/dist-packages/telebot/util.py", line 155, in raise_exceptions
+2026-05-02T04:46:48:     raise self.exception_info
+2026-05-02T04:46:48:   File "/usr/local/lib/python3.10/dist-packages/telebot/util.py", line 98, in run
+2026-05-02T04:46:48:     task(*args, **kwargs)
+2026-05-02T04:46:48:   File "/usr/local/lib/python3.10/dist-packages/telebot/__init__.py", line 10609, in _run_middlewares_and_handler
+2026-05-02T04:46:48:     result = handler['function'](message)
+2026-05-02T04:46:48:   File "/root/NilamAutomationTools/nilam_bot.py", line 68, in handle_query
+2026-05-02T04:46:48:     bot.edit_message_text(text, chat_id, msg_id, parse_mode="Markdown", reply_markup=InlineKeyboardMarkup().add(InlineKeyboardButton("🔄 Refresh", callback_data="cmd_live"), InlineKeyboardButton("⬅️ Kembali", callback_data="cmd_back")))
+2026-05-02T04:46:48:   File "/usr/local/lib/python3.10/dist-packages/telebot/__init__.py", line 5513, in edit_message_text
+2026-05-02T04:46:48:     result = apihelper.edit_message_text(
+2026-05-02T04:46:48:   File "/usr/local/lib/python3.10/dist-packages/telebot/apihelper.py", line 1688, in edit_message_text
+2026-05-02T04:46:48:     return _make_request(token, method_url, params=payload, method='post')
+2026-05-02T04:46:48:   File "/usr/local/lib/python3.10/dist-packages/telebot/apihelper.py", line 168, in _make_request
+2026-05-02T04:46:48:     json_result = _check_result(method_name, result)
+2026-05-02T04:46:48:   File "/usr/local/lib/python3.10/dist-packages/telebot/apihelper.py", line 197, in _check_result
+2026-05-02T04:46:48:     raise ApiTelegramException(method_name, result, result_json)
+2026-05-02T04:46:48: telebot.apihelper.ApiTelegramException: A request to the Telegram API was unsuccessful. Error code: 400. Description: Bad Request: message is not modified: specified new message content and reply markup are exactly the same as a current content and reply markup of the message
+2026-05-02T04:46:48: "
+2026-05-02T04:47:25: 2026-05-02 04:47:25,105 (__init__.py:1254 MainThread) ERROR - TeleBot: "Threaded polling exception: A request to the Telegram API was unsuccessful. Error code: 400. Description: Bad Request: message is not modified: specified new message content and reply markup are exactly the same as a current content and reply markup of the message"
+2026-05-02T04:47:25: 2026-05-02 04:47:25,105 (__init__.py:1256 MainThread) ERROR - TeleBot: "Exception traceback:
+2026-05-02T04:47:25: Traceback (most recent call last):
+2026-05-02T04:47:25:   File "/usr/local/lib/python3.10/dist-packages/telebot/__init__.py", line 1248, in __threaded_polling
+2026-05-02T04:47:25:     self.worker_pool.raise_exceptions()
+2026-05-02T04:47:25:   File "/usr/local/lib/python3.10/dist-packages/telebot/util.py", line 155, in raise_exceptions
+2026-05-02T04:47:25:     raise self.exception_info
+2026-05-02T04:47:25:   File "/usr/local/lib/python3.10/dist-packages/telebot/util.py", line 98, in run
+2026-05-02T04:47:25:     task(*args, **kwargs)
+2026-05-02T04:47:25:   File "/usr/local/lib/python3.10/dist-packages/telebot/__init__.py", line 10609, in _run_middlewares_and_handler
+2026-05-02T04:47:25:     result = handler['function'](message)
+2026-05-02T04:47:25:   File "/root/NilamAutomationTools/nilam_bot.py", line 68, in handle_query
+2026-05-02T04:47:25:     bot.edit_message_text(text, chat_id, msg_id, parse_mode="Markdown", reply_markup=InlineKeyboardMarkup().add(InlineKeyboardButton("🔄 Refresh", callback_data="cmd_live"), InlineKeyboardButton("⬅️ Kembali", callback_data="cmd_back")))
+2026-05-02T04:47:25:   File "/usr/local/lib/python3.10/dist-packages/telebot/__init__.py", line 5513, in edit_message_text
+2026-05-02T04:47:25:     result = apihelper.edit_message_text(
+2026-05-02T04:47:25:   File "/usr/local/lib/python3.10/dist-packages/telebot/apihelper.py", line 1688, in edit_message_text
+2026-05-02T04:47:25:     return _make_request(token, method_url, params=payload, method='post')
+2026-05-02T04:47:25:   File "/usr/local/lib/python3.10/dist-packages/telebot/apihelper.py", line 168, in _make_request
+2026-05-02T04:47:25:     json_result = _check_result(method_name, result)
+2026-05-02T04:47:25:   File "/usr/local/lib/python3.10/dist-packages/telebot/apihelper.py", line 197, in _check_result
+2026-05-02T04:47:25:     raise ApiTelegramException(method_name, result, result_json)
+2026-05-02T04:47:25: telebot.apihelper.ApiTelegramException: A request to the Telegram API was unsuccessful. Error code: 400. Description: Bad Request: message is not modified: specified new message content and reply markup are exactly the same as a current content and reply markup of the message
+2026-05-02T04:47:25: "
+2026-05-02T04:47:28: 2026-05-02 04:47:28,088 (__init__.py:1254 MainThread) ERROR - TeleBot: "Threaded polling exception: A request to the Telegram API was unsuccessful. Error code: 400. Description: Bad Request: message is not modified: specified new message content and reply markup are exactly the same as a current content and reply markup of the message"
+2026-05-02T04:47:28: 2026-05-02 04:47:28,089 (__init__.py:1256 MainThread) ERROR - TeleBot: "Exception traceback:
+2026-05-02T04:47:28: Traceback (most recent call last):
+2026-05-02T04:47:28:   File "/usr/local/lib/python3.10/dist-packages/telebot/__init__.py", line 1248, in __threaded_polling
+2026-05-02T04:47:28:     self.worker_pool.raise_exceptions()
+2026-05-02T04:47:28:   File "/usr/local/lib/python3.10/dist-packages/telebot/util.py", line 155, in raise_exceptions
+2026-05-02T04:47:28:     raise self.exception_info
+2026-05-02T04:47:28:   File "/usr/local/lib/python3.10/dist-packages/telebot/util.py", line 98, in run
+2026-05-02T04:47:28:     task(*args, **kwargs)
+2026-05-02T04:47:28:   File "/usr/local/lib/python3.10/dist-packages/telebot/__init__.py", line 10609, in _run_middlewares_and_handler
+2026-05-02T04:47:28:     result = handler['function'](message)
+2026-05-02T04:47:28:   File "/root/NilamAutomationTools/nilam_bot.py", line 68, in handle_query
+2026-05-02T04:47:28:     bot.edit_message_text(text, chat_id, msg_id, parse_mode="Markdown", reply_markup=InlineKeyboardMarkup().add(InlineKeyboardButton("🔄 Refresh", callback_data="cmd_live"), InlineKeyboardButton("⬅️ Kembali", callback_data="cmd_back")))
+2026-05-02T04:47:28:   File "/usr/local/lib/python3.10/dist-packages/telebot/__init__.py", line 5513, in edit_message_text
+2026-05-02T04:47:28:     result = apihelper.edit_message_text(
+2026-05-02T04:47:28:   File "/usr/local/lib/python3.10/dist-packages/telebot/apihelper.py", line 1688, in edit_message_text
+2026-05-02T04:47:28:     return _make_request(token, method_url, params=payload, method='post')
+2026-05-02T04:47:28:   File "/usr/local/lib/python3.10/dist-packages/telebot/apihelper.py", line 168, in _make_request
+2026-05-02T04:47:28:     json_result = _check_result(method_name, result)
+2026-05-02T04:47:28:   File "/usr/local/lib/python3.10/dist-packages/telebot/apihelper.py", line 197, in _check_result
+2026-05-02T04:47:28:     raise ApiTelegramException(method_name, result, result_json)
+2026-05-02T04:47:28: telebot.apihelper.ApiTelegramException: A request to the Telegram API was unsuccessful. Error code: 400. Description: Bad Request: message is not modified: specified new message content and reply markup are exactly the same as a current content and reply markup of the message
+2026-05-02T04:47:28: "
+2026-05-02T07:33:41: Traceback (most recent call last):
+2026-05-02T07:33:41:   File "/usr/lib/python3/dist-packages/urllib3/connectionpool.py", line 700, in urlopen
+2026-05-02T07:33:41:     httplib_response = self._make_request(
+2026-05-02T07:33:41:   File "/usr/lib/python3/dist-packages/urllib3/connectionpool.py", line 446, in _make_request
+2026-05-02T07:33:41:     six.raise_from(e, None)
+2026-05-02T07:33:41:   File "<string>", line 3, in raise_from
+2026-05-02T07:33:41:   File "/usr/lib/python3/dist-packages/urllib3/connectionpool.py", line 441, in _make_request
+2026-05-02T07:33:41:     httplib_response = conn.getresponse()
+2026-05-02T07:33:41:   File "/usr/lib/python3.10/http/client.py", line 1395, in getresponse
+2026-05-02T07:33:41:     response.begin()
+2026-05-02T07:33:41:   File "/usr/lib/python3.10/http/client.py", line 323, in begin
+2026-05-02T07:33:41:     version, status, reason = self._read_status()
+2026-05-02T07:33:41:   File "/usr/lib/python3.10/http/client.py", line 292, in _read_status
+2026-05-02T07:33:41:     raise RemoteDisconnected("Remote end closed connection without"
+2026-05-02T07:33:41: http.client.RemoteDisconnected: Remote end closed connection without response
+2026-05-02T07:33:41: 
+2026-05-02T07:33:41: During handling of the above exception, another exception occurred:
+2026-05-02T07:33:41: 
+2026-05-02T07:33:41: Traceback (most recent call last):
+2026-05-02T07:33:41:   File "/usr/lib/python3/dist-packages/requests/adapters.py", line 439, in send
+2026-05-02T07:33:41:     resp = conn.urlopen(
+2026-05-02T07:33:41:   File "/usr/lib/python3/dist-packages/urllib3/connectionpool.py", line 756, in urlopen
+2026-05-02T07:33:41:     retries = retries.increment(
+2026-05-02T07:33:41:   File "/usr/lib/python3/dist-packages/urllib3/util/retry.py", line 534, in increment
+2026-05-02T07:33:41:     raise six.reraise(type(error), error, _stacktrace)
+2026-05-02T07:33:41:   File "/usr/lib/python3/dist-packages/six.py", line 718, in reraise
+2026-05-02T07:33:41:     raise value.with_traceback(tb)
+2026-05-02T07:33:41:   File "/usr/lib/python3/dist-packages/urllib3/connectionpool.py", line 700, in urlopen
+2026-05-02T07:33:41:     httplib_response = self._make_request(
+2026-05-02T07:33:41:   File "/usr/lib/python3/dist-packages/urllib3/connectionpool.py", line 446, in _make_request
+2026-05-02T07:33:41:     six.raise_from(e, None)
+2026-05-02T07:33:41:   File "<string>", line 3, in raise_from
+2026-05-02T07:33:41:   File "/usr/lib/python3/dist-packages/urllib3/connectionpool.py", line 441, in _make_request
+2026-05-02T07:33:41:     httplib_response = conn.getresponse()
+2026-05-02T07:33:41:   File "/usr/lib/python3.10/http/client.py", line 1395, in getresponse
+2026-05-02T07:33:41:     response.begin()
+2026-05-02T07:33:41:   File "/usr/lib/python3.10/http/client.py", line 323, in begin
+2026-05-02T07:33:41:     version, status, reason = self._read_status()
+2026-05-02T07:33:41:   File "/usr/lib/python3.10/http/client.py", line 292, in _read_status
+2026-05-02T07:33:41:     raise RemoteDisconnected("Remote end closed connection without"
+2026-05-02T07:33:41: urllib3.exceptions.ProtocolError: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-05-02T07:33:41: 
+2026-05-02T07:33:41: During handling of the above exception, another exception occurred:
+2026-05-02T07:33:41: 
+2026-05-02T07:33:41: Traceback (most recent call last):
+2026-05-02T07:33:41:   File "/root/NilamAutomationTools/nilam_bot.py", line 79, in <module>
+2026-05-02T07:33:41:     
+2026-05-02T07:33:41: bot.polling(none_stop=True)
+2026-05-02T07:33:41:   File "/usr/local/lib/python3.10/dist-packages/telebot/__init__.py", line 1211, in polling
+2026-05-02T07:33:41:     self.__threaded_polling(non_stop=non_stop, interval=interval, timeout=timeout, long_polling_timeout=long_polling_timeout,
+2026-05-02T07:33:41:   File "/usr/local/lib/python3.10/dist-packages/telebot/__init__.py", line 1286, in __threaded_polling
+2026-05-02T07:33:41:     raise e
+2026-05-02T07:33:41:   File "/usr/local/lib/python3.10/dist-packages/telebot/__init__.py", line 1247, in __threaded_polling
+2026-05-02T07:33:41:     polling_thread.raise_exceptions()
+2026-05-02T07:33:41:   File "/usr/local/lib/python3.10/dist-packages/telebot/util.py", line 116, in raise_exceptions
+2026-05-02T07:33:41:     raise self.exception_info
+2026-05-02T07:33:41:   File "/usr/local/lib/python3.10/dist-packages/telebot/util.py", line 98, in run
+2026-05-02T07:33:41:     task(*args, **kwargs)
+2026-05-02T07:33:41:   File "/usr/local/lib/python3.10/dist-packages/telebot/__init__.py", line 689, in __retrieve_updates
+2026-05-02T07:33:41:     updates = self.get_updates(offset=(self.last_update_id + 1),
+2026-05-02T07:33:41:   File "/usr/local/lib/python3.10/dist-packages/telebot/__init__.py", line 661, in get_updates
+2026-05-02T07:33:41:     json_updates = apihelper.get_updates(
+2026-05-02T07:33:41:   File "/usr/local/lib/python3.10/dist-packages/telebot/apihelper.py", line 339, in get_updates
+2026-05-02T07:33:41:     return _make_request(token, method_url, params=payload)
+2026-05-02T07:33:41:   File "/usr/local/lib/python3.10/dist-packages/telebot/apihelper.py", line 162, in _make_request
+2026-05-02T07:33:41:     result = _get_req_session().request(
+2026-05-02T07:33:41:   File "/usr/lib/python3/dist-packages/requests/sessions.py", line 544, in request
+2026-05-02T07:33:41:     resp = self.send(prep, **send_kwargs)
+2026-05-02T07:33:41:   File "/usr/lib/python3/dist-packages/requests/sessions.py", line 657, in send
+2026-05-02T07:33:41:     r = adapter.send(request, **kwargs)
+2026-05-02T07:33:41:   File "/usr/lib/python3/dist-packages/requests/adapters.py", line 498, in send
+2026-05-02T07:33:41:     raise ConnectionError(err, request=request)
+2026-05-02T07:33:41: requests.exceptions.ConnectionError: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-05-02T11:22:39: Traceback (most recent call last):
+2026-05-02T11:22:39:   File "/root/NilamAutomationTools/fetch_books3.py", line 23, in <module>
+2026-05-02T11:22:39:     req = urllib.request.urlopen(url)
+2026-05-02T11:22:39:   File "/usr/lib/python3.10/urllib/request.py", line 216, in urlopen
+2026-05-02T11:22:39:     return opener.open(url, data, timeout)
+2026-05-02T11:22:39:   File "/usr/lib/python3.10/urllib/request.py", line 519, in open
+2026-05-02T11:22:39:     response = self._open(req, data)
+2026-05-02T11:22:39:   File "/usr/lib/python3.10/urllib/request.py", line 536, in _open
+2026-05-02T11:22:39:     result = self._call_chain(self.handle_open, protocol, protocol +
+2026-05-02T11:22:39:   File "/usr/lib/python3.10/urllib/request.py", line 496, in _call_chain
+2026-05-02T11:22:39:     result = func(*args)
+2026-05-02T11:22:39:   File "/usr/lib/python3.10/urllib/request.py", line 1391, in https_open
+2026-05-02T11:22:39:     return self.do_open(http.client.HTTPSConnection, req,
+2026-05-02T11:22:39:   File "/usr/lib/python3.10/urllib/request.py", line 1352, in do_open
+2026-05-02T11:22:39:     r = h.getresponse()
+2026-05-02T11:22:39:   File "/usr/lib/python3.10/http/client.py", line 1395, in getresponse

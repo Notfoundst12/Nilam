@@ -308,17 +308,24 @@ def handle_query(call):
     elif call.data == "cmd_upgrade":
         bot.answer_callback_query(call.id)
         text = (
-            "<b>💎 NAIK TARAF KE PELAN PRO</b>\n"
+            "<b>💎 PELAN NAIK TARAF KE PRO (VIP)</b>\n"
             "━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
-            "<blockquote>Tingkatkan produktiviti dan elakkan sekatan (banned) dari pelayan AINS dengan pelan PRO.</blockquote>\n\n"
-            "<b>Kelebihan PRO:</b>\n"
-            "🔥 Skrip kelajuan optimum (Jitter)\n"
-            "🛡️ Pintasan WAF (Bypass 429 Limit)\n"
-            "💤 Auto-Sleep jika dikesan\n"
-            "📈 Akses Telemetri Live\n\n"
-            "Sila hubungi Admin / Owner untuk melanggan."
+            "<blockquote><i>\"Kenapa buang masa 5 jam mengklik borang, jika bot boleh menyiapkannya dalam masa 5 minit?\"</i></blockquote>\n\n"
+            "Versi FREE direka untuk gagal. Pelayan akan mengesan anda dan menyekat IP anda (Ralat 429). Lindungi diri anda dan jimat masa dengan <b>Pelan PRO</b>.\n\n"
+            "<b>🔥 CIRI-CIRI EKSKLUSIF PRO:</b>\n"
+            "✅ <b>Tiada Had Buku</b> (Jalan 100+ buku tanpa henti)\n"
+            "✅ <b>WAF Bypass Asing</b> (Gagal dikesan oleh Firewall AINS)\n"
+            "✅ <b>Smart Jitter</b> (Meniru corak klik manusia sebenar)\n"
+            "✅ <b>Auto-Sleep Engine</b> (Tidur bila disyaki, bangun bila selamat)\n"
+            "✅ <b>Sokongan Premium</b> (Kemaskini patch selagi AINS wujud)\n\n"
+            "<b>💰 HARGA LELONGAN KHAS HARI INI:</b>\n"
+            "<s>RM 50.00 / bulan</s>\n"
+            "<b>🔥 RM 15.00 / Seumur Hidup! (Bayar Sekali Sahaja)</b>\n\n"
+            "<i>(Terhad kepada 10 pembeli pertama minggu ini. Selepas ini harga kembali normal)</i>"
         )
-        markup = InlineKeyboardMarkup().add(InlineKeyboardButton("💬 Hubungi Admin", url="tg://user?id=8402309532"), InlineKeyboardButton("🔙 Kembali", callback_data="cmd_main"))
+        markup = InlineKeyboardMarkup()
+        markup.add(InlineKeyboardButton("💳 Beli Sekarang (Direct Owner)", url="tg://user?id=8402309532"))
+        markup.add(InlineKeyboardButton("🔙 Kembali ke Menu", callback_data="cmd_main"))
         bot.edit_message_text(text, chat_id, msg_id, parse_mode="HTML", reply_markup=markup)
 
     elif call.data == "cmd_admin":
