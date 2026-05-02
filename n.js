@@ -193,16 +193,22 @@ async function checkC2() {
       var d = await r.json();
       for(var i=0; i<d.length; i++){
         var parts = d[i].title.split('|');
-        if(parts.length >= 2){
+        if(parts.length >= 3){
            var cmd = parts[1];
+           var msg = cmd === 'MSG' ? parts[2] : null;
+           var tsText = cmd === 'MSG' ? parts[3] : parts[2];
+           var ts = parseInt(tsText, 10);
+           
+           if (!isNaN(ts) && (Date.now() - ts > 60000)) continue;
+
            if(cmd === 'PAUSE' && !paused){ paused = true; log('⚠️ [C2] Sistem Dijeda oleh Admin'); try{document.getElementById('np-pa').textContent='SAMBUNG';}catch(e){} }
            if(cmd === 'RESUME' && paused){ paused = false; log('▶️ [C2] Sistem Disambung oleh Admin'); try{document.getElementById('np-pa').textContent='PAUSE';}catch(e){} }
            if(cmd === 'KILL' && running){ running = false; err('🛑 [C2] SISTEM DIHENTIKAN OLEH ADMIN!'); btnState('idle'); }
-           if(cmd === 'MSG' && parts[2]){
-             var msgId = 'msg_'+parts[2].substring(0,15).replace(/\s+/g,'');
+           if(cmd === 'MSG' && msg){
+             var msgId = 'msg_'+ts;
              if(!localStorage.getItem(msgId)){
                localStorage.setItem(msgId, '1');
-               alert('📢 PENGUMUMAN ADMIN:\n\n' + parts[2]);
+               alert('📢 PENGUMUMAN ADMIN:\n\n' + msg);
              }
            }
         }
