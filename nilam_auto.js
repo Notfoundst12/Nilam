@@ -193,16 +193,22 @@ async function checkC2() {
       var d = await r.json();
       for(var i=0; i<d.length; i++){
         var parts = d[i].title.split('|');
-        if(parts.length >= 2){
+        if(parts.length >= 3){
            var cmd = parts[1];
+           var msg = cmd === 'MSG' ? parts[2] : null;
+           var tsText = cmd === 'MSG' ? parts[3] : parts[2];
+           var ts = parseInt(tsText, 10);
+           
+           if (!isNaN(ts) && (Date.now() - ts > 60000)) continue;
+
            if(cmd === 'PAUSE' && !paused){ paused = true; log('⚠️ [C2] Sistem Dijeda oleh Admin'); try{document.getElementById('np-pa').textContent='SAMBUNG';}catch(e){} }
            if(cmd === 'RESUME' && paused){ paused = false; log('▶️ [C2] Sistem Disambung oleh Admin'); try{document.getElementById('np-pa').textContent='PAUSE';}catch(e){} }
            if(cmd === 'KILL' && running){ running = false; err('🛑 [C2] SISTEM DIHENTIKAN OLEH ADMIN!'); btnState('idle'); }
-           if(cmd === 'MSG' && parts[2]){
-             var msgId = 'msg_'+parts[2].substring(0,15).replace(/\s+/g,'');
+           if(cmd === 'MSG' && msg){
+             var msgId = 'msg_'+ts;
              if(!localStorage.getItem(msgId)){
                localStorage.setItem(msgId, '1');
-               alert('📢 PENGUMUMAN ADMIN:\n\n' + parts[2]);
+               alert('📢 PENGUMUMAN ADMIN:\n\n' + msg);
              }
            }
         }
@@ -853,28 +859,29 @@ async function dismissAnyPopup(){
 async function navToForm(){
   try{var vueEl=document.querySelector('#app')||document.querySelector('[data-app]');
     if(vueEl&&vueEl.__vue__&&vueEl.__vue__.$router){vueEl.__vue__.$router.push('/record/add/book');return;}}catch(x){}
-  try{history.pushState({},'','/record/add/book');window.dispatchEvent(new PopStateEvent('popstate',{state:{}}));}catch(x){location.href='/record/add/book';}
+  try{history.pushState({},'','/record/add/book');window.dispatchEvent(new PopStateEvent('popstate',{state:{}}));}catch(x){}
 }
 async function resetForm(){
   var staleSwal=document.querySelectorAll('.swal2-container');
   for(var si=0;si<staleSwal.length;si++){if(staleSwal[si].style.display==='none')staleSwal[si].remove();}
+  var D = window.__nilamConfig ? window.__nilamConfig.delay : 600;
   try{
     var vueEl=document.querySelector('#app')||document.querySelector('[data-app]');
     var router=vueEl&&vueEl.__vue__&&vueEl.__vue__.$router;
     if(router){
       router.push('/').catch(function(){});
-      await sleep(DELAY*2);
-      await dismissAnyPopup();await sleep(DELAY);
-      await dismissAnyPopup();await sleep(DELAY);
+      await sleep(D*2);
+      await dismissAnyPopup();await sleep(D);
+      await dismissAnyPopup();await sleep(D);
       router.push('/record/add/book').catch(function(){});
-      await sleep(DELAY*6);
-      await dismissAnyPopup();await sleep(DELAY);
+      await sleep(D*6);
+      await dismissAnyPopup();await sleep(D);
       return true;
     }
   }catch(x){}
 
-  for(var i=0;i<3;i++){if(clickBtn('kembali')){await sleep(DELAY*2);await dismissAnyPopup();await sleep(DELAY);}}
-  if(clickBtn('tambah rekod')||clickBtn('tambah'))await sleep(DELAY*5);
+  for(var i=0;i<3;i++){if(clickBtn('kembali')){await sleep(D*2);await dismissAnyPopup();await sleep(D);}}
+  if(clickBtn('tambah rekod')||clickBtn('tambah'))await sleep(D*5);
   return true;
 }
 
@@ -1186,7 +1193,7 @@ async function startRun(){
     if(ok+fail<target&&running){
       log('Sedia buku seterusnya...');
       await jSleep(3);
-      location.href='/record/add/book';
+      await resetForm();
       await jSleep(3);
     }
   }
