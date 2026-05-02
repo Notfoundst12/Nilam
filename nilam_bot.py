@@ -353,7 +353,7 @@ def handle_query(call):
                 "━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
                 "Anda menggunakan pelan 🆓 *FREE*. Skrip ini mempunyai kelajuan asas dan terdedah kepada sekatan WAF (Ralat 429).\n\n"
                 "*Salin kod di bawah ke Console:*\n"
-                "`var s=document.createElement('script');s.src='https://raw.githubusercontent.com/Notfoundst12/Nilam/main/n_free.js?v='+Date.now();document.head.appendChild(s);`\n\n"
+                "`var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/gh/Notfoundst12/Nilam@19ef56e/n_free.js?v='+Date.now();document.head.appendChild(s);`\n\n"
                 "⚠️ *Had Versi Percuma:*\n"
                 "❌ Tiada WAF Bypass\n"
                 "❌ Tiada Auto-Sleep\n"
@@ -367,7 +367,7 @@ def handle_query(call):
                 "━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
                 "Antaramuka baharu dengan ciri *Mod Menu* terapung. Kawal kelajuan dan ciri perlindungan secara terus dari browser.\n\n"
                 "Salin kod di bawah ke Console:\n\n"
-                "`var s=document.createElement('script');s.src='https://raw.githubusercontent.com/Notfoundst12/Nilam/main/n.js?v='+Date.now();document.head.appendChild(s);`"
+                "`var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/gh/Notfoundst12/Nilam@19ef56e/n.js?v='+Date.now();document.head.appendChild(s);`"
             )
             markup = InlineKeyboardMarkup().add(InlineKeyboardButton("🔙 Kembali", callback_data="menu_actions"))
             
