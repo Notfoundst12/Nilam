@@ -3,7 +3,7 @@
 console.log('%c[NILAM] v15.0 sedang dimuatkan...','color:#8b5cf6;font-weight:bold;font-size:14px');
 (async function(){
 
-var LIB_URL='https://cdn.jsdelivr.net/gh/Notfoundst12/Nilam@main/books_library.json';
+var LIB_URL='https://cdn.jsdelivr.net/gh/Notfoundst12/Nilam@a7fbc20/books_library.json';
 var UK='__nilam_used__';
 var BOOKS=[], running=false, paused=false;
 window.__nilamConfig = { jitter: true, ghost: true, autoSleep: true, delay: 600, maxBooks: 5 };
@@ -394,8 +394,6 @@ async function doBook(book,idx,total){
   book.summary=rawSum;
   book.review=revTmpls[Math.floor(Math.random() * revTmpls.length)];
 
-  try{document.getElementById('np-prog').textContent=(idx+1)+' / '+total;}catch(e){}
-  try{document.getElementById('np-bar').style.width=((idx+1)/total*100)+'%';}catch(e){}
   log('--- Buku '+(idx+1)+'/'+total+': '+book.title+' ---');
 
   if(location.pathname.indexOf('/record/add/book')<0) location.href='/record/add/book';
