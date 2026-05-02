@@ -865,23 +865,37 @@ async function resetForm(){
   var staleSwal=document.querySelectorAll('.swal2-container');
   for(var si=0;si<staleSwal.length;si++){if(staleSwal[si].style.display==='none')staleSwal[si].remove();}
   var D = window.__nilamConfig ? window.__nilamConfig.delay : 600;
+  
   try{
     var vueEl=document.querySelector('#app')||document.querySelector('[data-app]');
     var router=vueEl&&vueEl.__vue__&&vueEl.__vue__.$router;
-    if(router){
-      router.push('/').catch(function(){});
-      await sleep(D*2);
-      await dismissAnyPopup();await sleep(D);
-      await dismissAnyPopup();await sleep(D);
+    if(router && location.pathname.indexOf('/record/add/book')<0){
       router.push('/record/add/book').catch(function(){});
-      await sleep(D*6);
-      await dismissAnyPopup();await sleep(D);
-      return true;
+      await sleep(D*2);
     }
   }catch(x){}
 
-  for(var i=0;i<3;i++){if(clickBtn('kembali')){await sleep(D*2);await dismissAnyPopup();await sleep(D);}}
-  if(clickBtn('tambah rekod')||clickBtn('tambah'))await sleep(D*5);
+  log('Membersihkan borang secara senyap...');
+  var inputs = allInp();
+  for(var i=0; i<inputs.length; i++) {
+    if(inputs[i].type === 'radio' || inputs[i].type === 'checkbox') inputs[i].checked = false;
+    else inputs[i].value = '';
+    inputs[i].dispatchEvent(new Event('input',{bubbles:true}));
+    inputs[i].dispatchEvent(new Event('change',{bubbles:true}));
+  }
+  var txts = allTxt();
+  for(var i=0; i<txts.length; i++) {
+    txts[i].value = '';
+    txts[i].dispatchEvent(new Event('input',{bubbles:true}));
+    txts[i].dispatchEvent(new Event('change',{bubbles:true}));
+  }
+  
+  for(var i=0;i<4;i++){
+    if(clickBtn('kembali') || clickBtn('sebelumnya') || clickBtn('kembali ke langkah 1')){
+      await sleep(D);
+    }
+  }
+  
   return true;
 }
 
@@ -1122,7 +1136,6 @@ async function doBook(book,idx,total){
         for(var si=0;si<allSc.length;si++){allSc[si].style.display='none';allSc[si].style.visibility='hidden';allSc[si].style.pointerEvents='none';}
         document.body.classList.remove('swal2-shown','swal2-height-auto');
         document.body.style.overflow='';document.body.style.paddingRight='';
-        try{var ve=document.querySelector('#app')||document.querySelector('[data-app]');if(ve&&ve.__vue__&&ve.__vue__.$router){ve.__vue__.$router.push('/').catch(function(){});}}catch(x){}
         return{ok:true,title:book.title};}
       if(/duplicate|pendua|sudah wujud|already exist|telah wujud|entry/i.test(sw)){log('DUPLIKAT - skip');closeAllPopups();await jSleep(2);return{ok:false,title:book.title,dup:true};}
       if(/gagal|error|ralat|fail/i.test(sw)){
