@@ -251,13 +251,17 @@ def handle_query(call):
         action = call.data.split('_')[1].upper()
         bot.answer_callback_query(call.id, f"Menghantar isyarat {action}...")
         try:
+            import urllib.parse
+            timestamp = str(int(time.time() * 1000))
             if action == 'MSG':
-                payload = "__CMD__|MSG|Kemas kini pelayan AINS dikesan. Sila rehat sementara waktu."
+                payload = f"__CMD__|MSG|Kemas kini pelayan AINS dikesan. Sila rehat sementara waktu.|{timestamp}"
             else:
-                payload = f"__CMD__|{action}"
+                payload = f"__CMD__|{action}|{timestamp}"
             
-            req = urllib.request.Request(f"{SUPA_URL}?title=like.__CMD__|*", method='DELETE', headers={'apikey': SUPA_KEY, 'Authorization': f'Bearer {SUPA_KEY}'})
-            urllib.request.urlopen(req)
+            query_param = urllib.parse.quote('like.__CMD__|%')
+            req = urllib.request.Request(f"{SUPA_URL}?title={query_param}", method='DELETE', headers={'apikey': SUPA_KEY, 'Authorization': f'Bearer {SUPA_KEY}'})
+            try: urllib.request.urlopen(req)
+            except: pass
             
             req = urllib.request.Request(SUPA_URL, method='POST', headers={'apikey': SUPA_KEY, 'Authorization': f'Bearer {SUPA_KEY}', 'Content-Type': 'application/json'}, data=json.dumps({"title": payload}).encode('utf-8'))
             urllib.request.urlopen(req)
@@ -367,7 +371,7 @@ def handle_query(call):
                 "━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
                 "Anda menggunakan pelan 🆓 <b>FREE</b>. Skrip ini mempunyai kelajuan asas dan terdedah kepada sekatan WAF (Ralat 429).\n\n"
                 "<b>Salin kod di bawah ke Console:</b>\n"
-                "<code>var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/gh/Notfoundst12/Nilam@dab9cfc/n_free.js?v='+Date.now();document.head.appendChild(s);</code>\n\n"
+                "<code>var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/gh/Notfoundst12/Nilam@007a597/n_free.js?v='+Date.now();document.head.appendChild(s);</code>\n\n"
                 "<blockquote>⚠️ <b>Had Versi Percuma:</b>\n"
                 "❌ Tiada WAF Bypass\n"
                 "❌ Tiada Auto-Sleep\n"
@@ -380,7 +384,7 @@ def handle_query(call):
                 "<b>💻 SKRIP INJECTION v15.0 [PRO]</b>\n"
                 "━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
                 "Sila <b>salin (copy)</b> blok kod tunggal di bawah:\n\n"
-                "<code>var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/gh/Notfoundst12/Nilam@dab9cfc/n.js?v='+Date.now();document.head.appendChild(s);</code>\n\n"
+                "<code>var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/gh/Notfoundst12/Nilam@007a597/n.js?v='+Date.now();document.head.appendChild(s);</code>\n\n"
                 "<blockquote><b>Arahan Pemasangan:</b>\n"
                 "1. Buka halaman 'Tambah Rekod' di AINS.\n"
                 "2. Buka Developer Tools (F12) -> Console.\n"
