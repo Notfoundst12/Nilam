@@ -346,7 +346,7 @@ def handle_query(call):
         text = (
             "<b>⚡ TETAPAN KELAJUAN (JITTER)</b>\n"
             "━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
-            "<blockquote><b>Info Sistem:</b> Skrip v10.25 menggunakan sistem <b>Dynamic Jitter Delay</b> untuk meniru kelakuan manusia dan mengelakkan Firewall AINS (Ralat 429).</blockquote>\n\n"
+            "<blockquote><b>Info Sistem:</b> Skrip v10.40 menggunakan sistem <b>Dynamic Jitter Delay</b> untuk meniru kelakuan manusia dan mengelakkan Firewall AINS (Ralat 429).</blockquote>\n\n"
             "<b>Formula Pergerakan Masa:</b>\n"
             "<code>Delay = (Asas * Pendarab) + Rawak(500ms - 1500ms)</code>\n\n"
             "<i>Sistem menetapkan kawalan ini secara dinamik dalam skrip web. Anda boleh menukar Delay Asas (Default: 600ms) melalui fungsi Slider pada Panel UI di browser.</i>"
