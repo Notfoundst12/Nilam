@@ -529,7 +529,10 @@ function btnState(s){
 
 // --- HIGH END UI (GHOST TERMINAL) ---
 function makeUI(){
-  var old=document.getElementById('NILAM-ROOT');if(old)old.remove();
+  var old1=document.getElementById('NP');if(old1)old1.remove();
+  var old2=document.getElementById('NP-FAB');if(old2)old2.remove();
+  var old3=document.getElementById('NP-MENU');if(old3)old3.remove();
+  var old4=document.getElementById('NILAM-ROOT');if(old4)old4.remove();
   
   var w=document.createElement('div');
   w.id = 'NILAM-ROOT';
@@ -747,27 +750,31 @@ function makeUI(){
 }
 
 // Init
-makeUI();
-installSpoofer();
-installNavGuard();
-installRatingGuard();
-log('Memuat turun perpustakaan data...');
+try {
+  makeUI();
+  installSpoofer();
+  installNavGuard();
+  installRatingGuard();
+  log('Memuat turun perpustakaan data...');
 
-// Fix Fetch Init - Direct GitHub to avoid jsDelivr cache/CSP
-fetch('https://cdn.jsdelivr.net/gh/Notfoundst12/Nilam@e3378aa/books_library.json')
-  .then(r => { if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
-  .then(async data => {
-    BOOKS = data;
-    log(BOOKS.length+' buku sebenar dimuatkan');
-    await updateStats();
-    var go=document.getElementById('np-go');
-    if(go){ go.disabled=false; go.textContent='MULA SEKARANG'; go.className='nm-btn nm-btn-go'; }
-    sendTelemetry(0, 0, 0, 'Standby (Mod Menu Aktif)');
-  })
-  .catch(e => {
-    err('Gagal muat data: '+e.message);
-    var go=document.getElementById('np-go');
-    if(go) go.textContent='RALAT RANGKAIAN';
-  });
+  var r = await fetch(LIB_URL + '?t=' + Date.now());
+  if(!r.ok) throw new Error('HTTP ' + r.status);
+  BOOKS = await r.json();
+  log(BOOKS.length + ' buku sebenar dimuatkan');
+  
+  // Call updateStats (which is void, but we can await getUsed directly here to be safe)
+  var used = await getUsed();
+  try{document.getElementById('np-lib').textContent=BOOKS.length;}catch(e){}
+  try{document.getElementById('np-usd').textContent=used.length;}catch(e){}
+  
+  var go=document.getElementById('np-go');
+  if(go){ go.disabled=false; go.textContent='MULA SEKARANG'; go.className='nm-btn nm-btn-go'; }
+  sendTelemetry(0, 0, 0, 'Standby (Mod Menu Aktif)');
+
+} catch(e) {
+  err('Gagal muat data: ' + e.message);
+  var go=document.getElementById('np-go');
+  if(go) { go.disabled=true; go.textContent='RALAT RANGKAIAN'; }
+}
 
 })();
