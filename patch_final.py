@@ -1,314 +1,41 @@
-// NILAM Auto-Fill v11.0 (Ghost Edition)
-// 10,000 buku sintetik. Zero arrow functions. Zero template literals. Max compatibility.
-console.log('%c[NILAM] v11.0 sedang dimuatkan...','color:#a78bfa;font-weight:bold;font-size:14px');
-(async function(){
+import os
+import re
 
-var LIB_URL='https://cdn.jsdelivr.net/gh/Notfoundst12/Nilam@main/books_library.json';
-var UK='__nilam_used__';
-var BOOKS=[],DELAY=600,running=false,paused=false;
+with open('/root/NilamAutomationTools/n.js', 'r', encoding='utf-8') as f:
+    njs = f.read()
+
+# Bump versions
+njs = njs.replace('v10.40', 'v11.0').replace('v10.30', 'v11.0').replace('v10.25', 'v11.0')
+
+# Inject config
+config = '''var BOOKS=[],DELAY=600,running=false,paused=false;
 window.__nilamConfig = { jitter: true, ghost: true, autoSleep: true, delay: 600, maxBooks: 5 };
+'''
+njs = njs.replace('var BOOKS=[],DELAY=600,running=false,paused=false;', config)
 
-
-// Supabase Cloud Memory config
-var SUPA_URL = 'https://yzjsmtxhpdlsniqpcuoa.supabase.co/rest/v1/nilam_used_books';
-var SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl6anNtdHhocGRsc25pcXBjdW9hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ5Mzk2ODQsImV4cCI6MjA4MDUxNTY4NH0.jMq8BwvYlODSWiFv7ysM7KiDCjzviMEJFdn1Vfst3mw';
-
-// Anti-Fingerprinting / Device Spoofing
-function installSpoofer() {
-  if(!window.__nilamConfig.ghost) return;
-  try {
-    var agents = [
-      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-      "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36",
-      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36 Edg/121.0.0.0",
-      "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.2 Safari/605.1.15",
-      "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:122.0) Gecko/20100101 Firefox/122.0"
-    ];
-    var randomAgent = agents[Math.floor(Math.random() * agents.length)];
-    
-    // Spoof User Agent
-    Object.defineProperty(navigator, 'userAgent', { get: function () { return randomAgent; } });
-    
-    // Spoof Hardware Concurrency (Cores)
-    var cores = [4, 8, 16];
-    var randomCore = cores[Math.floor(Math.random() * cores.length)];
-    Object.defineProperty(navigator, 'hardwareConcurrency', { get: function () { return randomCore; } });
-
-    // Spoof Device Memory
-    var mems = [8, 16, 32];
-    var randomMem = mems[Math.floor(Math.random() * mems.length)];
-    Object.defineProperty(navigator, 'deviceMemory', { get: function () { return randomMem; } });
-    
-    console.log("[NILAM] 👻 Ghost Mode: IP & Peranti berjaya dikaburkan.");
-  } catch(e) {}
-}
-installSpoofer();
-
-
-// CRITICAL: Prevent ains.moe.gov.myundefined redirect + FORCE inject rating point
-function installNavGuard(){
-  // Guard 1: Intercept Swal.fire
-  if(window.Swal&&window.Swal.fire){
-    var _origFire=window.Swal.fire;
-    window.Swal.fire=function(){
-      var result=_origFire.apply(this,arguments);
-      if(result&&typeof result.then==='function'){
-        var _origThen=result.then;
-        result.then=function(onFulfilled,onRejected){
-          return _origThen.call(this,function(val){
-            if(window.__nilamBlock){window.__nilamBlock=false;return new Promise(function(){});}
-            if(typeof onFulfilled==='function')return onFulfilled(val);
-          },onRejected);
-        };
-      }
-      return result;
-    };
-  }
-
-  // Guard 2: SAFE Network Interceptor (REGEX ONLY - DO NOT PARSE JSON)
-  // This preserves key order, encryption signatures (provider field), and whitespace.
-  if(!window.__nilamXhrPatched){
-    window.__nilamXhrPatched=true;
-    var _origSend=XMLHttpRequest.prototype.send;
-    XMLHttpRequest.prototype.send=function(body){
-      if(typeof body==='string' && body.indexOf('"type":"book"')>=0){
-        var rtg = window.__nilamStarRating || 5;
-        // Inject fields if missing (handles both escaped and non-escaped JSON)
-        var fields = ['point', 'rating', 'score', 'star'];
-        for(var i=0; i<fields.length; i++){
-          var f = fields[i];
-          if(body.indexOf('"'+f+'":') < 0 && body.indexOf('\\"'+f+'\\":') < 0){
-            body = body.replace('"type":"book"', '"type":"book","'+f+'":'+rtg);
-            body = body.replace('\\"type\\":\\"book\\"', '\\"type\\":\\"book\\",\\"'+f+'\\":'+rtg);
-          }
-        }
-        console.log('[NILAM] XHR String Intercept: Injected rating fields safely.');
-        // Extract User ID for Telemetry
-        var m = body.match(/"user"\s*:\s*([^,|}]+)/);
-        if(m && m[1]) {
-            window.__nilamUserId = m[1].replace(/["']/g,'').trim();
-            console.log('[NILAM] Telemetry: UID captured -> ' + window.__nilamUserId);
-        }
-      }
-      return _origSend.call(this,body);
-    };
-
-    var _origFetch=window.fetch;
-    window.fetch=function(){
-      var args = arguments;
-      // Rate Limit Bypass: Append random query param to submit URL to bust WAF cache
-      try {
-        if (args[0] && typeof args[0] === 'string' && args[0].indexOf('/api/nilam-records/submit') >= 0) {
-           args[0] = args[0] + (args[0].indexOf('?')>=0 ? '&' : '?') + '_t=' + Date.now();
-        }
-      } catch(e) {}
-
-      if(args[1] && typeof args[1].body==='string' && args[1].body.indexOf('"type":"book"')>=0){
-        var rtg = window.__nilamStarRating || 5;
-        var fields = ['point', 'rating', 'score', 'star'];
-        for(var i=0; i<fields.length; i++){
-          var f = fields[i];
-          if(args[1].body.indexOf('"'+f+'":') < 0 && args[1].body.indexOf('\\"'+f+'\\":') < 0){
-            args[1].body = args[1].body.replace('"type":"book"', '"type":"book","'+f+'":'+rtg);
-            args[1].body = args[1].body.replace('\\"type\\":\\"book\\"', '\\"type\\":\\"book\\",\\"'+f+'\\":'+rtg);
-          }
-        }
-        console.log('[NILAM] Fetch String Intercept: Injected rating fields safely.');
-        // Extract User ID for Telemetry
-        var m = args[1].body.match(/"user"\s*:\s*([^,|}]+)/);
-        if(m && m[1]) {
-            window.__nilamUserId = m[1].replace(/["']/g,'').trim();
-            console.log('[NILAM] Telemetry: UID captured -> ' + window.__nilamUserId);
-        }
-      }
-      return _origFetch.apply(this,args);
-    };
-  }
-
-  // Guard 3: Patch Vue router
-  try{
-    var ve=document.querySelector('#app')||document.querySelector('[data-app]');
-    var router = (ve && ve.__vue__ && ve.__vue__.$router) || (ve && ve.__vue_app__ && ve.__vue_app__.config.globalProperties.$router);
-    if(router){
-      var _origPush=router.push;
-      router.push=function(loc){
-        if(!loc || (typeof loc==='string' && /undefined/.test(loc))) return Promise.resolve();
-        return _origPush.apply(router,arguments);
-      };
-    }
-  }catch(x){}
-}
-
-// Aggressive Vue tree scanner to force set rating data
-function installRatingGuard(){
-  try{
-    var appEl=document.querySelector('#app')||document.querySelector('[data-app]');
-    if(!appEl) return;
-    var root = appEl.__vue__ || appEl.__vue_app__;
-    if(!root) return;
-
-    var rtg = window.__nilamStarRating || 5;
-    var queue=[root]; var visited=0;
-    while(queue.length && visited<800){
-      var c=queue.shift(); visited++;
-      if(!c) continue;
-
-      // Inject into any object that looks like it holds book data
-      var targets = [c, c.$data, (c.$refs||{}), (c.form||{}), (c.record||{})];
-      for(var i=0; i<targets.length; i++){
-        var t = targets[i]; if(!t || typeof t !== 'object') continue;
-        if(t.type === 'book' || t.title !== undefined || t.point !== undefined || t.rating !== undefined){
-          if(t.point===undefined||t.point===null||t.point===0) t.point=rtg;
-          if(t.rating===undefined||t.rating===null||t.rating===0) t.rating=rtg;
-          if(t.score===undefined||t.score===null||t.score===0) t.score=rtg;
-        }
-      }
-
-      if(typeof c.submitRecord==='function' && !c.__nilamRG){
-        c.__nilamRG=true;
-        var _orig=c.submitRecord;
-        c.submitRecord=function(){
-          installRatingGuard(); // Re-scan before submit
-          return _orig.apply(this,arguments);
-        };
-      }
-
-      if(c.$children){for(var ci=0;ci<c.$children.length;ci++)queue.push(c.$children[ci]);}
-      // Vue 3 support
-      if(c._instance && c._instance.subTree) queue.push(c._instance.proxy);
-    }
-  }catch(x){}
-}
-
-function sleep(ms){return new Promise(function(r){setTimeout(r,ms)});}
-async function jSleep(mult){
+# Update jSleep
+old_jsleep = '''async function jSleep(mult){
+  var base = DELAY * (mult || 1);
+  var jitter = Math.floor(Math.random() * 1500) + 500;
+  await sleep(base + jitter);
+}'''
+new_jsleep = '''async function jSleep(mult){
   var base = window.__nilamConfig.delay * (mult || 1);
   var jitter = window.__nilamConfig.jitter ? (Math.floor(Math.random() * 1500) + 500) : 0;
   await sleep(base + jitter);
-}
-function qs(s){return document.querySelector(s);}
+}'''
+njs = njs.replace(old_jsleep, new_jsleep)
 
-// Heartbeat Telemetry
-async function sendTelemetry(ok, fail, tgt, statusMsg) {
-  var uid = window.__nilamUserId;
-  if (!uid || uid === "Guest") {
-    try {
-      // Direct extraction from common storage/state
-      var app = document.querySelector('#app') || document.querySelector('[data-app]');
-      var root = app && (app.__vue__ || app.__vue_app__);
-      if (root && root.$store && root.$store.state && root.$store.state.user) {
-        uid = root.$store.state.user.id || root.$store.state.user.name;
-      }
-      if (!uid) {
-        for (var i = 0; i < localStorage.length; i++) {
-          var k = localStorage.key(i), v = localStorage.getItem(k);
-          if (k.indexOf('user')>=0 || k.indexOf('auth')>=0) {
-            if (v && v.indexOf('id')>=0) {
-              try { var j = JSON.parse(v); if(j.id) uid=j.id; else if(j.user&&j.user.id) uid=j.user.id; } catch(e){}
-            }
-          }
-        }
-      }
-    } catch(e){}
-    if(!uid) uid = "User-" + Math.floor(Math.random()*9000+1000);
-    window.__nilamUserId = uid;
-  }
+njs = njs.replace('function installSpoofer() {\n  try {', 'function installSpoofer() {\n  if(!window.__nilamConfig.ghost) return;\n  try {')
+njs = njs.replace('if(res.rateLimited){', 'if(res.rateLimited && window.__nilamConfig.autoSleep){')
 
-  var payload = '__TEL__|' + uid + '|' + Date.now() + '|' + ok + '|' + fail + '|' + tgt + '|' + statusMsg;
-  var headers = { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY, 'Content-Type': 'application/json' };
-
-  try {
-    // Delete old ping and post new one
-    await fetch(SUPA_URL + '?title=like.__TEL__|' + uid + '|*', { method: 'DELETE', headers: headers });
-    await fetch(SUPA_URL, { method: 'POST', headers: headers, body: JSON.stringify({ title: payload }) });
-  } catch(e){
-    console.warn('[NILAM] Telemetry Ping Failed', e);
-  }
-}
-
-// Cloud Memory using Supabase + Local Fallback/Merge
-async function getUsed(){
-  var combined = [];
-  try {
-    var r = await fetch(SUPA_URL + '?select=title', {
-      headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
-    });
-    if (r.ok) {
-      var d = await r.json();
-      combined = d.map(function(x) { return x.title }).filter(function(t) { return t.indexOf('__TEL__|') !== 0; });
-    }
-  } catch (e) {
-    console.warn('[NILAM] Cloud getUsed failed, using local only', e);
-  }
-
-  
-  try {
-    var local = JSON.parse(localStorage.getItem(UK)) || [];
-    for (var i = 0; i < local.length; i++) {
-      if (combined.indexOf(local[i]) < 0) combined.push(local[i]);
-    }
-  } catch (e) {}
-  
-  return combined;
-}
-
-// C2 Command & Control Fetcher
-async function checkC2() {
-  try {
-    var r = await fetch(SUPA_URL + '?select=title&title=like.__CMD__|*', { headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY } });
-    if(r.ok){
-      var d = await r.json();
-      for(var i=0; i<d.length; i++){
-        var parts = d[i].title.split('|');
-        if(parts.length >= 2){
-           var cmd = parts[1];
-           if(cmd === 'PAUSE' && !paused){ paused = true; log('⚠️ [C2] Sistem Dijeda oleh Admin'); try{document.getElementById('np-pa').textContent='Sambung';}catch(e){} }
-           if(cmd === 'RESUME' && paused){ paused = false; log('▶️ [C2] Sistem Disambung oleh Admin'); try{document.getElementById('np-pa').textContent='Pause';}catch(e){} }
-           if(cmd === 'KILL' && running){ running = false; err('🛑 [C2] SISTEM DIHENTIKAN OLEH ADMIN!'); btnState('idle'); }
-           if(cmd === 'MSG' && parts[2]){
-             var msgId = 'msg_'+parts[2].substring(0,15).replace(/\s+/g,'');
-             if(!localStorage.getItem(msgId)){
-               localStorage.setItem(msgId, '1');
-               alert('📢 PENGUMUMAN ADMIN:\n\n' + parts[2]);
-             }
-           }
-        }
-      }
-    }
-  } catch(e){}
-}
-
-async function markUsed(t){
-  try {
-    // Local first for immediate feedback
-    var u = JSON.parse(localStorage.getItem(UK)) || [];
-    if (u.indexOf(t) < 0) {
-      u.push(t);
-      localStorage.setItem(UK, JSON.stringify(u));
-    }
-    // Cloud second with await to prevent race conditions
-    await fetch(SUPA_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'apikey': SUPA_KEY,
-        'Authorization': 'Bearer ' + SUPA_KEY,
-        'Prefer': 'resolution=ignore-duplicates'
-      },
-      body: JSON.stringify({ title: t })
-    });
-  } catch (e) {
-    console.error('[NILAM] markUsed failed', e);
-  }
-}
-async function resetUsedList(){
-  localStorage.removeItem(UK);
-  try{await fetch(SUPA_URL+'?title=not.eq.random_string',{method:'DELETE',headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}});}catch(e){}
-}
-
-function pLog(m){var el=document.getElementById('nl');if(!el)return;
+# Extract and replace makeUI
+makeui_idx = njs.find('function pLog(m){')
+if makeui_idx != -1:
+    njs_top = njs[:makeui_idx]
+    new_makeui = """function pLog(m){var el=document.getElementById('nl');if(!el)return;
   var t=new Date().toLocaleTimeString('ms-MY',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
-  var c='';if(/BERJAYA/.test(m))c='ok';else if(/GAGAL|RALAT|TIDAK|\[X\]/.test(m))c='er';else if(/Step \d/.test(m))c='st';
+  var c='';if(/BERJAYA/.test(m))c='ok';else if(/GAGAL|RALAT|TIDAK|\\[X\\]/.test(m))c='er';else if(/Step \\d/.test(m))c='st';
   el.innerHTML+='<div class="nm-log-entry '+c+'"><span style="color:#64748b;margin-right:5px">['+t+']</span>'+m+'</div>';el.scrollTop=1e6;}
 function log(m){console.log('%c[NILAM] '+m,'color:#8b5cf6;font-weight:bold');pLog(m);}
 function err(m){console.error('[NILAM] '+m);pLog('[X] '+m);}
@@ -321,7 +48,7 @@ function isDateInput(el){
   var cn=(el.className||'').toLowerCase();
   if(/date|tarikh|calendar|datepicker/.test(cn))return true;
   var v=(el.value||'');
-  if(el.readOnly&&(/^\d{1,2}[\/-]\d{1,2}[\/-]\d{2,4}$/.test(v)||/^\d{4}-\d{2}-\d{2}/.test(v)))return true;
+  if(el.readOnly&&(/^\\d{1,2}[\\/-]\\d{1,2}[\\/-]\\d{2,4}$/.test(v)||/^\\d{4}-\\d{2}-\\d{2}/.test(v)))return true;
   var attr=(el.getAttribute('data-toggle')||el.getAttribute('data-bs-toggle')||el.getAttribute('placeholder')||el.getAttribute('name')||el.getAttribute('id')||'').toLowerCase();
   if(/date|tarikh|calendar/i.test(attr))return true;
   var p=el.parentElement;
@@ -393,7 +120,7 @@ function findField(text){
   }
   var labels=document.querySelectorAll('label');
   for(i=0;i<labels.length;i++){lb=labels[i];
-    if(lb.textContent.replace(/\*/g,'').trim().toLowerCase().indexOf(lo)<0)continue;
+    if(lb.textContent.replace(/\\*/g,'').trim().toLowerCase().indexOf(lo)<0)continue;
     if(lb.htmlFor){e=document.getElementById(lb.htmlFor);if(e&&vis(e)&&!skipType[e.type]&&!isDateInput(e))return e;}
 
     var sib=lb.nextElementSibling;
@@ -410,7 +137,7 @@ function findField(text){
   }
   var nodes=document.querySelectorAll('span,div,p,td');
   for(i=0;i<nodes.length;i++){n=nodes[i];
-    var txt=n.textContent.replace(/\*/g,'').trim();
+    var txt=n.textContent.replace(/\\*/g,'').trim();
     if(txt.length>50||txt.length<2||txt.toLowerCase().indexOf(lo)<0)continue;
     p=n.parentElement;
     for(d=0;d<5&&p;d++){e=p.querySelector('input:not([type=hidden]):not([type=checkbox]):not([type=radio]):not([type=file]):not([type=button]):not([type=submit]):not([type=date]):not([type=datetime-local]):not([type=time]):not([type=month]),select,textarea');if(e&&vis(e)&&!isOurPanel(e)&&!isDateInput(e))return e;p=p.parentElement;}
@@ -473,7 +200,7 @@ async function openAndSelect(labelText, optionText) {
   var targetLabel=null;
   for(var i=0;i<labels.length;i++){
     if(isOurPanel(labels[i])||!vis(labels[i]))continue;
-    var t=labels[i].innerText.toLowerCase().replace(/\*/g,'').trim();
+    var t=labels[i].innerText.toLowerCase().replace(/\\*/g,'').trim();
     if(t===lo||(t.indexOf(lo)>=0&&t.length<30)){targetLabel=labels[i];break;}
   }
   if(!targetLabel)return false;
@@ -517,7 +244,7 @@ async function fillDropdown(label,value,fbIdx){
   for(i=0;i<toggles.length;i++){
     var toggle=toggles[i];if(!vis(toggle)||isOurPanel(toggle)||toggle.tagName==='SELECT'||isDateInput(toggle))continue;var c=toggle;
     for(d=0;d<6&&c;d++){var lbl=c.querySelector('label,span,div,p');
-      if(lbl&&lbl.textContent.replace(/\*/g,'').trim().toLowerCase().indexOf(lo)>=0){
+      if(lbl&&lbl.textContent.replace(/\\*/g,'').trim().toLowerCase().indexOf(lo)>=0){
         toggle.click();await sleep(800);
         var optSel='.vs__dropdown-option,[role=option],.dropdown-item,li,.option,[class*=option],[class*=item]';
         var opts=document.querySelectorAll(optSel);
@@ -627,7 +354,7 @@ async function selectLanguageFromModal(lang) {
       var lbs=document.querySelectorAll('label,span,div,p');
       for(var li=0;li<lbs.length;li++){
         if(isOurPanel(lbs[li])||!vis(lbs[li]))continue;
-        var lt=lbs[li].textContent.replace(/\*/g,'').trim().toLowerCase();
+        var lt=lbs[li].textContent.replace(/\\*/g,'').trim().toLowerCase();
         if(lt.indexOf('bahasa')>=0&&lt.length<30){
           var pp=lbs[li].parentElement;
           for(var dd=0;dd<5&&pp;dd++){
@@ -942,9 +669,9 @@ function logButtons(){
 async function doBook(book,idx,total){
   if(!running)return{ok:false,title:book.title};
 
-  book.title=String(book.title||'').replace(/[\r\n]+/g,' ').trim();
-  book.author=String(book.author||'').replace(/[\r\n]+/g,' ').trim();
-  book.publisher=String(book.publisher||'').replace(/[\r\n]+/g,' ').trim();
+  book.title=String(book.title||'').replace(/[\\r\\n]+/g,' ').trim();
+  book.author=String(book.author||'').replace(/[\\r\\n]+/g,' ').trim();
+  book.publisher=String(book.publisher||'').replace(/[\\r\\n]+/g,' ').trim();
   
   var titlesArray = book.title.split(' ');
   var mainTopic = titlesArray.length > 1 ? titlesArray[0] + ' ' + titlesArray[1] : book.title;
@@ -1432,3 +1159,57 @@ try{
 }
 
 })();
+"""
+    
+    njs_new = njs_top + new_makeui
+    
+    with open('/root/NilamAutomationTools/n.js', 'w', encoding='utf-8') as f:
+        f.write(njs_new)
+
+# Rewrite telegram bot to clean layout
+with open('/root/NilamAutomationTools/nilam_bot.py', 'r', encoding='utf-8') as f:
+    bot_code = f.read()
+
+# Replaces blockquotes logic with clean layout
+clean_bot = re.sub(r'<blockquote>(.*?)</blockquote>', r'\\1', bot_code, flags=re.DOTALL)
+
+# Custom strings for bot
+new_welcome = """    text = (
+        "🔥 *NILAM COMMAND CENTER PRO* [{plan_badge}]\\n"
+        "━━━━━━━━━━━━━━━━━━━━━━━━━\\n\\n"
+        "Status: 🟢 *ONLINE*\\n"
+        "Sistem Pengurusan Automasi AINS Termaju (Mod Menu Edition).\\n\\n"
+        "Sila pilih modul operasi:"
+    )"""
+clean_bot = re.sub(r'    text = \(\n.*?"<b>⚡ NILAM COMMAND CENTER \[\{plan_badge\}\]</b>\\n".*?\n    \)', new_welcome, clean_bot, flags=re.DOTALL)
+
+new_stats = """            text = (
+                "📊 *STATISTIK PELAJAR*\\n"
+                "━━━━━━━━━━━━━━━━━━━━━━━━━\\n\\n"
+                f"📦 *Total Buku :* `{total:,}`\\n"
+                f"✅ *Selesai    :* `{used:,}`\\n"
+                f"⏳ *Baki       :* `{left:,}`\\n\\n"
+                f"`[{bar}] {percent:.1f}%`\\n\\n"
+                f"👥 *Pelajar Aktif:* `{active_users}` online\\n\\n"
+                "⚙️ *Mod Enjin Aktif:*\\n"
+                "• 👻 Ghost Mode (Anti-FP)\\n"
+                "• 🧠 AI Smart Review\\n"
+                "• ⚡ Jitter + URL Spoof"
+            )"""
+clean_bot = re.sub(r'            text = \(\n.*?"<b>📈 LAPORAN PRESTASI KESELURUHAN</b>\\n".*?\n            \)', new_stats, clean_bot, flags=re.DOTALL)
+
+new_script = """            text = (
+                "💻 *SKRIP MOD MENU v11.0 [PRO]*\\n"
+                "━━━━━━━━━━━━━━━━━━━━━━━━━\\n\\n"
+                "Antaramuka baharu dengan ciri *Mod Menu* terapung. Kawal kelajuan dan ciri perlindungan secara terus dari browser.\\n\\n"
+                "Salin kod di bawah ke Console:\\n\\n"
+                "`var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/gh/Notfoundst12/Nilam@main/n.js?v='+Date.now();document.head.appendChild(s);`"
+            )"""
+clean_bot = re.sub(r'            text = \(\n.*?"<b>💻 SKRIP SUNTIKAN v10.40 \[PRO/OWNER\]</b>\\n".*?\n            \)', new_script, clean_bot, flags=re.DOTALL)
+
+clean_bot = clean_bot.replace('parse_mode="HTML"', 'parse_mode="Markdown"')
+
+with open('/root/NilamAutomationTools/nilam_bot.py', 'w', encoding='utf-8') as f:
+    f.write(clean_bot)
+
+print("Patch applied successfully")

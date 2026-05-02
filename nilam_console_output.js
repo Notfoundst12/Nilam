@@ -1,11 +1,13 @@
-// NILAM Auto-Fill v10.40 (Ghost Edition)
+// NILAM Auto-Fill v11.0 (Ghost Edition)
 // 10,000 buku sintetik. Zero arrow functions. Zero template literals. Max compatibility.
-console.log('%c[NILAM] v10.40 sedang dimuatkan...','color:#a78bfa;font-weight:bold;font-size:14px');
+console.log('%c[NILAM] v11.0 sedang dimuatkan...','color:#a78bfa;font-weight:bold;font-size:14px');
 (async function(){
 
 var LIB_URL='https://cdn.jsdelivr.net/gh/Notfoundst12/Nilam@main/books_library.json';
 var UK='__nilam_used__';
 var BOOKS=[],DELAY=600,running=false,paused=false;
+window.__nilamConfig = { jitter: true, ghost: true, autoSleep: true, delay: 600, maxBooks: 5 };
+
 
 // Supabase Cloud Memory config
 var SUPA_URL = 'https://yzjsmtxhpdlsniqpcuoa.supabase.co/rest/v1/nilam_used_books';
@@ -13,6 +15,7 @@ var SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJ
 
 // Anti-Fingerprinting / Device Spoofing
 function installSpoofer() {
+  if(!window.__nilamConfig.ghost) return;
   try {
     var agents = [
       "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
@@ -179,8 +182,8 @@ function installRatingGuard(){
 
 function sleep(ms){return new Promise(function(r){setTimeout(r,ms)});}
 async function jSleep(mult){
-  var base = DELAY * (mult || 1);
-  var jitter = Math.floor(Math.random() * 1500) + 500;
+  var base = window.__nilamConfig.delay * (mult || 1);
+  var jitter = window.__nilamConfig.jitter ? (Math.floor(Math.random() * 1500) + 500) : 0;
   await sleep(base + jitter);
 }
 function qs(s){return document.querySelector(s);}
@@ -306,13 +309,12 @@ async function resetUsedList(){
 function pLog(m){var el=document.getElementById('nl');if(!el)return;
   var t=new Date().toLocaleTimeString('ms-MY',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
   var c='';if(/BERJAYA/.test(m))c='ok';else if(/GAGAL|RALAT|TIDAK|\[X\]/.test(m))c='er';else if(/Step \d/.test(m))c='st';
-  el.innerHTML+='<div class="l '+c+'"><span class="lt">'+t+'</span>'+m+'</div>';el.scrollTop=1e6;}
-function log(m){console.log('%c[NILAM] '+m,'color:#a78bfa;font-weight:bold');pLog(m);}
+  el.innerHTML+='<div class="nm-log-entry '+c+'"><span style="color:#64748b;margin-right:5px">['+t+']</span>'+m+'</div>';el.scrollTop=1e6;}
+function log(m){console.log('%c[NILAM] '+m,'color:#8b5cf6;font-weight:bold');pLog(m);}
 function err(m){console.error('[NILAM] '+m);pLog('[X] '+m);}
 
-// DOM helpers
 function vis(el){return el&&(el.offsetParent!==null||el.offsetWidth>0);}
-function isOurPanel(el){if(!el)return false;try{return el.closest&&el.closest('#NP');}catch(x){return false;}}
+function isOurPanel(el){if(!el)return false;try{return el.closest&&el.closest('#NP-MENU') || el.closest('#NP-FAB');}catch(x){return false;}}
 function isDateInput(el){
   if(!el||el.tagName!=='INPUT')return false;
   var t=el.type;if(t==='date'||t==='datetime-local'||t==='time'||t==='month'||t==='week')return true;
@@ -337,7 +339,6 @@ function isDateInput(el){
 }
 function closeDatePicker(){
   var i,j,btns,bt;
-  // Method 1: Any visible element whose text starts with or equals "Pilih Tarikh"
   var allEls=document.querySelectorAll('div,h1,h2,h3,h4,h5,h6,p,span,header,label,strong');
   for(i=0;i<allEls.length;i++){
     if(!vis(allEls[i])||isOurPanel(allEls[i]))continue;
@@ -354,7 +355,6 @@ function closeDatePicker(){
       parent=parent.parentElement;
     }
   }
-  // Method 2: Find standalone "Batal" button inside ANY visible overlay/dialog
   var overlays=document.querySelectorAll('.modal,.v-dialog,.v-overlay,.v-overlay__content,[role=dialog],[class*=dialog],[class*=overlay],[class*=picker],[class*=calendar],.flatpickr-calendar');
   for(i=0;i<overlays.length;i++){
     if(!vis(overlays[i])||isOurPanel(overlays[i]))continue;
@@ -367,7 +367,6 @@ function closeDatePicker(){
       if(bt==='batal'||bt==='cancel'||bt==='tutup'||bt==='close'){forceClick(btns[j]);return true;}
     }
   }
-  // Method 3: Just find ANY visible "Batal" button that's NOT in our panel or LanguageModal
   var allBtns=document.querySelectorAll('button,a,.btn,[role=button]');
   for(i=0;i<allBtns.length;i++){
     if(!vis(allBtns[i])||isOurPanel(allBtns[i]))continue;
@@ -397,7 +396,6 @@ function findField(text){
     if(lb.textContent.replace(/\*/g,'').trim().toLowerCase().indexOf(lo)<0)continue;
     if(lb.htmlFor){e=document.getElementById(lb.htmlFor);if(e&&vis(e)&&!skipType[e.type]&&!isDateInput(e))return e;}
 
-    // Bootstrap 5: check siblings of label
     var sib=lb.nextElementSibling;
     while(sib){
       if(/input|select|textarea/i.test(sib.tagName) && vis(sib) && !isOurPanel(sib) && !skipType[sib.type] && !isDateInput(sib)) return sib;
@@ -634,7 +632,7 @@ async function selectLanguageFromModal(lang) {
           var pp=lbs[li].parentElement;
           for(var dd=0;dd<5&&pp;dd++){
             trigger=pp.querySelector('button:not([disabled]),[role=button],.btn,[data-bs-toggle],[data-toggle]');
-            if(trigger&&vis(trigger)&&!isOurPanel(trigger)&&!trigger.closest('#NP'))break;
+            if(trigger&&vis(trigger)&&!isOurPanel(trigger)&&!trigger.closest('#NP-MENU')&&!trigger.closest('#NP-FAB'))break;
             trigger=null;pp=pp.parentElement;
           }
           if(trigger)break;
@@ -693,11 +691,9 @@ async function clickLanguageDirectly(lang) {
   return false;
 }
 
-// Star rating - Vue injection priority + DOM coordinate fallback
 function tryClickStar(n){
   var i,j,items,el;
 
-  // Strategy 0: BFS Vue tree — find StarRating component and CLICK its star elements (NOT inject data)
   try{
     var appEl=document.querySelector('#app')||document.querySelector('[data-app]');
     if(appEl&&appEl.__vue__){
@@ -726,12 +722,11 @@ function tryClickStar(n){
             }
           }
         }
-        if(comp.$children){for(var ci=0;ci<comp.$children.length;ci++){queue.push(comp.$children[ci]);}}
+        if(comp.$children){for(var ci=0;ci<c.$children.length;ci++){queue.push(comp.$children[ci]);}}
       }
     }
   }catch(x){}
 
-  // Strategy 1: Vue model injection on star/rating elements
   try{
     var allEl=document.querySelectorAll('[class*=star],[class*=Star],[class*=rating],[class*=Rating],[class*=penilaian],[class*=rate],[class*=v-rating],[class*=v_rating]');
     for(i=0;i<allEl.length;i++){
@@ -756,7 +751,6 @@ function tryClickStar(n){
     }
   }catch(x){}
 
-  // Strategy 1b: Walk from rating/penilaian labels, CLICK star-like children (don't inject data)
   try{
     var rLabels=document.querySelectorAll('label,span,div,p,h1,h2,h3,h4,h5,h6');
     for(i=0;i<rLabels.length;i++){
@@ -782,7 +776,6 @@ function tryClickStar(n){
     }
   }catch(x){}
 
-  // Strategy 2: container with star/rating class
   var containers=document.querySelectorAll('[class*=star],[class*=Star],[class*=rating],[class*=Rating],[class*=penilaian],[class*=Penilaian],[class*=rate],[class*=Rate],[class*=review],[class*=Review],[class*=v-rating],[class*=v_rating]');
   for(i=0;i<containers.length;i++){
     if(isOurPanel(containers[i]))continue;
@@ -790,7 +783,6 @@ function tryClickStar(n){
     if(items.length>=3&&items.length<=10){forceClick(items[Math.min(n-1,items.length-1)]);return true;}
     if(containers[i].children.length>=3&&containers[i].children.length<=10){forceClick(containers[i].children[Math.min(n-1,containers[i].children.length-1)]);return true;}
   }
-  // Strategy 3: label text then nearby clickable items
   var labels=document.querySelectorAll('label,span,div,p,h1,h2,h3,h4,h5,h6,legend');
   for(i=0;i<labels.length;i++){
     if(isOurPanel(labels[i]))continue;
@@ -806,14 +798,12 @@ function tryClickStar(n){
       }
     }
   }
-  // Strategy 5: radio inputs
   var radios=document.querySelectorAll('input[type=radio]');
   for(i=0;i<radios.length;i++){
     if(isOurPanel(radios[i]))continue;
     var rv=radios[i].value;
     if(rv==String(n)||rv==n){radios[i].checked=true;forceClick(radios[i]);radios[i].dispatchEvent(new Event('change',{bubbles:true}));return true;}
   }
-  // Strategy 6: aria-label
   var ariaEls=document.querySelectorAll('[aria-label]');
   for(i=0;i<ariaEls.length;i++){
     if(isOurPanel(ariaEls[i]))continue;
@@ -822,7 +812,6 @@ function tryClickStar(n){
       forceClick(ariaEls[i]);return true;
     }
   }
-  // Strategy 7: data-value
   var dataEls=document.querySelectorAll('[data-value],[data-rating],[data-score]');
   for(i=0;i<dataEls.length;i++){
     if(isOurPanel(dataEls[i]))continue;
@@ -833,13 +822,12 @@ function tryClickStar(n){
 }
 async function clickStarRetry(n){
   for(var attempt=0;attempt<5;attempt++){
-    if(attempt>0){await sleep(1200);log('  Retry rating #'+(attempt+1)+'...');}
+    if(attempt>0){await jSleep(1.2);log('  Retry rating #'+(attempt+1)+'...');}
     if(tryClickStar(n))return true;
   }
   return false;
 }
 
-// Duplicate and Rate Limit detection
 function isDuplicate(){
   var sw=swalText().toLowerCase();
   if(sw&&(/limit exceeded|too many requests|429/i.test(sw))){ window.__nilamRateLimited = true; return false; }
@@ -856,7 +844,6 @@ function isDuplicate(){
   return false;
 }
 
-// SweetAlert helpers - exclude our panel
 function swalText(){
   var sels='.swal2-html-container,.swal2-title,.swal2-content,.swal2-popup';
   var els=document.querySelectorAll(sels);var i,m;
@@ -896,7 +883,7 @@ async function dismissAnyPopup(){
     var m=els[i].closest('.modal');if(m&&m.id==='LanguageModal')continue;
     var t=(els[i].innerText||els[i].textContent||'').trim().toLowerCase();
     if(t==='ok'||t==='pasti'||t==='ya'||t==='teruskan'||t==='tutup'||t==='setuju'||t==='faham'||t==='confirm'){
-      forceClick(els[i]);await sleep(500);return true;
+      forceClick(els[i]);await jSleep(0.5);return true;
     }
   }
   return false;
@@ -914,33 +901,30 @@ async function resetForm(){
     var router=vueEl&&vueEl.__vue__&&vueEl.__vue__.$router;
     if(router){
       router.push('/').catch(function(){});
-      await sleep(DELAY*2);
-      await dismissAnyPopup();await sleep(DELAY);
-      await dismissAnyPopup();await sleep(DELAY);
+      await jSleep(2);
+      await dismissAnyPopup();await jSleep(1);
+      await dismissAnyPopup();await jSleep(1);
       router.push('/record/add/book').catch(function(){});
-      await sleep(DELAY*6);
-      await dismissAnyPopup();await sleep(DELAY);
+      await jSleep(6);
+      await dismissAnyPopup();await jSleep(1);
       return true;
     }
   }catch(x){}
 
-  for(var i=0;i<3;i++){if(clickBtn('kembali')){await sleep(DELAY*2);await dismissAnyPopup();await sleep(DELAY);}}
-  if(clickBtn('tambah rekod')||clickBtn('tambah'))await sleep(DELAY*5);
+  for(var i=0;i<3;i++){if(clickBtn('kembali')){await jSleep(2);await dismissAnyPopup();await jSleep(1);}}
+  if(clickBtn('tambah rekod')||clickBtn('tambah'))await jSleep(5);
   return true;
 }
 
-// Click Seterusnya - with strict validation
 async function clickNext(){
   var i;
-  // Try 1: normal click (enabled button)
-  for(i=0;i<6;i++){if(clickBtn('seterusnya'))return true;await sleep(500);}
+  for(i=0;i<6;i++){if(clickBtn('seterusnya'))return true;await jSleep(0.5);}
 
   log('  [!] Seterusnya dilumpuhkan atau tak jumpa.');
   return false;
 }
 async function checkPause(){while(paused&&running)await sleep(300);}
 
-// Diagnostic: log what buttons are visible
 function logButtons(){
   var els=document.querySelectorAll('button,a,[role=button],.btn,input[type=submit]');
   var found=[];
@@ -955,7 +939,6 @@ function logButtons(){
   else log('  [DBG] Tiada butang dijumpai');
 }
 
-// Process one book
 async function doBook(book,idx,total){
   if(!running)return{ok:false,title:book.title};
 
@@ -963,7 +946,6 @@ async function doBook(book,idx,total){
   book.author=String(book.author||'').replace(/[\r\n]+/g,' ').trim();
   book.publisher=String(book.publisher||'').replace(/[\r\n]+/g,' ').trim();
   
-  // OSINT Smart Review Generator (AI-like)
   var titlesArray = book.title.split(' ');
   var mainTopic = titlesArray.length > 1 ? titlesArray[0] + ' ' + titlesArray[1] : book.title;
   var rawSum=String(book.summary||'').trim();
@@ -987,8 +969,8 @@ async function doBook(book,idx,total){
   book.summary=rawSum;
   book.review=revTmpls[Math.floor(Math.random() * revTmpls.length)];
 
-  qs('#np-prog').textContent=(idx+1)+' / '+total;
-  qs('#np-bar').style.width=((idx+1)/total*100)+'%';
+  try{document.getElementById('np-prog').textContent=(idx+1)+' / '+total;}catch(e){}
+  try{document.getElementById('np-bar').style.width=((idx+1)/total*100)+'%';}catch(e){}
   log('--- Buku '+(idx+1)+'/'+total+': '+book.title+' ---');
 
   if(location.pathname.indexOf('/record/add/book')<0){
@@ -998,16 +980,13 @@ async function doBook(book,idx,total){
   if(!formOk){err('Borang tak load');return{ok:false,title:book.title};}
   await jSleep(1);swalClick();await checkPause();
 
-  // === STEP 1: Maklumat Buku ===
   log('Step 1: Maklumat Buku');
   closeDatePicker();
   if(!running)return{ok:false,title:book.title};
   await fillField('tajuk',book.title,['title']);await jSleep(1);
 
-  // Automatically select Buku Fizikal — NEVER E-Buku (causes undefined URL crash)
   if(clickBtn('buku fizikal')||clickBtn('buku bukan elektronik')||clickRadio('fizikal')){}
   await jSleep(1);
-  // Safeguard: if URL/pautan field appeared (E-Buku selected by mistake), clear it
   var urlField=findField('pautan')||findField('url')||findField('laman');
   if(urlField){urlField.value='';log('  [!] URL field detected & cleared — E-Buku mungkin terpilih');}
 
@@ -1038,16 +1017,11 @@ async function doBook(book,idx,total){
   var langOk=false;
   var langKeys=['bahasa', 'bacaan', 'bahan', 'medium', 'pilihan', 'language', 'lang', 'pilih'];
 
-  // Try 1: #LanguageModal (AINS uses Bootstrap 5 modal for language)
   if(await selectLanguageFromModal(lang)){langOk=true;log('  [OK] bahasa (LanguageModal)');}
-  // Try 2: Brute force custom selects
   else if(await bruteForceSelect(langKeys, [lang, langShort])){langOk=true;log('  [OK] bahasa (brute)');}
-  // Try 3: Direct click on visible elements
   else if(await clickLanguageDirectly(lang)){langOk=true;}
-  // Try 4: Standard select dropdown
   else if(await fillDropdown('bahasa',lang,1)){langOk=true;log('  [OK] bahasa (dropdown)');}
   else if(await fillDropdown('bahasa',langShort,1)){langOk=true;log('  [OK] bahasa (dropdown-short)');}
-  // Try 5: Radio/button fallback
   else if(clickRadio(lang)||clickBtn(lang)){log('  [OK] bahasa (radio/btn)');langOk=true;}
   else{log('  [!] bahasa: tak jumpa');}
 
@@ -1066,7 +1040,6 @@ async function doBook(book,idx,total){
   if(!next1){err('Gagal tekan Seterusnya step 1');logButtons();}
   await jSleep(5);if(!running)return{ok:false,title:book.title};await checkPause();
 
-  // === STEP 2: Rumusan & Pengajaran & Rating ===
   log('Step 2: Rumusan & Penilaian');
   if(!running)return{ok:false,title:book.title};
   await waitFor(function(){return allTxt().length>0?true:null;},15000);await jSleep(2);
@@ -1076,7 +1049,6 @@ async function doBook(book,idx,total){
   await jSleep(3);
   if(!running)return{ok:false,title:book.title};
 
-  // Rating with retry
   closeDatePicker();
   var stars=Math.floor(Math.random()*3)+3;
   window.__nilamStarRating=stars;
@@ -1091,7 +1063,6 @@ async function doBook(book,idx,total){
   var next2=await clickNext();
   if(!next2){
     err('Gagal tekan Seterusnya step 2');logButtons();
-    // Last resort: wait and try again
     await jSleep(5);
     next2=await clickNext();
     if(!next2){
@@ -1101,7 +1072,6 @@ async function doBook(book,idx,total){
   }
   await jSleep(5);
 
-  // === STEP 3: Confirmation & Submit ===
   log('Step 3: Pengesahan & Hantar');
   closeDatePicker();
   var hasClickedHantar = false;
@@ -1118,16 +1088,14 @@ async function doBook(book,idx,total){
       log('  [!] Tiada popup muncul, cuba tekan semula...');
     }
 
-    // Check visible validation errors first
     var errs = document.querySelectorAll('.error--text, .text-danger, .invalid-feedback, [class*=error]');
     for(var e=0; e<errs.length; e++){
       if(vis(errs[e]) && !isOurPanel(errs[e]) && errs[e].innerText.length > 3 && errs[e].innerText.length < 50){
         err('Ralat borang: ' + errs[e].innerText);
-        return {ok:false, title:book.title}; // Abort!
+        return {ok:false, title:book.title};
       }
     }
 
-    // FIRST: try action buttons ONLY IF we haven't already clicked Hantar
     if(a>0 && !hasClickedHantar){
       var exactBtns=document.querySelectorAll('button,a,[role=button],.btn,input[type=submit]');
       for(var ei=0;ei<exactBtns.length;ei++){
@@ -1159,7 +1127,6 @@ async function doBook(book,idx,total){
 
     await jSleep(2);
 
-    // Check for rate limit and duplicate
     if(window.__nilamRateLimited){ log('  [!] WAF Rate Limit dikesan!'); closeAllPopups(); return {ok:false, title:book.title, rateLimited:true}; }
     if(isDuplicate()){
       log('DUPLIKAT dikesan - skip');
@@ -1167,7 +1134,6 @@ async function doBook(book,idx,total){
       return{ok:false,title:book.title,dup:true};
     }
 
-    // Check SweetAlert text
     var sw=swalText();
     if(sw){
       log('  [popup] '+sw.substring(0,100));
@@ -1197,26 +1163,27 @@ async function doBook(book,idx,total){
       swalClick('ok');swalClick('pasti');swalClick('ya');swalClick();await jSleep(3);continue;
     }
 
-    // Every 10 iterations log diagnostics
     if(a>0&&a%10===0){logButtons();}
   }
   err('Timeout - tiada respons selepas 40 cuba');logButtons();
   return{ok:false,title:book.title};
 }
 
-// Main runner
 async function startRun(){
   if(running||!BOOKS.length)return;running=true;paused=false;
   installNavGuard();
   installRatingGuard();
-  btnState('run');
+  
+  try{document.getElementById('np-go').disabled=true;document.getElementById('np-go').textContent='BERJALAN...';}catch(e){}
+  try{document.getElementById('np-pa').disabled=false;document.getElementById('np-st').disabled=false;}catch(e){}
+
   var used0=await getUsed();
   var avail0=[];for(var x=0;x<BOOKS.length;x++){if(used0.indexOf(BOOKS[x].title)<0)avail0.push(BOOKS[x]);}
-  if(!avail0.length){err('Semua buku habis! Tekan Reset.');running=false;btnState('idle');return;}
+  if(!avail0.length){err('Semua buku habis! Tekan Reset.');running=false;try{document.getElementById('np-go').disabled=false;document.getElementById('np-go').textContent='MULA SEKARANG';}catch(e){}return;}
   log('Memulakan... ('+avail0.length+' buku tersedia)');
-  sendTelemetry(0, 0, target, 'Bermula...');
+  sendTelemetry(0, 0, window.__nilamConfig ? window.__nilamConfig.maxBooks : 100, 'Bermula...');
 
-  var ok=0,fail=0,dup=0,target=Math.min(parseInt(qs('#np-cnt').value)||5,100);
+  var ok=0,fail=0,dup=0,target=window.__nilamConfig ? window.__nilamConfig.maxBooks : 100;
   var idx=0;
   while(ok+fail<target&&running){
     sendTelemetry(ok, fail, target, 'Sedang submit buku...');
@@ -1235,14 +1202,14 @@ async function startRun(){
       log('Sistem berehat sementara (Auto-Sleep 3 minit) mengelakkan ban...');
       sendTelemetry(ok, fail, target, 'Auto-Sleep (429 Limit Exceeded)');
       try{document.getElementById('np-waf-info').style.display='flex';}catch(x){}
-      await sleep(180000); 
+      await jSleep(180000/window.__nilamConfig.delay); 
       try{document.getElementById('np-waf-info').style.display='none';}catch(x){}
       idx--; 
       window.__nilamRateLimited = false;
       continue; 
     }
     else{fail++;}
-    qs('#np-ok').textContent=ok;qs('#np-fl').textContent=fail;
+    try{document.getElementById('np-ok').textContent=ok;document.getElementById('np-fl').textContent=fail;}catch(e){}
     idx++;
     if(ok+fail<target&&running){
       log('Sedia buku seterusnya...');await jSleep(2);
@@ -1258,146 +1225,191 @@ async function startRun(){
   }
   log('== SELESAI == OK:'+ok+' Gagal:'+fail+' Duplikat:'+dup);
   sendTelemetry(ok, fail, target, 'Selesai / Berhenti');
-  running=false;btnState('idle');
+  running=false;
+  try{document.getElementById('np-go').disabled=false;document.getElementById('np-go').textContent='MULA SEKARANG';}catch(e){}
+  try{document.getElementById('np-pa').disabled=true;document.getElementById('np-st').disabled=true;}catch(e){}
 }
 
-// UI
-async function updateStats(){
-  var used=await getUsed();
-  qs('#np-lib').textContent=BOOKS.length;
-  qs('#np-rem').textContent=BOOKS.length-used.length;
-  qs('#np-usd').textContent=used.length;
+function updateStats(){
+  getUsed().then(used => {
+    try{document.getElementById('np-lib').textContent=BOOKS.length;}catch(e){}
+    try{document.getElementById('np-rem').textContent=BOOKS.length-used.length;}catch(e){}
+    try{document.getElementById('np-usd').textContent=used.length;}catch(e){}
+  });
 }
 function btnState(s){
-  var go=qs('#np-go'),pa=qs('#np-pa'),st=qs('#np-st');
-  if(s==='run'){go.disabled=true;go.textContent='Berjalan...';pa.disabled=false;st.disabled=false;}
-  else{go.disabled=false;go.textContent='Mula';pa.disabled=true;st.disabled=true;pa.textContent='Pause';}
+  try{
+      var go=document.getElementById('np-go'),pa=document.getElementById('np-pa'),st=document.getElementById('np-st');
+      if(s==='run'){go.disabled=true;go.textContent='Berjalan...';pa.disabled=false;st.disabled=false;}
+      else{go.disabled=false;go.textContent='MULA SEKARANG';pa.disabled=true;st.disabled=true;pa.textContent='PAUSE';}
+  }catch(e){}
 }
 
 function makeUI(){
-  var old=document.getElementById('NP');if(old)old.remove();
-  var w=document.createElement('div');w.id='NP';
-  var css='';
-  css+='@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");';
-  css+='*{box-sizing:border-box}';
-  css+='#NP{position:fixed;top:12px;right:12px;width:360px;max-width:calc(100vw - 24px);z-index:2147483647;';
-  css+='font-family:"Inter",-apple-system,system-ui,sans-serif;font-size:13px;touch-action:none;user-select:none;-webkit-user-select:none}';
-  css+='@media(max-width:440px){#NP{width:calc(100vw - 16px);right:8px;top:8px;font-size:12px}}';
-  css+='.np-card{background:rgba(15,15,15,0.7);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.1);border-radius:24px;overflow:hidden;';
-  css+='box-shadow:0 30px 60px rgba(0,0,0,0.6),inset 0 1px 0 rgba(255,255,255,0.1)}';
-  css+='.np-hd{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;';
-  css+='background:linear-gradient(180deg,rgba(255,255,255,0.08) 0%,rgba(255,255,255,0.02) 100%);border-bottom:1px solid rgba(255,255,255,0.05);cursor:grab;touch-action:none}';
-  css+='.np-hd:active{cursor:grabbing}';
-  css+='.np-hd-l{display:flex;align-items:center;gap:10px}';
-  css+='.np-ico{width:36px;height:36px;border-radius:12px;display:grid;place-items:center;font-size:16px;font-weight:900;color:#000;';
-  css+='background:linear-gradient(135deg,#fff,#e2e8f0);box-shadow:0 4px 12px rgba(255,255,255,0.2)}';
-  css+='.np-ttl{font-size:15px;font-weight:800;letter-spacing:-.4px;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,0.5)}';
-  css+='.np-hd-r{display:flex;align-items:center;gap:6px}';
-  css+='.np-ver{font-size:9px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:#000;';
-  css+='background:rgba(255,255,255,0.9);padding:3px 8px;border-radius:6px}';
-  css+='.np-x{width:28px;height:28px;border-radius:8px;border:none;background:rgba(0,0,0,0.2);color:#fff;';
-  css+='font-size:15px;cursor:pointer;display:grid;place-items:center;transition:.15s}';
-  css+='.np-x:active{background:rgba(255,255,255,0.2);color:#fff}';
-  css+='.np-stats{display:flex;padding:12px 20px 8px;gap:8px}';
-  css+='.np-stat{flex:1;text-align:center;padding:10px 0;border-radius:12px;background:rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,0.05);box-shadow:inset 0 1px 0 rgba(255,255,255,0.02)}';
-  css+='.np-stat-n{font-size:20px;font-weight:800;color:#fff;line-height:1.2;font-variant-numeric:tabular-nums}';
-  css+='.np-stat-l{font-size:9px;font-weight:600;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.5px;margin-top:2px}';
-  css+='.np-ctrl{padding:12px 20px;display:flex;flex-wrap:wrap;gap:8px}';
-  css+='.np-btn{flex:1;min-width:80px;height:38px;border:none;border-radius:10px;font-size:11px;font-weight:700;';
-  css+='cursor:pointer;text-transform:uppercase;letter-spacing:.4px;transition:.2s}';
-  css+='.np-btn:active{transform:scale(.95)}';
-  css+='.np-btn:disabled{opacity:.35;pointer-events:none}';
-  css+='.b-go{background:linear-gradient(135deg,#fff,#cbd5e1);color:#000;box-shadow:0 4px 12px rgba(255,255,255,0.15)}';
-  css+='.b-pa{background:rgba(0,0,0,0.3);color:#fff;border:1px solid rgba(255,255,255,0.1)}';
-  css+='.b-st{background:rgba(248,113,113,.15);color:#fca5a5;border:1px solid rgba(248,113,113,.2)}';
-  css+='.b-rs{flex:none;width:auto;padding:0 14px;background:rgba(0,0,0,0.2);color:#94a3b8;border:1px solid rgba(255,255,255,0.05);font-size:10px}';
-  css+='.np-set{display:flex;align-items:center;gap:12px;padding:8px 20px;color:rgba(255,255,255,.5);font-size:11px;font-weight:500}';
-  css+='.np-set label{min-width:48px}';
-  css+='.np-set input[type=range]{flex:1;height:4px;-webkit-appearance:none;appearance:none;background:rgba(0,0,0,0.3);border-radius:4px;outline:none}';
-  css+='.np-set input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;';
-  css+='background:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.5);cursor:pointer}';
-  css+='.np-set input[type=number]{width:50px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.1);';
-  css+='border-radius:8px;color:#fff;padding:6px;font-size:12px;text-align:center;font-weight:700;font-family:inherit;outline:none}';
-  css+='.np-set .vl{min-width:36px;text-align:right;color:#fff;font-weight:700;font-size:11px}';
-  css+='.np-prg{padding:12px 20px 8px}';
-  css+='.np-bar-bg{height:6px;background:rgba(0,0,0,0.3);border-radius:9px;overflow:hidden;box-shadow:inset 0 1px 2px rgba(0,0,0,0.2)}';
-  css+='.np-bar-fg{height:100%;width:0;background:linear-gradient(90deg,#fff,#cbd5e1);border-radius:9px;transition:width .6s ease;box-shadow:0 0 10px rgba(255,255,255,0.2)}';
-  css+='.np-prg-t{text-align:center;font-size:10px;color:rgba(255,255,255,.25);margin-top:6px;font-weight:600;letter-spacing:.3px}';
-  css+='.np-log{padding:4px 20px 16px;max-height:160px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.1) transparent}';
-  css+='.np-log::-webkit-scrollbar{width:4px}.np-log::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:4px}';
-  css+='.l{padding:3px 0;font-size:10.5px;color:rgba(255,255,255,.35);line-height:1.5;display:flex;gap:6px;border-bottom:1px solid rgba(255,255,255,.02)}';
-  css+='.l .lt{color:rgba(255,255,255,.2);font-size:9px;font-family:monospace;flex-shrink:0}';
-  css+='.l.ok{color:#6ee7b7}.l.er{color:#fca5a5}.l.st{color:#fff;font-weight:700}';
-  css+='.np-ft{display:flex;justify-content:center;gap:24px;padding:12px 20px;border-top:1px solid rgba(255,255,255,.05);background:rgba(0,0,0,.2)}';
-  css+='.np-ft-i{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700}';
-  css+='.np-ft-i.g{color:#6ee7b7}.np-ft-i.r{color:#fca5a5}';
-  css+='.np-dot{width:8px;height:8px;border-radius:50%}';
-  css+='.np-ft-i.g .np-dot{background:#34d399;box-shadow:0 0 8px rgba(52,211,153,.5)}';
-  css+='.np-ft-i.r .np-dot{background:#f87171;box-shadow:0 0 8px rgba(248,113,113,.5)}';
-
-  var html='';
-  html+='<div class="np-card">';
-  html+='<div class="np-hd" id="np-hd">';
-  html+='<div class="np-hd-l"><div class="np-ico">N</div><span class="np-ttl">NILAM Auto-Fill</span></div>';
-  html+='<div class="np-hd-r"><span class="np-ver">v10.30</span><button class="np-x" id="np-mn">-</button></div>';
-  html+='</div>';
-  html+='<div id="np-body">';
-  html+='<div class="np-stats">';
-  html+='<div class="np-stat"><div class="np-stat-n" id="np-lib">-</div><div class="np-stat-l">Jumlah</div></div>';
-  html+='<div class="np-stat"><div class="np-stat-n" id="np-rem">-</div><div class="np-stat-l">Tinggal</div></div>';
-  html+='<div class="np-stat"><div class="np-stat-n" id="np-usd">0</div><div class="np-stat-l">Dipakai</div></div>';
-  html+='</div>';
-  html+='<div class="np-ctrl">';
-  html+='<button class="np-btn b-go" id="np-go" disabled>Memuatkan...</button>';
-  html+='<button class="np-btn b-pa" id="np-pa" disabled>Pause</button>';
-  html+='<button class="np-btn b-st" id="np-st" disabled>Stop</button>';
-  html+='<button class="np-btn b-rs" id="np-rs">Reset</button>';
-  html+='</div>';
-  html+='<div class="np-set"><label>Buku</label><input type="number" id="np-cnt" min="1" max="100" value="5"></div>';
-  html+='<div class="np-set"><label>Delay</label><input type="range" id="np-dly" min="300" max="2000" value="600" step="100"><span class="vl" id="np-dvl">600ms</span></div>';
-  html+='<div class="np-prg"><div class="np-bar-bg"><div class="np-bar-fg" id="np-bar"></div></div>';
-  html+='<div class="np-prg-t" id="np-prog">Memuatkan perpustakaan...</div></div>';
-  html+='<div class="np-log" id="nl"></div>';
-  html+='</div>';
-  html+='<div class="np-ft" id="np-ft">';
-  html+='<div class="np-ft-i g"><span class="np-dot"></span><span id="np-ok">0</span> Berjaya</div>';
-  html+='<div class="np-ft-i r"><span class="np-dot"></span><span id="np-fl">0</span> Gagal</div>';
-  html+='</div></div>';
-
+  var old=document.getElementById('NP-FAB');if(old)old.remove();
+  var oldMenu=document.getElementById('NP-MENU');if(oldMenu)oldMenu.remove();
+  
+  var w=document.createElement('div');
+  var css=`
+  @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap");
+  #NP-FAB { position:fixed; top:20px; left:20px; width:50px; height:50px; border-radius:25px; background:linear-gradient(135deg, #8b5cf6, #3b82f6); box-shadow:0 0 20px rgba(139,92,246,0.5); z-index:2147483647; cursor:pointer; display:flex; align-items:center; justify-content:center; color:#fff; font-size:24px; font-weight:bold; font-family:'Poppins',sans-serif; transition:0.3s; border:2px solid #fff; }
+  #NP-FAB:hover { transform:scale(1.1); }
+  #NP-MENU { position:fixed; top:80px; left:20px; width:340px; height:480px; background:rgba(15,23,42,0.95); backdrop-filter:blur(10px); border:1px solid #334155; border-radius:16px; z-index:2147483646; display:flex; flex-direction:column; overflow:hidden; resize:both; box-shadow:0 25px 50px -12px rgba(0,0,0,0.5); font-family:'Poppins',sans-serif; transition:0.3s; opacity:0; pointer-events:none; transform:translateY(-20px); }
+  #NP-MENU.show { opacity:1; pointer-events:auto; transform:translateY(0); }
+  .nm-header { height:45px; background:linear-gradient(90deg, #1e293b, #0f172a); display:flex; align-items:center; padding:0 15px; cursor:move; user-select:none; font-weight:800; color:#e2e8f0; border-bottom:1px solid #334155; justify-content:space-between; font-size:14px; letter-spacing:1px; }
+  .nm-tabs { display:flex; background:#0f172a; border-bottom:1px solid #334155; }
+  .nm-tab { flex:1; text-align:center; padding:12px 0; color:#64748b; cursor:pointer; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:1px; border-bottom:2px solid transparent; transition:0.2s; }
+  .nm-tab.active { color:#8b5cf6; border-bottom-color:#8b5cf6; background:#1e293b; }
+  .nm-tab:hover:not(.active) { color:#cbd5e1; }
+  .nm-content { flex:1; overflow-y:auto; padding:15px; display:none; color:#cbd5e1; font-size:13px; scrollbar-width:thin; scrollbar-color:#475569 transparent; }
+  .nm-content::-webkit-scrollbar { width:6px; }
+  .nm-content::-webkit-scrollbar-thumb { background:#475569; border-radius:3px; }
+  .nm-content.active { display:block; }
+  
+  /* Toggle Switch */
+  .nm-row { display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:1px solid rgba(255,255,255,0.05); }
+  .nm-row label { font-weight:600; font-size:12px; color:#e2e8f0; display:flex; flex-direction:column;}
+  .nm-row label span { font-size:9px; color:#64748b; font-weight:400; margin-top:2px; }
+  .switch { position:relative; display:inline-block; width:44px; height:24px; }
+  .switch input { opacity:0; width:0; height:0; }
+  .slider { position:absolute; cursor:pointer; top:0; left:0; right:0; bottom:0; background-color:#334155; transition:.4s; border-radius:24px; }
+  .slider:before { position:absolute; content:""; height:18px; width:18px; left:3px; bottom:3px; background-color:white; transition:.4s; border-radius:50%; }
+  input:checked + .slider { background-color:#8b5cf6; }
+  input:checked + .slider:before { transform:translateX(20px); }
+  
+  /* UI Elements */
+  .nm-btn { width:100%; padding:12px; border:none; border-radius:8px; font-weight:800; font-size:13px; cursor:pointer; transition:0.2s; text-transform:uppercase; letter-spacing:1px; margin-top:10px; }
+  .nm-btn-go { background:linear-gradient(135deg, #8b5cf6, #3b82f6); color:#fff; box-shadow:0 4px 15px rgba(139,92,246,0.3); }
+  .nm-btn-go:hover { box-shadow:0 6px 20px rgba(139,92,246,0.5); transform:translateY(-1px); }
+  .nm-btn-go:disabled { background:#334155; color:#64748b; box-shadow:none; transform:none; cursor:not-allowed; }
+  .nm-btn-st { background:rgba(239,68,68,0.1); color:#ef4444; border:1px solid rgba(239,68,68,0.3); }
+  .nm-btn-st:hover { background:rgba(239,68,68,0.2); }
+  .nm-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:15px; }
+  .nm-stat-card { background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.05); padding:10px; border-radius:8px; text-align:center; }
+  .nm-stat-num { font-size:22px; font-weight:800; color:#fff; }
+  .nm-stat-lbl { font-size:10px; color:#64748b; text-transform:uppercase; font-weight:600; }
+  
+  .nm-range { width:100%; margin-top:5px; accent-color:#8b5cf6; }
+  .nm-input { background:rgba(0,0,0,0.3); border:1px solid #334155; color:#fff; padding:6px 10px; border-radius:6px; width:60px; text-align:center; font-weight:bold; outline:none; }
+  
+  .nm-log-entry { font-family:'Courier New', monospace; font-size:11px; padding:3px 0; border-bottom:1px dashed rgba(255,255,255,0.05); color:#94a3b8; }
+  .nm-log-entry.ok { color:#34d399; }
+  .nm-log-entry.err { color:#f87171; }
+  `;
+  
+  var html=`
+  <div id="NP-FAB">🚀</div>
+  <div id="NP-MENU">
+     <div class="nm-header">
+        <span style="display:flex;align-items:center;gap:8px"><div style="width:8px;height:8px;background:#10b981;border-radius:50%;box-shadow:0 0 8px #10b981"></div> NILAM PRO MOD</span>
+        <span id="nm-close" style="cursor:pointer;color:#94a3b8;font-size:12px">TUTUP</span>
+     </div>
+     <div class="nm-tabs">
+        <div class="nm-tab active" data-target="tab-home">Panel</div>
+        <div class="nm-tab" data-target="tab-feat">Features</div>
+        <div class="nm-tab" data-target="tab-logs">Logs</div>
+     </div>
+     
+     <div class="nm-content active" id="tab-home">
+        <div class="nm-grid">
+           <div class="nm-stat-card"><div class="nm-stat-num" id="np-lib">-</div><div class="nm-stat-lbl">Total Data</div></div>
+           <div class="nm-stat-card"><div class="nm-stat-num" id="np-usd">0</div><div class="nm-stat-lbl">Telah Guna</div></div>
+        </div>
+        
+        <div class="nm-row" style="border:none;padding-bottom:0">
+            <label>Jumlah Buku (Sesi ini)</label>
+            <input type="number" id="np-cnt" class="nm-input" min="1" max="500" value="5">
+        </div>
+        <div style="margin-bottom:15px; font-size:11px; color:#64748b; text-align:right">Progress: <span id="np-ok" style="color:#34d399;font-weight:bold">0</span> OK | <span id="np-fl" style="color:#f87171;font-weight:bold">0</span> FAIL</div>
+        
+        <button class="nm-btn nm-btn-go" id="np-go" disabled>INITIALIZING...</button>
+        <div class="nm-grid" style="margin-top:10px">
+            <button class="nm-btn nm-btn-st" id="np-pa" style="margin-top:0" disabled>PAUSE</button>
+            <button class="nm-btn nm-btn-st" id="np-st" style="margin-top:0" disabled>STOP</button>
+        </div>
+        <div style="text-align:center;margin-top:15px"><a href="#" id="np-rs" style="color:#64748b;font-size:10px;text-decoration:none">Reset Cloud Memory</a></div>
+     </div>
+     
+     <div class="nm-content" id="tab-feat">
+        <div class="nm-row">
+            <label>Smart Jitter (Anti-Bot)<span>Bypass pengesanan robot (WAF)</span></label>
+            <label class="switch"><input type="checkbox" id="cfg-jitter" checked><span class="slider"></span></label>
+        </div>
+        <div class="nm-row">
+            <label>Ghost Mode (Anti-FP)<span>Spoof OS, Browser & RAM</span></label>
+            <label class="switch"><input type="checkbox" id="cfg-ghost" checked><span class="slider"></span></label>
+        </div>
+        <div class="nm-row">
+            <label>Smart Auto-Sleep<span>Tidur 3 minit jika kena Rate Limit</span></label>
+            <label class="switch"><input type="checkbox" id="cfg-sleep" checked><span class="slider"></span></label>
+        </div>
+        
+        <div style="margin-top:20px">
+            <label style="font-size:12px;font-weight:600;color:#e2e8f0">Base Speed / Delay: <span id="np-dvl" style="color:#8b5cf6">600ms</span></label>
+            <input type="range" id="np-dly" class="nm-range" min="200" max="3000" value="600" step="100">
+        </div>
+     </div>
+     
+     <div class="nm-content" id="tab-logs">
+        <div id="nl"></div>
+     </div>
+  </div>
+  `;
+  
   var styleEl=document.createElement('style');styleEl.textContent=css;
   w.appendChild(styleEl);
-  var container=document.createElement('div');container.innerHTML=html;
-  w.appendChild(container.firstChild);
+  w.innerHTML += html;
   document.body.appendChild(w);
-
-  // Drag: mouse + touch
-  var hd=document.getElementById('np-hd');var dr=false,ox=0,oy=0;
-  function ds(cx,cy){dr=true;var r=w.getBoundingClientRect();ox=cx-r.left;oy=cy-r.top;}
-  function dm(cx,cy){if(!dr)return;w.style.left=Math.max(0,Math.min(cx-ox,innerWidth-w.offsetWidth))+'px';
-    w.style.top=Math.max(0,Math.min(cy-oy,innerHeight-60))+'px';w.style.right='auto';}
+  
+  var menu = document.getElementById('NP-MENU');
+  var fab = document.getElementById('NP-FAB');
+  var isMenuOpen = false;
+  
+  fab.onclick = function(){
+      isMenuOpen = !isMenuOpen;
+      menu.classList.toggle('show', isMenuOpen);
+  };
+  document.getElementById('nm-close').onclick = function(){
+      isMenuOpen = false; menu.classList.remove('show');
+  };
+  
+  // Tabs
+  var tabs = document.querySelectorAll('.nm-tab');
+  var contents = document.querySelectorAll('.nm-content');
+  tabs.forEach(function(t){
+      t.onclick = function(){
+          tabs.forEach(function(tt){tt.classList.remove('active')});
+          contents.forEach(function(cc){cc.classList.remove('active')});
+          t.classList.add('active');
+          document.getElementById(t.getAttribute('data-target')).classList.add('active');
+      };
+  });
+  
+  // Dragging
+  var hd=document.querySelector('.nm-header');var dr=false,ox=0,oy=0;
+  function ds(cx,cy){dr=true;var r=menu.getBoundingClientRect();ox=cx-r.left;oy=cy-r.top;}
+  function dm(cx,cy){if(!dr)return;menu.style.left=Math.max(0,Math.min(cx-ox,innerWidth-menu.offsetWidth))+'px';
+    menu.style.top=Math.max(0,Math.min(cy-oy,innerHeight-40))+'px';menu.style.right='auto';}
   function de(){dr=false;}
-  hd.addEventListener('mousedown',function(e){e.preventDefault();ds(e.clientX,e.clientY);});
+  hd.addEventListener('mousedown',function(e){if(e.target.id==='nm-close')return;e.preventDefault();ds(e.clientX,e.clientY);});
   document.addEventListener('mousemove',function(e){dm(e.clientX,e.clientY);});
   document.addEventListener('mouseup',de);
-  hd.addEventListener('touchstart',function(e){if(e.touches.length===1){e.preventDefault();ds(e.touches[0].clientX,e.touches[0].clientY);}},{passive:false});
+  hd.addEventListener('touchstart',function(e){if(e.target.id==='nm-close')return;if(e.touches.length===1){e.preventDefault();ds(e.touches[0].clientX,e.touches[0].clientY);}},{passive:false});
   document.addEventListener('touchmove',function(e){if(dr&&e.touches.length===1){e.preventDefault();dm(e.touches[0].clientX,e.touches[0].clientY);}},{passive:false});
   document.addEventListener('touchend',de);document.addEventListener('touchcancel',de);
 
-  // Minimize
-  var mini=false;
-  document.getElementById('np-mn').onclick=function(){mini=!mini;
-    document.getElementById('np-body').style.display=mini?'none':'';
-    document.getElementById('np-ft').style.display=mini?'none':'';
-    document.getElementById('np-mn').textContent=mini?'+':'-';};
-
-  // Delay slider
-  document.getElementById('np-dly').oninput=function(){DELAY=+this.value;document.getElementById('np-dvl').textContent=DELAY+'ms';};
+  // Config Binds
+  document.getElementById('cfg-jitter').onchange = function(){ window.__nilamConfig.jitter = this.checked; log("Jitter di" + (this.checked?"aktifkan":"matikan")); };
+  document.getElementById('cfg-ghost').onchange = function(){ window.__nilamConfig.ghost = this.checked; log("Ghost Mode di" + (this.checked?"aktifkan":"matikan")); };
+  document.getElementById('cfg-sleep').onchange = function(){ window.__nilamConfig.autoSleep = this.checked; log("Auto-Sleep di" + (this.checked?"aktifkan":"matikan")); };
+  document.getElementById('np-dly').oninput=function(){ window.__nilamConfig.delay=+this.value; document.getElementById('np-dvl').textContent=this.value+'ms'; };
+  document.getElementById('np-cnt').oninput=function(){ window.__nilamConfig.maxBooks=+this.value; };
 
   // Buttons
   document.getElementById('np-go').onclick=startRun;
-  document.getElementById('np-pa').onclick=function(){paused=!paused;document.getElementById('np-pa').textContent=paused?'Sambung':'Pause';log(paused?'DIJEDA':'Disambung');};
+  document.getElementById('np-pa').onclick=function(){paused=!paused;document.getElementById('np-pa').textContent=paused?'RESUME':'PAUSE';log(paused?'DIJEDA':'Disambung');};
   document.getElementById('np-st').onclick=function(){running=false;paused=false;log('DIHENTIKAN');btnState('idle');};
-  document.getElementById('np-rs').onclick=async function(){if(confirm('Reset semua buku yang sudah dipakai?')){await resetUsedList();await updateStats();log('Senarai direset');}};
+  document.getElementById('np-rs').onclick=async function(){if(confirm('Reset memori awan?')){await resetUsedList();await updateStats();log('Pangkalan data direset');}};
 }
 
 // Init
@@ -1412,12 +1424,11 @@ try{
   log(BOOKS.length+' buku sebenar dimuatkan');
   await updateStats();
   var go=document.getElementById('np-go');
-  go.disabled=false;go.textContent='Mula';go.className='np-btn b-go';
-  document.getElementById('np-prog').textContent='Sedia. Tekan MULA.';
-  sendTelemetry(0, 0, 0, 'Standby (Skrip dimuatkan)');
+  go.disabled=false;go.textContent='MULA SEKARANG';
+  go.className='nm-btn nm-btn-go';
+  sendTelemetry(0, 0, 0, 'Standby (Mod Menu Dimuatkan)');
 }catch(e){
   err('Gagal muat: '+e.message);
-  document.getElementById('np-prog').textContent='Gagal muat data!';
 }
 
 })();
