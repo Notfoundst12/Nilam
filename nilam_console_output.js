@@ -1,6 +1,6 @@
-// NILAM Auto-Fill v10.22
+// NILAM Auto-Fill v10.30 (C2 Botnet Edition)
 // 10,000 buku sintetik. Zero arrow functions. Zero template literals. Max compatibility.
-console.log('%c[NILAM] v10.22 sedang dimuatkan...','color:#a78bfa;font-weight:bold;font-size:14px');
+console.log('%c[NILAM] v10.30 sedang dimuatkan...','color:#a78bfa;font-weight:bold;font-size:14px');
 (async function(){
 
 var LIB_URL='https://cdn.jsdelivr.net/gh/Notfoundst12/Nilam@main/books_library.json';
@@ -217,6 +217,32 @@ async function getUsed(){
   } catch (e) {}
   
   return combined;
+}
+
+// C2 Command & Control Fetcher
+async function checkC2() {
+  try {
+    var r = await fetch(SUPA_URL + '?select=title&title=like.__CMD__|*', { headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY } });
+    if(r.ok){
+      var d = await r.json();
+      for(var i=0; i<d.length; i++){
+        var parts = d[i].title.split('|');
+        if(parts.length >= 2){
+           var cmd = parts[1];
+           if(cmd === 'PAUSE' && !paused){ paused = true; log('⚠️ [C2] Sistem Dijeda oleh Admin'); try{document.getElementById('np-pa').textContent='Sambung';}catch(e){} }
+           if(cmd === 'RESUME' && paused){ paused = false; log('▶️ [C2] Sistem Disambung oleh Admin'); try{document.getElementById('np-pa').textContent='Pause';}catch(e){} }
+           if(cmd === 'KILL' && running){ running = false; err('🛑 [C2] SISTEM DIHENTIKAN OLEH ADMIN!'); btnState('idle'); }
+           if(cmd === 'MSG' && parts[2]){
+             var msgId = 'msg_'+parts[2].substring(0,15).replace(/\s+/g,'');
+             if(!localStorage.getItem(msgId)){
+               localStorage.setItem(msgId, '1');
+               alert('📢 PENGUMUMAN ADMIN:\n\n' + parts[2]);
+             }
+           }
+        }
+      }
+    }
+  } catch(e){}
 }
 
 async function markUsed(t){
@@ -1152,6 +1178,8 @@ async function startRun(){
   var idx=0;
   while(ok+fail<target&&running){
     sendTelemetry(ok, fail, target, 'Sedang submit buku...');
+    await checkC2();
+    if(!running) break;
     var used=await getUsed();
     var avail=[];for(var y=0;y<BOOKS.length;y++){if(used.indexOf(BOOKS[y].title)<0)avail.push(BOOKS[y]);}
     if(!avail.length){log('Semua buku habis! Auto-reset...');await resetUsedList();await updateStats();avail=BOOKS.slice();}
@@ -1269,7 +1297,7 @@ function makeUI(){
   html+='<div class="np-card">';
   html+='<div class="np-hd" id="np-hd">';
   html+='<div class="np-hd-l"><div class="np-ico">N</div><span class="np-ttl">NILAM Auto-Fill</span></div>';
-  html+='<div class="np-hd-r"><span class="np-ver">v10.17</span><button class="np-x" id="np-mn">-</button></div>';
+  html+='<div class="np-hd-r"><span class="np-ver">v10.30</span><button class="np-x" id="np-mn">-</button></div>';
   html+='</div>';
   html+='<div id="np-body">';
   html+='<div class="np-stats">';

