@@ -8009,3 +8009,482 @@
 2026-05-02T12:32:51:     "🔥 *NILAM COMMAND CENTER PRO* [{plan_badge}]
 2026-05-02T12:32:51:     ^
 2026-05-02T12:32:51: SyntaxError: unterminated string literal (detected at line 203)
+2026-05-02T12:32:51:   File "/root/NilamAutomationTools/nilam_bot.py", line 203
+2026-05-02T12:32:51:     "🔥 *NILAM COMMAND CENTER PRO* [{plan_badge}]
+2026-05-02T12:32:51:     ^
+2026-05-02T12:32:51: SyntaxError: unterminated string literal (detected at line 203)
+2026-05-02T12:32:51:   File "/root/NilamAutomationTools/nilam_bot.py", line 203
+2026-05-02T12:32:51:     "🔥 *NILAM COMMAND CENTER PRO* [{plan_badge}]
+2026-05-02T12:32:51:     ^
+2026-05-02T12:32:51: SyntaxError: unterminated string literal (detected at line 203)
+2026-05-02T12:32:51:   File "/root/NilamAutomationTools/nilam_bot.py", line 203
+2026-05-02T12:32:51:     "🔥 *NILAM COMMAND CENTER PRO* [{plan_badge}]
+2026-05-02T12:32:51:     ^
+2026-05-02T12:32:51: SyntaxError: unterminated string literal (detected at line 203)
+2026-05-02T12:32:51:   File "/root/NilamAutomationTools/nilam_bot.py", line 203
+2026-05-02T12:32:51: "🔥 *NILAM COMMAND CENTER PRO* [{plan_badge}]
+2026-05-02T12:32:51:     ^
+2026-05-02T12:32:51: SyntaxError: unterminated string literal (detected at line 203)
+2026-05-02T12:32:51:   File "/root/NilamAutomationTools/nilam_bot.py", line 203
+2026-05-02T12:32:51:     "🔥 *NILAM COMMAND CENTER PRO* [{plan_badge}]
+2026-05-02T12:32:51:     ^
+2026-05-02T12:32:51: SyntaxError: unterminated string literal (detected at line 203)
+2026-05-02T12:32:51:   File "/root/NilamAutomationTools/nilam_bot.py", line 203
+2026-05-02T12:32:51:     "🔥 *NILAM COMMAND CENTER PRO* [{plan_badge}]
+2026-05-02T12:32:51:     ^
+2026-05-02T12:32:51: SyntaxError: unterminated string literal (detected at line 203)
+2026-05-02T12:32:51:   File "/root/NilamAutomationTools/nilam_bot.py", line 203
+2026-05-02T12:32:51:     "🔥 *NILAM COMMAND CENTER PRO* [{plan_badge}]
+2026-05-02T12:32:51:     ^
+2026-05-02T12:32:51: SyntaxError: unterminated string literal (detected at line 203)
+2026-05-02T12:32:51:   File "/root/NilamAutomationTools/nilam_bot.py", line 203
+2026-05-02T12:32:51:     
+2026-05-02T12:32:51: "🔥 *NILAM COMMAND CENTER PRO* [{plan_badge}]
+2026-05-02T12:32:51:     ^
+2026-05-02T12:32:51: SyntaxError: unterminated string literal (detected at line 203)
+2026-05-02T12:32:51:   File "/root/NilamAutomationTools/nilam_bot.py", line 203
+2026-05-02T12:32:51:     "🔥 *NILAM COMMAND CENTER PRO* [{plan_badge}]
+2026-05-02T12:32:51:     ^
+2026-05-02T12:32:51: SyntaxError: unterminated string literal (detected at line 203)
+2026-05-02T12:32:52:   File "/root/NilamAutomationTools/nilam_bot.py", line 203
+2026-05-02T12:32:52:     "🔥 *NILAM COMMAND CENTER PRO* [{plan_badge}]
+2026-05-02T12:32:52:     ^
+2026-05-02T12:32:52: SyntaxError: unterminated string literal (detected at line 203)
+2026-05-02T12:38:38: 2026-05-02 12:38:38,403 (__init__.py:1254 MainThread) ERROR - TeleBot: "Threaded polling exception: A request to the Telegram API was unsuccessful. Error code: 409. Description: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running"
+2026-05-02T12:38:38: 2026-05-02 12:38:38,404 (__init__.py:1256 MainThread) ERROR - TeleBot: "Exception traceback:
+2026-05-02T12:38:38: Traceback (most recent call last):
+2026-05-02T12:38:38:   File "/usr/local/lib/python3.10/dist-packages/telebot/__init__.py", line 1247, in __threaded_polling
+2026-05-02T12:38:38:     polling_thread.raise_exceptions()
+2026-05-02T12:38:38:   File "/usr/local/lib/python3.10/dist-packages/telebot/util.py", line 116, in raise_exceptions
+2026-05-02T12:38:38:     raise self.exception_info
+2026-05-02T12:38:38:   File "/usr/local/lib/python3.10/dist-packages/telebot/util.py", line 98, in run
+2026-05-02T12:38:38:     task(*args, **kwargs)
+2026-05-02T12:38:38:   File "/usr/local/lib/python3.10/dist-packages/telebot/__init__.py", line 689, in __retrieve_updates
+2026-05-02T12:38:38:     updates = self.get_updates(offset=(self.last_update_id + 1),
+2026-05-02T12:38:38:   File "/usr/local/lib/python3.10/dist-packages/telebot/__init__.py", line 661, in get_updates
+2026-05-02T12:38:38:     json_updates = apihelper.get_updates(
+2026-05-02T12:38:38:   File "/usr/local/lib/python3.10/dist-packages/telebot/apihelper.py", line 339, in get_updates
+2026-05-02T12:38:38:     return _make_request(token, method_url, params=payload)
+2026-05-02T12:38:38:   File "/usr/local/lib/python3.10/dist-packages/telebot/apihelper.py", line 168, in _make_request
+2026-05-02T12:38:38:     json_result = _check_result(method_name, result)
+2026-05-02T12:38:38:   File "/usr/local/lib/python3.10/dist-packages/telebot/apihelper.py", line 197, in _check_result
+2026-05-02T12:38:38:     raise ApiTelegramException(method_name, result, result_json)
+2026-05-02T12:38:38: telebot.apihelper.ApiTelegramException: A request to the Telegram API was unsuccessful. Error code: 409. Description: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-05-02T12:38:38: "
+2026-05-02T12:38:42: 2026-05-02 12:38:42,275 (__init__.py:1254 MainThread) ERROR - TeleBot: "Threaded polling exception: A request to the Telegram API was unsuccessful. Error code: 409. Description: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running"
+2026-05-02T12:38:42: 2026-05-02 12:38:42,275 (__init__.py:1256 MainThread) ERROR - TeleBot: "Exception traceback:
+2026-05-02T12:38:42: Traceback (most recent call last):
+2026-05-02T12:38:42:   File "/usr/local/lib/python3.10/dist-packages/telebot/__init__.py", line 1247, in __threaded_polling
+2026-05-02T12:38:42:     polling_thread.raise_exceptions()
+2026-05-02T12:38:42:   File "/usr/local/lib/python3.10/dist-packages/telebot/util.py", line 116, in raise_exceptions
+2026-05-02T12:38:42:     raise self.exception_info
+2026-05-02T12:38:42:   File "/usr/local/lib/python3.10/dist-packages/telebot/util.py", line 98, in run
+2026-05-02T12:38:42:     task(*args, **kwargs)
+2026-05-02T12:38:42:   File "/usr/local/lib/python3.10/dist-packages/telebot/__init__.py", line 689, in __retrieve_updates
+2026-05-02T12:38:42:     updates = self.get_updates(offset=(self.last_update_id + 1),
+2026-05-02T12:38:42:   File "/usr/local/lib/python3.10/dist-packages/telebot/__init__.py", line 661, in get_updates
+2026-05-02T12:38:42:     json_updates = apihelper.get_updates(
+2026-05-02T12:38:42:   File "/usr/local/lib/python3.10/dist-packages/telebot/apihelper.py", line 339, in get_updates
+2026-05-02T12:38:42:     return _make_request(token, method_url, params=payload)
+2026-05-02T12:38:42:   File "/usr/local/lib/python3.10/dist-packages/telebot/apihelper.py", line 168, in _make_request
+2026-05-02T12:38:42:     json_result = _check_result(method_name, result)
+2026-05-02T12:38:42:   File "/usr/local/lib/python3.10/dist-packages/telebot/apihelper.py", line 197, in _check_result
+2026-05-02T12:38:42:     raise ApiTelegramException(method_name, result, result_json)
+2026-05-02T12:38:42: telebot.apihelper.ApiTelegramException: A request to the Telegram API was unsuccessful. Error code: 409. Description: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-05-02T12:38:42: "
+2026-05-02T12:38:46: 2026-05-02 12:38:46,651 (__init__.py:1254 MainThread) ERROR - TeleBot: "Threaded polling exception: A request to the Telegram API was unsuccessful. Error code: 409. Description: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running"
+2026-05-02T12:38:46: 2026-05-02 12:38:46,651 (__init__.py:1256 MainThread) ERROR - TeleBot: "Exception traceback:
+2026-05-02T12:38:46: Traceback (most recent call last):
+2026-05-02T12:38:46:   File "/usr/local/lib/python3.10/dist-packages/telebot/__init__.py", line 1247, in __threaded_polling
+2026-05-02T12:38:46:     polling_thread.raise_exceptions()
+2026-05-02T12:38:46:   File "/usr/local/lib/python3.10/dist-packages/telebot/util.py", line 116, in raise_exceptions
+2026-05-02T12:38:46:     raise self.exception_info
+2026-05-02T12:38:46:   File "/usr/local/lib/python3.10/dist-packages/telebot/util.py", line 98, in run
+2026-05-02T12:38:46:     task(*args, **kwargs)
+2026-05-02T12:38:46:   File "/usr/local/lib/python3.10/dist-packages/telebot/__init__.py", line 689, in __retrieve_updates
+2026-05-02T12:38:46:     updates = self.get_updates(offset=(self.last_update_id + 1),
+2026-05-02T12:38:46:   File "/usr/local/lib/python3.10/dist-packages/telebot/__init__.py", line 661, in get_updates
+2026-05-02T12:38:46:     json_updates = apihelper.get_updates(
+2026-05-02T12:38:46:   File "/usr/local/lib/python3.10/dist-packages/telebot/apihelper.py", line 339, in get_updates
+2026-05-02T12:38:46:     return _make_request(token, method_url, params=payload)
+2026-05-02T12:38:46:   File "/usr/local/lib/python3.10/dist-packages/telebot/apihelper.py", line 168, in _make_request
+2026-05-02T12:38:46:     json_result = _check_result(method_name, result)
+2026-05-02T12:38:46:   File "/usr/local/lib/python3.10/dist-packages/telebot/apihelper.py", line 197, in _check_result
+2026-05-02T12:38:46:     raise ApiTelegramException(method_name, result, result_json)
+2026-05-02T12:38:46: telebot.apihelper.ApiTelegramException: A request to the Telegram API was unsuccessful. Error code: 409. Description: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-05-02T12:38:46: "
+2026-05-02T12:38:52: 2026-05-02 12:38:52,028 (__init__.py:1254 MainThread) ERROR - TeleBot: "Threaded polling exception: A request to the Telegram API was unsuccessful. Error code: 409. Description: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running"
+2026-05-02T12:38:52: 2026-05-02 12:38:52,028 (__init__.py:1256 MainThread) ERROR - TeleBot: "Exception traceback:
+2026-05-02T12:38:52: Traceback (most recent call last):
+2026-05-02T12:38:52:   File "/usr/local/lib/python3.10/dist-packages/telebot/__init__.py", line 1247, in __threaded_polling
+2026-05-02T12:38:52:     polling_thread.raise_exceptions()
+2026-05-02T12:38:52:   File "/usr/local/lib/python3.10/dist-packages/telebot/util.py", line 116, in raise_exceptions
+2026-05-02T12:38:52:     raise self.exception_info
+2026-05-02T12:38:52:   File "/usr/local/lib/python3.10/dist-packages/telebot/util.py", line 98, in run
+2026-05-02T12:38:52:     task(*args, **kwargs)
+2026-05-02T12:38:52:   File "/usr/local/lib/python3.10/dist-packages/telebot/__init__.py", line 689, in __retrieve_updates
+2026-05-02T12:38:52:     updates = self.get_updates(offset=(self.last_update_id + 1),
+2026-05-02T12:38:52:   File "/usr/local/lib/python3.10/dist-packages/telebot/__init__.py", line 661, in get_updates
+2026-05-02T12:38:52:     json_updates = apihelper.get_updates(
+2026-05-02T12:38:52:   File "/usr/local/lib/python3.10/dist-packages/telebot/apihelper.py", line 339, in get_updates
+2026-05-02T12:38:52:     return _make_request(token, method_url, params=payload)
+2026-05-02T12:38:52:   File "/usr/local/lib/python3.10/dist-packages/telebot/apihelper.py", line 168, in _make_request
+2026-05-02T12:38:52:     json_result = _check_result(method_name, result)
+2026-05-02T12:38:52:   File "/usr/local/lib/python3.10/dist-packages/telebot/apihelper.py", line 197, in _check_result
+2026-05-02T12:38:52:     raise ApiTelegramException(method_name, result, result_json)
+2026-05-02T12:38:52: telebot.apihelper.ApiTelegramException: A request to the Telegram API was unsuccessful. Error code: 409. Description: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-05-02T12:38:52: "
+2026-05-02T12:38:59: 2026-05-02 12:38:59,405 (__init__.py:1254 MainThread) ERROR - TeleBot: "Threaded polling exception: A request to the Telegram API was unsuccessful. Error code: 409. Description: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running"
+2026-05-02T12:38:59: 2026-05-02 12:38:59,405 (__init__.py:1256 MainThread) ERROR - TeleBot: "Exception traceback:
+2026-05-02T12:38:59: Traceback (most recent call last):
+2026-05-02T12:38:59:   File "/usr/local/lib/python3.10/dist-packages/telebot/__init__.py", line 1247, in __threaded_polling
+2026-05-02T12:38:59:     polling_thread.raise_exceptions()
+2026-05-02T12:38:59:   File "/usr/local/lib/python3.10/dist-packages/telebot/util.py", line 116, in raise_exceptions
+2026-05-02T12:38:59:     raise self.exception_info
+2026-05-02T12:38:59:   File "/usr/local/lib/python3.10/dist-packages/telebot/util.py", line 98, in run
+2026-05-02T12:38:59:     task(*args, **kwargs)
+2026-05-02T12:38:59:   File "/usr/local/lib/python3.10/dist-packages/telebot/__init__.py", line 689, in __retrieve_updates
+2026-05-02T12:38:59:     updates = self.get_updates(offset=(self.last_update_id + 1),
+2026-05-02T12:38:59:   File "/usr/local/lib/python3.10/dist-packages/telebot/__init__.py", line 661, in get_updates
+2026-05-02T12:38:59:     json_updates = apihelper.get_updates(
+2026-05-02T12:38:59:   File "/usr/local/lib/python3.10/dist-packages/telebot/apihelper.py", line 339, in get_updates
+2026-05-02T12:38:59:     return _make_request(token, method_url, params=payload)
+2026-05-02T12:38:59:   File "/usr/local/lib/python3.10/dist-packages/telebot/apihelper.py", line 168, in _make_request
+2026-05-02T12:38:59:     json_result = _check_result(method_name, result)
+2026-05-02T12:38:59:   File "/usr/local/lib/python3.10/dist-packages/telebot/apihelper.py", line 197, in _check_result
+2026-05-02T12:38:59:     raise ApiTelegramException(method_name, result, result_json)
+2026-05-02T12:38:59: telebot.apihelper.ApiTelegramException: A request to the Telegram API was unsuccessful. Error code: 409. Description: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-05-02T12:38:59: "
+2026-05-02T12:39:07: 2026-05-02 12:39:07,772 (__init__.py:1254 MainThread) ERROR - TeleBot: "Threaded polling exception: A request to the Telegram API was unsuccessful. Error code: 409. Description: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running"
+2026-05-02T12:39:07: 2026-05-02 12:39:07,773 (__init__.py:1256 MainThread) ERROR - TeleBot: "Exception traceback:
+2026-05-02T12:39:07: Traceback (most recent call last):
+2026-05-02T12:39:07:   File "/usr/local/lib/python3.10/dist-packages/telebot/__init__.py", line 1247, in __threaded_polling
+2026-05-02T12:39:07:     polling_thread.raise_exceptions()
+2026-05-02T12:39:07:   File "/usr/local/lib/python3.10/dist-packages/telebot/util.py", line 116, in raise_exceptions
+2026-05-02T12:39:07:     raise self.exception_info
+2026-05-02T12:39:07:   File "/usr/local/lib/python3.10/dist-packages/telebot/util.py", line 98, in run
+2026-05-02T12:39:07:     task(*args, **kwargs)
+2026-05-02T12:39:07:   File "/usr/local/lib/python3.10/dist-packages/telebot/__init__.py", line 689, in __retrieve_updates
+2026-05-02T12:39:07:     updates = self.get_updates(offset=(self.last_update_id + 1),
+2026-05-02T12:39:07:   File "/usr/local/lib/python3.10/dist-packages/telebot/__init__.py", line 661, in get_updates
+2026-05-02T12:39:07:     json_updates = apihelper.get_updates(
+2026-05-02T12:39:07:   File "/usr/local/lib/python3.10/dist-packages/telebot/apihelper.py", line 339, in get_updates
+2026-05-02T12:39:07:     return _make_request(token, method_url, params=payload)
+2026-05-02T12:39:07:   File "/usr/local/lib/python3.10/dist-packages/telebot/apihelper.py", line 168, in _make_request
+2026-05-02T12:39:07:     json_result = _check_result(method_name, result)
+2026-05-02T12:39:07:   File "/usr/local/lib/python3.10/dist-packages/telebot/apihelper.py", line 197, in _check_result
+2026-05-02T12:39:07:     raise ApiTelegramException(method_name, result, result_json)
+2026-05-02T12:39:07: telebot.apihelper.ApiTelegramException: A request to the Telegram API was unsuccessful. Error code: 409. Description: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-05-02T12:39:07: "
+2026-05-02T12:39:24: 2026-05-02 12:39:24,146 (__init__.py:1254 MainThread) ERROR - TeleBot: "Threaded polling exception: A request to the Telegram API was unsuccessful. Error code: 409. Description: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running"
+2026-05-02T12:39:24: 2026-05-02 12:39:24,146 (__init__.py:1256 MainThread) ERROR - TeleBot: "Exception traceback:
+2026-05-02T12:39:24: Traceback (most recent call last):
+2026-05-02T12:39:24:   File "/usr/local/lib/python3.10/dist-packages/telebot/__init__.py", line 1247, in __threaded_polling
+2026-05-02T12:39:24:     polling_thread.raise_exceptions()
+2026-05-02T12:39:24:   File "/usr/local/lib/python3.10/dist-packages/telebot/util.py", line 116, in raise_exceptions
+2026-05-02T12:39:24:     raise self.exception_info
+2026-05-02T12:39:24:   File "/usr/local/lib/python3.10/dist-packages/telebot/util.py", line 98, in run
+2026-05-02T12:39:24:     task(*args, **kwargs)
+2026-05-02T12:39:24:   File "/usr/local/lib/python3.10/dist-packages/telebot/__init__.py", line 689, in __retrieve_updates
+2026-05-02T12:39:24:     updates = self.get_updates(offset=(self.last_update_id + 1),
+2026-05-02T12:39:24:   File "/usr/local/lib/python3.10/dist-packages/telebot/__init__.py", line 661, in get_updates
+2026-05-02T12:39:24:     json_updates = apihelper.get_updates(
+2026-05-02T12:39:24:   File "/usr/local/lib/python3.10/dist-packages/telebot/apihelper.py", line 339, in get_updates
+2026-05-02T12:39:24:     return _make_request(token, method_url, params=payload)
+2026-05-02T12:39:24:   File "/usr/local/lib/python3.10/dist-packages/telebot/apihelper.py", line 168, in _make_request
+2026-05-02T12:39:24:     json_result = _check_result(method_name, result)
+2026-05-02T12:39:24:   File "/usr/local/lib/python3.10/dist-packages/telebot/apihelper.py", line 197, in _check_result
+2026-05-02T12:39:24:     raise ApiTelegramException(method_name, result, result_json)
+2026-05-02T12:39:24: telebot.apihelper.ApiTelegramException: A request to the Telegram API was unsuccessful. Error code: 409. Description: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-05-02T12:39:24: "
+2026-05-02T12:39:56: 2026-05-02 12:39:56,537 (__init__.py:1254 MainThread) ERROR - TeleBot: "Threaded polling exception: A request to the Telegram API was unsuccessful. Error code: 409. Description: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running"
+2026-05-02T12:39:56: 2026-05-02 12:39:56,537 (__init__.py:1256 MainThread) ERROR - TeleBot: "Exception traceback:
+2026-05-02T12:39:56: Traceback (most recent call last):
+2026-05-02T12:39:56:   File "/usr/local/lib/python3.10/dist-packages/telebot/__init__.py", line 1247, in __threaded_polling
+2026-05-02T12:39:56:     polling_thread.raise_exceptions()
+2026-05-02T12:39:56:   File "/usr/local/lib/python3.10/dist-packages/telebot/util.py", line 116, in raise_exceptions
+2026-05-02T12:39:56:     raise self.exception_info
+2026-05-02T12:39:56:   File "/usr/local/lib/python3.10/dist-packages/telebot/util.py", line 98, in run
+2026-05-02T12:39:56:     task(*args, **kwargs)
+2026-05-02T12:39:56:   File "/usr/local/lib/python3.10/dist-packages/telebot/__init__.py", line 689, in __retrieve_updates
+2026-05-02T12:39:56:     updates = self.get_updates(offset=(self.last_update_id + 1),
+2026-05-02T12:39:56:   File "/usr/local/lib/python3.10/dist-packages/telebot/__init__.py", line 661, in get_updates
+2026-05-02T12:39:56:     json_updates = apihelper.get_updates(
+2026-05-02T12:39:56:   File "/usr/local/lib/python3.10/dist-packages/telebot/apihelper.py", line 339, in get_updates
+2026-05-02T12:39:56:     return _make_request(token, method_url, params=payload)
+2026-05-02T12:39:56:   File "/usr/local/lib/python3.10/dist-packages/telebot/apihelper.py", line 168, in _make_request
+2026-05-02T12:39:56:     json_result = _check_result(method_name, result)
+2026-05-02T12:39:56:   File "/usr/local/lib/python3.10/dist-packages/telebot/apihelper.py", line 197, in _check_result
+2026-05-02T12:39:56:     raise ApiTelegramException(method_name, result, result_json)
+2026-05-02T12:39:56: telebot.apihelper.ApiTelegramException: A request to the Telegram API was unsuccessful. Error code: 409. Description: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-05-02T12:39:56: "
+2026-05-02T12:40:32: 2026-05-02 12:40:32,255 (__init__.py:1254 MainThread) ERROR - TeleBot: "Threaded polling exception: A request to the Telegram API was unsuccessful. Error code: 409. Description: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running"
+2026-05-02T12:40:32: 2026-05-02 12:40:32,256 (__init__.py:1256 MainThread) ERROR - TeleBot: "Exception traceback:
+2026-05-02T12:40:32: Traceback (most recent call last):
+2026-05-02T12:40:32:   File "/usr/local/lib/python3.10/dist-packages/telebot/__init__.py", line 1247, in __threaded_polling
+2026-05-02T12:40:32:     polling_thread.raise_exceptions()
+2026-05-02T12:40:32:   File "/usr/local/lib/python3.10/dist-packages/telebot/util.py", line 116, in raise_exceptions
+2026-05-02T12:40:32:     raise self.exception_info
+2026-05-02T12:40:32:   File "/usr/local/lib/python3.10/dist-packages/telebot/util.py", line 98, in run
+2026-05-02T12:40:32:     task(*args, **kwargs)
+2026-05-02T12:40:32:   File "/usr/local/lib/python3.10/dist-packages/telebot/__init__.py", line 689, in __retrieve_updates
+2026-05-02T12:40:32:     updates = self.get_updates(offset=(self.last_update_id + 1),
+2026-05-02T12:40:32:   File "/usr/local/lib/python3.10/dist-packages/telebot/__init__.py", line 661, in get_updates
+2026-05-02T12:40:32:     json_updates = apihelper.get_updates(
+2026-05-02T12:40:32:   File "/usr/local/lib/python3.10/dist-packages/telebot/apihelper.py", line 339, in get_updates
+2026-05-02T12:40:32:     return _make_request(token, method_url, params=payload)
+2026-05-02T12:40:32:   File "/usr/local/lib/python3.10/dist-packages/telebot/apihelper.py", line 168, in _make_request
+2026-05-02T12:40:32:     json_result = _check_result(method_name, result)
+2026-05-02T12:40:32:   File "/usr/local/lib/python3.10/dist-packages/telebot/apihelper.py", line 197, in _check_result
+2026-05-02T12:40:32:     raise ApiTelegramException(method_name, result, result_json)
+2026-05-02T12:40:32: telebot.apihelper.ApiTelegramException: A request to the Telegram API was unsuccessful. Error code: 409. Description: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-05-02T12:40:32: "
+2026-05-02T12:41:35: 2026-05-02 12:41:35,937 (__init__.py:1254 MainThread) ERROR - TeleBot: "Threaded polling exception: A request to the Telegram API was unsuccessful. Error code: 409. Description: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running"
+2026-05-02T12:41:35: 2026-05-02 12:41:35,937 (__init__.py:1256 MainThread) ERROR - TeleBot: "Exception traceback:
+2026-05-02T12:41:35: Traceback (most recent call last):
+2026-05-02T12:41:35:   File "/usr/local/lib/python3.10/dist-packages/telebot/__init__.py", line 1247, in __threaded_polling
+2026-05-02T12:41:35:     polling_thread.raise_exceptions()
+2026-05-02T12:41:35:   File "/usr/local/lib/python3.10/dist-packages/telebot/util.py", line 116, in raise_exceptions
+2026-05-02T12:41:35:     raise self.exception_info
+2026-05-02T12:41:35:   File "/usr/local/lib/python3.10/dist-packages/telebot/util.py", line 98, in run
+2026-05-02T12:41:35:     task(*args, **kwargs)
+2026-05-02T12:41:35:   File "/usr/local/lib/python3.10/dist-packages/telebot/__init__.py", line 689, in __retrieve_updates
+2026-05-02T12:41:35:     updates = self.get_updates(offset=(self.last_update_id + 1),
+2026-05-02T12:41:35:   File "/usr/local/lib/python3.10/dist-packages/telebot/__init__.py", line 661, in get_updates
+2026-05-02T12:41:35:     json_updates = apihelper.get_updates(
+2026-05-02T12:41:35:   File "/usr/local/lib/python3.10/dist-packages/telebot/apihelper.py", line 339, in get_updates
+2026-05-02T12:41:35:     return _make_request(token, method_url, params=payload)
+2026-05-02T12:41:35:   File "/usr/local/lib/python3.10/dist-packages/telebot/apihelper.py", line 168, in _make_request
+2026-05-02T12:41:35:     json_result = _check_result(method_name, result)
+2026-05-02T12:41:35:   File "/usr/local/lib/python3.10/dist-packages/telebot/apihelper.py", line 197, in _check_result
+2026-05-02T12:41:35:     raise ApiTelegramException(method_name, result, result_json)
+2026-05-02T12:41:35: telebot.apihelper.ApiTelegramException: A request to the Telegram API was unsuccessful. Error code: 409. Description: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-05-02T12:41:35: "
+2026-05-02T12:42:39: 2026-05-02 12:42:39,629 (__init__.py:1254 MainThread) ERROR - TeleBot: "Threaded polling exception: A request to the Telegram API was unsuccessful. Error code: 409. Description: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running"
+2026-05-02T12:42:39: 2026-05-02 12:42:39,629 (__init__.py:1256 MainThread) ERROR - TeleBot: "Exception traceback:
+2026-05-02T12:42:39: Traceback (most recent call last):
+2026-05-02T12:42:39:   File "/usr/local/lib/python3.10/dist-packages/telebot/__init__.py", line 1247, in __threaded_polling
+2026-05-02T12:42:39:     polling_thread.raise_exceptions()
+2026-05-02T12:42:39:   File "/usr/local/lib/python3.10/dist-packages/telebot/util.py", line 116, in raise_exceptions
+2026-05-02T12:42:39:     raise self.exception_info
+2026-05-02T12:42:39:   File "/usr/local/lib/python3.10/dist-packages/telebot/util.py", line 98, in run
+2026-05-02T12:42:39:     task(*args, **kwargs)
+2026-05-02T12:42:39:   File "/usr/local/lib/python3.10/dist-packages/telebot/__init__.py", line 689, in __retrieve_updates
+2026-05-02T12:42:39:     updates = self.get_updates(offset=(self.last_update_id + 1),
+2026-05-02T12:42:39:   File "/usr/local/lib/python3.10/dist-packages/telebot/__init__.py", line 661, in get_updates
+2026-05-02T12:42:39:     json_updates = apihelper.get_updates(
+2026-05-02T12:42:39:   File "/usr/local/lib/python3.10/dist-packages/telebot/apihelper.py", line 339, in get_updates
+2026-05-02T12:42:39:     return _make_request(token, method_url, params=payload)
+2026-05-02T12:42:39:   File "/usr/local/lib/python3.10/dist-packages/telebot/apihelper.py", line 168, in _make_request
+2026-05-02T12:42:39:     json_result = _check_result(method_name, result)
+2026-05-02T12:42:39:   File "/usr/local/lib/python3.10/dist-packages/telebot/apihelper.py", line 197, in _check_result
+2026-05-02T12:42:39:     raise ApiTelegramException(method_name, result, result_json)
+2026-05-02T12:42:39: telebot.apihelper.ApiTelegramException: A request to the Telegram API was unsuccessful. Error code: 409. Description: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-05-02T12:42:39: "
+2026-05-02T12:43:43: 2026-05-02 12:43:43,323 (__init__.py:1254 MainThread) ERROR - TeleBot: "Threaded polling exception: A request to the Telegram API was unsuccessful. Error code: 409. Description: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running"
+2026-05-02T12:43:43: 2026-05-02 12:43:43,323 (__init__.py:1256 MainThread) ERROR - TeleBot: "Exception traceback:
+2026-05-02T12:43:43: Traceback (most recent call last):
+2026-05-02T12:43:43:   File "/usr/local/lib/python3.10/dist-packages/telebot/__init__.py", line 1247, in __threaded_polling
+2026-05-02T12:43:43:     polling_thread.raise_exceptions()
+2026-05-02T12:43:43:   File "/usr/local/lib/python3.10/dist-packages/telebot/util.py", line 116, in raise_exceptions
+2026-05-02T12:43:43:     raise self.exception_info
+2026-05-02T12:43:43:   File "/usr/local/lib/python3.10/dist-packages/telebot/util.py", line 98, in run
+2026-05-02T12:43:43:     task(*args, **kwargs)
+2026-05-02T12:43:43:   File "/usr/local/lib/python3.10/dist-packages/telebot/__init__.py", line 689, in __retrieve_updates
+2026-05-02T12:43:43:     updates = self.get_updates(offset=(self.last_update_id + 1),
+2026-05-02T12:43:43:   File "/usr/local/lib/python3.10/dist-packages/telebot/__init__.py", line 661, in get_updates
+2026-05-02T12:43:43:     json_updates = apihelper.get_updates(
+2026-05-02T12:43:43:   File "/usr/local/lib/python3.10/dist-packages/telebot/apihelper.py", line 339, in get_updates
+2026-05-02T12:43:43:     return _make_request(token, method_url, params=payload)
+2026-05-02T12:43:43:   File "/usr/local/lib/python3.10/dist-packages/telebot/apihelper.py", line 168, in _make_request
+2026-05-02T12:43:43:     json_result = _check_result(method_name, result)
+2026-05-02T12:43:43:   File "/usr/local/lib/python3.10/dist-packages/telebot/apihelper.py", line 197, in _check_result
+2026-05-02T12:43:43:     raise ApiTelegramException(method_name, result, result_json)
+2026-05-02T12:43:43: telebot.apihelper.ApiTelegramException: A request to the Telegram API was unsuccessful. Error code: 409. Description: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-05-02T12:43:43: "
+2026-05-02T12:44:46: 2026-05-02 12:44:46,999 (__init__.py:1254 MainThread) ERROR - TeleBot: "Threaded polling exception: A request to the Telegram API was unsuccessful. Error code: 409. Description: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running"
+2026-05-02T12:44:46: 2026-05-02 12:44:46,999 (__init__.py:1256 MainThread) ERROR - TeleBot: "Exception traceback:
+2026-05-02T12:44:46: Traceback (most recent call last):
+2026-05-02T12:44:46:   File "/usr/local/lib/python3.10/dist-packages/telebot/__init__.py", line 1247, in __threaded_polling
+2026-05-02T12:44:46:     polling_thread.raise_exceptions()
+2026-05-02T12:44:46:   File "/usr/local/lib/python3.10/dist-packages/telebot/util.py", line 116, in raise_exceptions
+2026-05-02T12:44:46:     raise self.exception_info
+2026-05-02T12:44:46:   File "/usr/local/lib/python3.10/dist-packages/telebot/util.py", line 98, in run
+2026-05-02T12:44:46:     task(*args, **kwargs)
+2026-05-02T12:44:46:   File "/usr/local/lib/python3.10/dist-packages/telebot/__init__.py", line 689, in __retrieve_updates
+2026-05-02T12:44:46:     updates = self.get_updates(offset=(self.last_update_id + 1),
+2026-05-02T12:44:46:   File "/usr/local/lib/python3.10/dist-packages/telebot/__init__.py", line 661, in get_updates
+2026-05-02T12:44:46:     json_updates = apihelper.get_updates(
+2026-05-02T12:44:46:   File "/usr/local/lib/python3.10/dist-packages/telebot/apihelper.py", line 339, in get_updates
+2026-05-02T12:44:46:     return _make_request(token, method_url, params=payload)
+2026-05-02T12:44:46:   File "/usr/local/lib/python3.10/dist-packages/telebot/apihelper.py", line 168, in _make_request
+2026-05-02T12:44:46:     json_result = _check_result(method_name, result)
+2026-05-02T12:44:46:   File "/usr/local/lib/python3.10/dist-packages/telebot/apihelper.py", line 197, in _check_result
+2026-05-02T12:44:46:     raise ApiTelegramException(method_name, result, result_json)
+2026-05-02T12:44:46: telebot.apihelper.ApiTelegramException: A request to the Telegram API was unsuccessful. Error code: 409. Description: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-05-02T12:44:46: "
+2026-05-02T12:49:39: Traceback (most recent call last):
+2026-05-02T12:49:39:   File "/root/NilamAutomationTools/nilam_bot.py", line 482, in <module>
+2026-05-02T12:49:39:     bot.polling(none_stop=True, timeout=60)
+2026-05-02T12:49:39:   File "/usr/local/lib/python3.10/dist-packages/telebot/__init__.py", line 1208, in polling
+2026-05-02T12:49:39:     
+2026-05-02T12:49:39: logger.info('Starting your bot with username: [@%s]', self.user.username)
+2026-05-02T12:49:39:   File "/usr/local/lib/python3.10/dist-packages/telebot/__init__.py", line 307, in user
+2026-05-02T12:49:39:     self._user = self.get_me()
+2026-05-02T12:49:39:   File "/usr/local/lib/python3.10/dist-packages/telebot/__init__.py", line 1395, in get_me
+2026-05-02T12:49:39:     apihelper.get_me(self.token)
+2026-05-02T12:49:39:   File "/usr/local/lib/python3.10/dist-packages/telebot/apihelper.py", line 204, in get_me
+2026-05-02T12:49:39:     return _make_request(token, method_url)
+2026-05-02T12:49:39:   File "/usr/local/lib/python3.10/dist-packages/telebot/apihelper.py", line 162, in _make_request
+2026-05-02T12:49:39:     result = _get_req_session().request(
+2026-05-02T12:49:39:   File "/usr/lib/python3/dist-packages/requests/sessions.py", line 544, in request
+2026-05-02T12:49:39:     resp = self.send(prep, **send_kwargs)
+2026-05-02T12:49:39:   File "/usr/lib/python3/dist-packages/requests/sessions.py", line 657, in send
+2026-05-02T12:49:39:     r = adapter.send(request, **kwargs)
+2026-05-02T12:49:39:   File "/usr/lib/python3/dist-packages/requests/adapters.py", line 439, in send
+2026-05-02T12:49:39:     resp = conn.urlopen(
+2026-05-02T12:49:39:   File "/usr/lib/python3/dist-packages/urllib3/connectionpool.py", line 700, in urlopen
+2026-05-02T12:49:39:     httplib_response = self._make_request(
+2026-05-02T12:49:39:   File "/usr/lib/python3/dist-packages/urllib3/connectionpool.py", line 383, in _make_request
+2026-05-02T12:49:39:     self._validate_conn(conn)
+2026-05-02T12:49:39:   File "/usr/lib/python3/dist-packages/urllib3/connectionpool.py", line 1017, in _validate_conn
+2026-05-02T12:49:39:     conn.connect()
+2026-05-02T12:49:39:   File "/usr/lib/python3/dist-packages/urllib3/connection.py", line 411, in connect
+2026-05-02T12:49:39:     self.sock = ssl_wrap_socket(
+2026-05-02T12:49:39:   File "/usr/lib/python3/dist-packages/urllib3/util/ssl_.py", line 402, in ssl_wrap_socket
+2026-05-02T12:49:39:     context.load_verify_locations(ca_certs, ca_cert_dir, ca_cert_data)
+2026-05-02T12:49:39: KeyboardInterrupt
+2026-05-02T13:21:01:   File "/root/NilamAutomationTools/nilam_bot.py", line 230
+2026-05-02T13:21:01:   File "/root/NilamAutomationTools/nilam_bot.py", line 230
+2026-05-02T13:21:01:     text = "💎 *PELAN NAIK TARAF KE PRO (VIP)*\n━━━━━━━━━━━━━━━━━━━━━━━━━\n\n_"Kenapa buang masa 5 jam mengklik borang, jika bot boleh menyiapkannya dalam masa 5 minit?"_\n\nVersi FREE direka untuk gagal. Pelayan akan mengesan anda dan menyekat IP anda (Ralat 429). Lindungi diri anda dan jimat masa dengan *Pelan PRO*.\n\n🔥 *CIRI-CIRI EKSKLUSIF PRO:*\n✅ *Tiada Had Buku* (Jalan 100+ buku tanpa henti)\n✅ *WAF Bypass Asing* (Gagal dikesan oleh Firewall AINS)\n✅ *Smart Jitter* (Meniru corak klik manusia sebenar)\n✅ *Auto-Sleep Engine* (Tidur bila disyaki, bangun bila selamat)\n✅ *Sokongan Premium* (Kemaskini patch selagi AINS wujud)\n\n💰 *HARGA LELONGAN KHAS HARI INI:*\n~RM 50.00 / bulan~\n🔥 *RM 15.00 / Seumur Hidup! (Bayar Sekali Sahaja)*\n\n_(Terhad kepada 10 pembeli pertama minggu ini. Selepas ini harga kembali normal)_"
+2026-05-02T13:21:01:                                                                                                                                    ^^^^^^
+2026-05-02T13:21:01: SyntaxError: invalid syntax
+2026-05-02T13:21:01:   File "/root/NilamAutomationTools/nilam_bot.py", line 230
+2026-05-02T13:21:01:     
+2026-05-02T13:21:01: text = "💎 *PELAN NAIK TARAF KE PRO (VIP)*\n━━━━━━━━━━━━━━━━━━━━━━━━━\n\n_"Kenapa buang masa 5 jam mengklik borang, jika bot boleh menyiapkannya dalam masa 5 minit?"_\n\nVersi FREE direka untuk gagal. Pelayan akan mengesan anda dan menyekat IP anda (Ralat 429). Lindungi diri anda dan jimat masa dengan *Pelan PRO*.\n\n🔥 *CIRI-CIRI EKSKLUSIF PRO:*\n✅ *Tiada Had Buku* (Jalan 100+ buku tanpa henti)\n✅ *WAF Bypass Asing* (Gagal dikesan oleh Firewall AINS)\n✅ *Smart Jitter* (Meniru corak klik manusia sebenar)\n✅ *Auto-Sleep Engine* (Tidur bila disyaki, bangun bila selamat)\n✅ *Sokongan Premium* (Kemaskini patch selagi AINS wujud)\n\n💰 *HARGA LELONGAN KHAS HARI INI:*\n~RM 50.00 / bulan~\n🔥 *RM 15.00 / Seumur Hidup! (Bayar Sekali Sahaja)*\n\n_(Terhad kepada 10 pembeli pertama minggu ini. Selepas ini harga kembali normal)_"
+2026-05-02T13:21:01:     
+2026-05-02T13:21:01:                                                                                                                                ^^^^^^
+2026-05-02T13:21:01: SyntaxError: invalid syntax
+2026-05-02T13:21:01:   File "/root/NilamAutomationTools/nilam_bot.py", line 230
+2026-05-02T13:21:01:     text = "💎 *PELAN NAIK TARAF KE PRO (VIP)*\n━━━━━━━━━━━━━━━━━━━━━━━━━\n\n_"Kenapa buang masa 5 jam mengklik borang, jika bot boleh menyiapkannya dalam masa 5 minit?"_\n\nVersi FREE direka untuk gagal. Pelayan akan mengesan anda dan menyekat IP anda (Ralat 429). Lindungi diri anda dan jimat masa dengan *Pelan PRO*.\n\n🔥 *CIRI-CIRI EKSKLUSIF PRO:*\n✅ *Tiada Had Buku* (Jalan 100+ buku tanpa henti)\n✅ *WAF Bypass Asing* (Gagal dikesan oleh Firewall AINS)\n✅ *Smart Jitter* (Meniru corak klik manusia sebenar)\n✅ *Auto-Sleep Engine* (Tidur bila disyaki, bangun bila selamat)\n✅ *Sokongan Premium* (Kemaskini patch selagi AINS wujud)\n\n💰 *HARGA LELONGAN KHAS HARI INI:*\n~RM 50.00 / bulan~\n🔥 *RM 15.00 / Seumur Hidup! (Bayar Sekali Sahaja)*\n\n_(Terhad kepada 10 pembeli pertama minggu ini. Selepas ini harga kembali normal)_"
+2026-05-02T13:21:01:                                                                                                                                    ^^^^^^
+2026-05-02T13:21:01: SyntaxError: invalid syntax
+2026-05-02T13:21:01:   File "/root/NilamAutomationTools/nilam_bot.py", line 230
+2026-05-02T13:21:01:     text = "💎 *PELAN NAIK TARAF KE PRO (VIP)*\n━━━━━━━━━━━━━━━━━━━━━━━━━\n\n_"Kenapa buang masa 5 jam mengklik borang, jika bot boleh menyiapkannya dalam masa 5 minit?"_\n\nVersi FREE direka untuk gagal. Pelayan akan mengesan anda dan menyekat IP anda (Ralat 429). Lindungi diri anda dan jimat masa dengan *Pelan PRO*.\n\n🔥 *CIRI-CIRI EKSKLUSIF PRO:*\n✅ *Tiada Had Buku* (Jalan 100+ buku tanpa henti)\n✅ *WAF Bypass Asing* (Gagal dikesan oleh Firewall AINS)\n✅ *Smart Jitter* (Meniru corak klik manusia sebenar)\n✅ *Auto-Sleep Engine* (Tidur bila disyaki, bangun bila selamat)\n✅ *Sokongan Premium* (Kemaskini patch selagi AINS wujud)\n\n💰 *HARGA LELONGAN KHAS HARI INI:*\n~RM 50.00 / bulan~\n🔥 *RM 15.00 / Seumur Hidup! (Bayar Sekali Sahaja)*\n\n_(Terhad kepada 10 pembeli pertama minggu ini. Selepas ini harga kembali normal)_"
+2026-05-02T13:21:01:                                                                                                                                    ^^^^^^
+2026-05-02T13:21:01: SyntaxError: invalid syntax
+2026-05-02T13:21:02:   File "/root/NilamAutomationTools/nilam_bot.py", line 230
+2026-05-02T13:21:02:     text = "💎 *PELAN NAIK TARAF KE PRO (VIP)*\n━━━━━━━━━━━━━━━━━━━━━━━━━\n\n_"Kenapa buang masa 5 jam mengklik borang, jika bot boleh menyiapkannya dalam masa 5 minit?"_\n\nVersi FREE direka untuk gagal. Pelayan akan mengesan anda dan menyekat IP anda (Ralat 429). Lindungi diri anda dan jimat masa dengan *Pelan PRO*.\n\n🔥 *CIRI-CIRI EKSKLUSIF PRO:*\n✅ *Tiada Had Buku* (Jalan 100+ buku tanpa henti)\n✅ *WAF Bypass Asing* (Gagal dikesan oleh Firewall AINS)\n✅ *Smart Jitter* (Meniru corak klik manusia sebenar)\n✅ *Auto-Sleep Engine* (Tidur bila disyaki, bangun bila selamat)\n✅ *Sokongan Premium* (Kemaskini patch selagi AINS wujud)\n\n💰 *HARGA LELONGAN KHAS HARI INI:*\n~RM 50.00 / bulan~\n🔥 *RM 15.00 / Seumur Hidup! (Bayar Sekali Sahaja)*\n\n_(Terhad kepada 10 pembeli pertama minggu ini. Selepas ini harga kembali normal)_"
+2026-05-02T13:21:02:                                                                                                                                    ^^^^^^
+2026-05-02T13:21:02: SyntaxError: invalid syntax
+2026-05-02T13:21:02:   File "/root/NilamAutomationTools/nilam_bot.py", line 230
+2026-05-02T13:21:02:     text = "💎 *PELAN NAIK TARAF KE PRO (VIP)*\n━━━━━━━━━━━━━━━━━━━━━━━━━\n\n_"Kenapa buang masa 5 jam mengklik borang, jika bot boleh menyiapkannya dalam masa 5 minit?"_\n\nVersi FREE direka untuk gagal. Pelayan akan mengesan anda dan menyekat IP anda (Ralat 429). Lindungi diri anda dan jimat masa dengan *Pelan PRO*.\n\n🔥 *CIRI-CIRI EKSKLUSIF PRO:*\n✅ *Tiada Had Buku* (Jalan 100+ buku tanpa henti)\n✅ *WAF Bypass Asing* (Gagal dikesan oleh Firewall AINS)\n✅ *Smart Jitter* (Meniru corak klik manusia sebenar)\n✅ *Auto-Sleep Engine* (Tidur bila disyaki, bangun bila selamat)\n✅ *Sokongan Premium* (Kemaskini patch selagi AINS wujud)\n\n💰 *HARGA LELONGAN KHAS HARI INI:*\n~RM 50.00 / bulan~\n🔥 *RM 15.00 / Seumur Hidup! (Bayar Sekali Sahaja)*\n\n_(Terhad kepada 10 pembeli pertama minggu ini. Selepas ini harga kembali normal)_"
+2026-05-02T13:21:02:                                                                                           ^^^^^^
+2026-05-02T13:21:02: SyntaxError: invalid syntax
+2026-05-02T13:21:02:   File "/root/NilamAutomationTools/nilam_bot.py", line 230
+2026-05-02T13:21:02:     text = "💎 *PELAN NAIK TARAF KE PRO (VIP)*\n━━━━━━━━━━━━━━━━━━━━━━━━━\n\n_"Kenapa buang masa 5 jam mengklik borang, jika bot boleh menyiapkannya dalam masa 5 minit?"_\n\nVersi FREE direka untuk gagal. Pelayan akan mengesan anda dan menyekat IP anda (Ralat 429). Lindungi diri anda dan jimat masa dengan *Pelan PRO*.\n\n🔥 *CIRI-CIRI EKSKLUSIF PRO:*\n✅ *Tiada Had Buku* (Jalan 100+ buku tanpa henti)\n✅ *WAF Bypass Asing* (Gagal dikesan oleh Firewall AINS)\n✅ *Smart Jitter* (Meniru corak klik manusia sebenar)\n✅ *Auto-Sleep Engine* (Tidur bila disyaki, bangun bila selamat)\n✅ *Sokongan Premium* (Kemaskini patch selagi AINS wujud)\n\n💰 *HARGA LELONGAN KHAS HARI INI:*\n~RM 50.00 / bulan~\n🔥 *RM 15.00 / Seumur Hidup! (Bayar Sekali Sahaja)*\n\n_(Terhad kepada 10 pembeli pertama minggu ini. Selepas ini harga kembali normal)_"
+2026-05-02T13:21:02:                                                                                                                                    ^^^^^^
+2026-05-02T13:21:02: SyntaxError: invalid syntax
+2026-05-02T13:21:02:   File "/root/NilamAutomationTools/nilam_bot.py", line 230
+2026-05-02T13:21:02:     text = "💎 *PELAN NAIK TARAF KE PRO (VIP)*\n━━━━━━━━━━━━━━━━━━━━━━━━━\n\n_"Kenapa buang masa 5 jam mengklik borang, jika bot boleh menyiapkannya dalam masa 5 minit?"_\n\nVersi FREE direka untuk gagal. Pelayan akan mengesan anda dan menyekat IP anda (Ralat 429). Lindungi diri anda dan jimat masa dengan *Pelan PRO*.\n\n🔥 *CIRI-CIRI EKSKLUSIF PRO:*\n✅ *Tiada Had Buku* (Jalan 100+ buku tanpa henti)\n✅ *WAF Bypass Asing* (Gagal dikesan oleh Firewall AINS)\n✅ *Smart Jitter* (Meniru corak klik manusia sebenar)\n✅ *Auto-Sleep Engine* (Tidur bila disyaki, bangun bila selamat)\n✅ *Sokongan Premium* (Kemaskini patch selagi AINS wujud)\n\n💰 *HARGA LELONGAN KHAS HARI INI:*\n~RM 50.00 / bulan~\n🔥 *RM 15.00 / Seumur Hidup! (Bayar Sekali Sahaja)*\n\n_(Terhad kepada 10 pembeli pertama minggu ini. Selepas ini harga kembali normal)_"
+2026-05-02T13:21:02:                                                                                                                                    ^^^^^^
+2026-05-02T13:21:02: SyntaxError: invalid syntax
+2026-05-02T13:21:02:   File "/root/NilamAutomationTools/nilam_bot.py", line 230
+2026-05-02T13:21:02:     text = "💎 *PELAN NAIK TARAF KE PRO (VIP)*\n━━━━━━━━━━━━━━━━━━━━━━━━━\n\n_"Kenapa buang masa 5 jam mengklik borang, jika bot boleh menyiapkannya dalam masa 5 minit?"_\n\nVersi FREE direka untuk gagal. Pelayan akan mengesan anda dan menyekat IP anda (Ralat 429). Lindungi diri anda dan jimat masa dengan *Pelan PRO*.\n\n🔥 *CIRI-CIRI EKSKLUSIF PRO:*\n✅ *Tiada Had Buku* (Jalan 100+ buku tanpa henti)\n✅ *WAF Bypass Asing* (Gagal dikesan oleh Firewall AINS)\n✅ *Smart Jitter* (Meniru corak klik manusia sebenar)\n✅ *Auto-Sleep Engine* (Tidur bila disyaki, bangun bila selamat)\n✅ *Sokongan Premium* (Kemaskini patch selagi AINS wujud)\n\n💰 *HARGA LELONGAN KHAS HARI INI:*\n~RM 50.00 / bulan~\n🔥 *RM 15.00 / Seumur Hidup! (Bayar Sekali Sahaja)*\n\n_(Terhad kepada 10 pembeli pertama minggu ini. Selepas ini harga kembali normal)_"
+2026-05-02T13:21:02:                                                                                                                                    ^^^^^^
+2026-05-02T13:21:02: SyntaxError: invalid syntax
+2026-05-02T13:21:02:   File "/root/NilamAutomationTools/nilam_bot.py", line 230
+2026-05-02T13:21:02:     text = "💎 *PELAN NAIK TARAF KE PRO (VIP)*\n━━━━━━━━━━━━━━━━━━━━━━━━━\n\n_"Kenapa buang masa 5 jam mengklik borang, jika bot boleh menyiapkannya dalam masa 5 minit?"_\n\nVersi FREE direka untuk gagal. Pelayan akan mengesan anda dan menyekat IP anda (Ralat 429). Lindungi diri anda dan jimat masa dengan *Pelan PRO*.\n\n🔥 *CIRI-CIRI EKSKLUSIF PRO:*\n✅ *Tiada Had Buku* (Jalan 100+ buku tanpa henti)\n✅ *WAF Bypass Asing* (Gagal dikesan oleh Firewall AINS)\n✅ *Smart Jitter* (Meniru corak klik manusia sebenar)\n✅ *Auto-Sleep Engine* (Tidur bila disyaki, bangun bila selamat)\n✅ *Sokongan Premium* (Kemaskini patch selagi AINS wujud)\n\n💰 *HARGA LELONGAN KHAS HARI INI:*\n~RM 50.00 / bulan~\n🔥 *RM 15.00 / Seumur Hidup! (Bayar Sekali Sahaja)*\n\n_(Terhad kepada 10 pembeli pertama minggu ini. Selepas ini harga kembali normal)_"
+2026-05-02T13:21:02:                                                                                                                                    ^^^^^^
+2026-05-02T13:21:02: SyntaxError: invalid syntax
+2026-05-02T13:21:02:   File "/root/NilamAutomationTools/nilam_bot.py", line 230
+2026-05-02T13:21:02:     text = "💎 *PELAN NAIK TARAF KE PRO (VIP)*\n━━━━━━━━━━━━━━━━━━━━━━━━━\n\n_"Kenapa buang masa 5 jam mengklik borang, jika bot boleh menyiapkannya dalam masa 5 minit?"_\n\nVersi FREE direka untuk gagal. Pelayan akan mengesan anda dan menyekat IP anda (Ralat 429). Lindungi diri anda dan jimat masa dengan *Pelan PRO*.\n\n🔥 *CIRI-CIRI EKSKLUSIF PRO:*\n✅ *Tiada Had Buku* (Jalan 100+ buku tanpa henti)\n✅ *WAF Bypass Asing* (Gagal dikesan oleh Firewall AINS)\n✅ *Smart Jitter* (Meniru corak klik manusia sebenar)\n✅ *Auto-Sleep Engine* (Tidur bila disyaki, bangun bila selamat)\n✅ *Sokongan Premium* (Kemaskini patch selagi AINS wujud)\n\n💰 *HARGA LELONGAN KHAS HARI INI:*\n~RM 50.00 / bulan~\n🔥 *RM 15.00 / Seumur Hidup! (Bayar Sekali Sahaja)*\n\n_(Terhad kepada 10 pembeli pertama minggu ini. Selepas ini harga kembali normal)_"
+2026-05-02T13:21:02:                                                                                                                                    ^^^^^^
+2026-05-02T13:21:02: SyntaxError: invalid syntax
+2026-05-02T13:21:02:   File "/root/NilamAutomationTools/nilam_bot.py", line 230
+2026-05-02T13:21:02:     
+2026-05-02T13:21:02: text = "💎 *PELAN NAIK TARAF KE PRO (VIP)*\n━━━━━━━━━━━━━━━━━━━━━━━━━\n\n_"Kenapa buang masa 5 jam mengklik borang, jika bot boleh menyiapkannya dalam masa 5 minit?"_\n\nVersi FREE direka untuk gagal. Pelayan akan mengesan anda dan menyekat IP anda (Ralat 429). Lindungi diri anda dan jimat masa dengan *Pelan PRO*.\n\n🔥 *CIRI-CIRI EKSKLUSIF PRO:*\n✅ *Tiada Had Buku* (Jalan 100+ buku tanpa henti)\n✅ *WAF Bypass Asing* (Gagal dikesan oleh Firewall AINS)\n✅ *Smart Jitter* (Meniru corak klik manusia sebenar)\n✅ *Auto-Sleep Engine* (Tidur bila disyaki, bangun bila selamat)\n✅ *Sokongan Premium* (Kemaskini patch selagi AINS wujud)\n\n💰 *HARGA LELONGAN KHAS HARI INI:*\n~RM 50.00 / bulan~\n🔥 *RM 15.00 / Seumur Hidup! (Bayar Sekali Sahaja)*\n\n_(Terhad kepada 10 pembeli pertama minggu ini. Selepas ini harga kembali normal)_"
+2026-05-02T13:21:02:                                                                                                                                    ^^^^^^
+2026-05-02T13:21:02: SyntaxError: invalid syntax
+2026-05-02T13:21:02:   File "/root/NilamAutomationTools/nilam_bot.py", line 230
+2026-05-02T13:21:02:     text = "💎 *PELAN NAIK TARAF KE PRO (VIP)*\n━━━━━━━━━━━━━━━━━━━━━━━━━\n\n_"Kenapa buang masa 5 jam mengklik borang, jika bot boleh menyiapkannya dalam masa 5 minit?"_\n\nVersi FREE direka untuk gagal. Pelayan akan mengesan anda dan menyekat IP anda (Ralat 429). Lindungi diri anda dan jimat masa dengan *Pelan PRO*.\n\n🔥 *CIRI-CIRI EKSKLUSIF PRO:*\n✅ *Tiada Had Buku* (Jalan 100+ buku tanpa henti)\n✅ *WAF Bypass Asing* (Gagal dikesan oleh Firewall AINS)\n✅ *Smart Jitter* (Meniru corak klik manusia sebenar)\n✅ *Auto-Sleep Engine* (Tidur bila disyaki, bangun bila selamat)\n✅ *Sokongan Premium* (Kemaskini patch selagi AINS wujud)\n\n💰 *HARGA LELONGAN KHAS HARI INI:*\n~RM 50.00 / bulan~\n🔥 *RM 15.00 / Seumur Hidup! (Bayar Sekali Sahaja)*\n\n_(Terhad kepada 10 pembeli pertama minggu ini. Selepas ini harga kembali normal)_"
+2026-05-02T13:21:02:                                                                                                                                    ^^^^^^
+2026-05-02T13:21:02: SyntaxError: invalid syntax
+2026-05-02T13:21:02:   File "/root/NilamAutomationTools/nilam_bot.py", line 230
+2026-05-02T13:21:02:     
+2026-05-02T13:21:02: text = "💎 *PELAN NAIK TARAF KE PRO (VIP)*\n━━━━━━━━━━━━━━━━━━━━━━━━━\n\n_"Kenapa buang masa 5 jam mengklik borang, jika bot boleh menyiapkannya dalam masa 5 minit?"_\n\nVersi FREE direka untuk gagal. Pelayan akan mengesan anda dan menyekat IP anda (Ralat 429). Lindungi diri anda dan jimat masa dengan *Pelan PRO*.\n\n🔥 *CIRI-CIRI EKSKLUSIF PRO:*\n✅ *Tiada Had Buku* (Jalan 100+ buku tanpa henti)\n✅ *WAF Bypass Asing* (Gagal dikesan oleh Firewall AINS)\n✅ *Smart Jitter* (Meniru corak klik manusia sebenar)\n✅ *Auto-Sleep Engine* (Tidur bila disyaki, bangun bila selamat)\n✅ *Sokongan Premium* (Kemaskini patch selagi AINS wujud)\n\n💰 *HARGA LELONGAN KHAS HARI INI:*\n~RM 50.00 / bulan~\n🔥 *RM 15.00 / Seumur Hidup! (Bayar Sekali Sahaja)*\n\n_(Terhad kepada 10 pembeli pertama minggu ini. Selepas ini harga kembali normal)_"
+2026-05-02T13:21:02:     
+2026-05-02T13:21:02:  
+2026-05-02T13:21:02:  
+2026-05-02T13:21:02:  
+2026-05-02T13:21:02:  
+2026-05-02T13:21:02:                                                                                                                            ^^^^^^
+2026-05-02T13:21:02: SyntaxError: invalid syntax
+2026-05-02T13:21:02:   File "/root/NilamAutomationTools/nilam_bot.py", line 230
+2026-05-02T13:21:02:     text = "💎 *PELAN NAIK TARAF KE PRO (VIP)*\n━━━━━━━━━━━━━━━━━━━━━━━━━\n\n_"Kenapa buang masa 5 jam mengklik borang, jika bot boleh menyiapkannya dalam masa 5 minit?"_\n\nVersi FREE direka untuk gagal. Pelayan akan mengesan anda dan menyekat IP anda (Ralat 429). Lindungi diri anda dan jimat masa dengan *Pelan PRO*.\n\n🔥 *CIRI-CIRI EKSKLUSIF PRO:*\n✅ *Tiada Had Buku* (Jalan 100+ buku tanpa henti)\n✅ *WAF Bypass Asing* (Gagal dikesan oleh Firewall AINS)\n✅ *Smart Jitter* (Meniru corak klik manusia sebenar)\n✅ *Auto-Sleep Engine* (Tidur bila disyaki, bangun bila selamat)\n✅ *Sokongan Premium* (Kemaskini patch selagi AINS wujud)\n\n💰 *HARGA LELONGAN KHAS HARI INI:*\n~RM 50.00 / bulan~\n🔥 *RM 15.00 / Seumur Hidup! (Bayar Sekali Sahaja)*\n\n_(Terhad kepada 10 pembeli pertama minggu ini. Selepas ini harga kembali normal)_"
+2026-05-02T13:21:02:                                                                                                                                    ^^^^^^
+2026-05-02T13:21:02: SyntaxError: invalid syntax
+2026-05-02T13:22:43:   File "/root/NilamAutomationTools/nilam_bot.py", line 222
+2026-05-02T13:22:43:     text = "📡 *TELEMETRI PELAJAR (LIVE)*
+2026-05-02T13:22:43:            ^
+2026-05-02T13:22:43: SyntaxError: unterminated string literal (detected at line 222)
+2026-05-02T13:22:43:   File "/root/NilamAutomationTools/nilam_bot.py", line 222
+2026-05-02T13:22:43:     text = "📡 *TELEMETRI PELAJAR (LIVE)*
+2026-05-02T13:22:43:            ^
+2026-05-02T13:22:43: SyntaxError: unterminated string literal (detected at line 222)
+2026-05-02T13:22:43:   File "/root/NilamAutomationTools/nilam_bot.py", line 222
+2026-05-02T13:22:43:     text = "📡 *TELEMETRI PELAJAR (LIVE)*
+2026-05-02T13:22:43:            ^
+2026-05-02T13:22:43: SyntaxError: unterminated string literal (detected at line 222)
+2026-05-02T13:22:43:   File "/root/NilamAutomationTools/nilam_bot.py", line 222
+2026-05-02T13:22:43:     text = "📡 *TELEMETRI PELAJAR (LIVE)*
+2026-05-02T13:22:43:            ^
+2026-05-02T13:22:43: 
+2026-05-02T13:22:43:   File "/root/NilamAutomationTools/nilam_bot.py", line 222
+2026-05-02T13:22:43:     text = "📡 *TELEMETRI PELAJAR (LIVE)*
+2026-05-02T13:22:43:            ^
+2026-05-02T13:22:43: SyntaxError: unterminated string literal (detected at line 222)
+2026-05-02T13:22:43:   File "/root/NilamAutomationTools/nilam_bot.py", line 222
+2026-05-02T13:22:43:     text = "📡 *TELEMETRI PELAJAR (LIVE)*
+2026-05-02T13:22:43:            ^
+2026-05-02T13:22:43: SyntaxError: unterminated string literal (detected at line 222)
+2026-05-02T13:22:43:   File "/root/NilamAutomationTools/nilam_bot.py", line 222
+2026-05-02T13:22:43:     text = "📡 *TELEMETRI PELAJAR (LIVE)*
+2026-05-02T13:22:43:   ^
+2026-05-02T13:22:43: SyntaxError: unterminated string literal (detected at line 222)
+2026-05-02T13:22:43:   File "/root/NilamAutomationTools/nilam_bot.py", line 222
+2026-05-02T13:22:43:     text = "📡 *TELEMETRI PELAJAR (LIVE)*
+2026-05-02T13:22:43:            ^
+2026-05-02T13:22:43: SyntaxError: unterminated string literal (detected at line 222)
+2026-05-02T13:22:43:   File "/root/NilamAutomationTools/nilam_bot.py", line 222
+2026-05-02T13:22:43:     text = "📡 *TELEMETRI PELAJAR (LIVE)*
+2026-05-02T13:22:43:            ^
+2026-05-02T13:22:43: unterminated string literal (detected at line 222)
+2026-05-02T13:22:43:   File "/root/NilamAutomationTools/nilam_bot.py", line 222
+2026-05-02T13:22:43:     text = "📡 *TELEMETRI PELAJAR (LIVE)*
+2026-05-02T13:22:43:            ^
+2026-05-02T13:22:43: SyntaxError: unterminated string literal (detected at line 222)
+2026-05-02T13:22:43:   File "/root/NilamAutomationTools/nilam_bot.py", line 222
+2026-05-02T13:22:43:     text = "📡 *TELEMETRI PELAJAR (LIVE)*
+2026-05-02T13:22:43:            ^
+2026-05-02T13:22:43: SyntaxError: unterminated string literal (detected at line 222)
+2026-05-02T13:22:43:   File "/root/NilamAutomationTools/nilam_bot.py", line 222
+2026-05-02T13:22:43:     text = "📡 *TELEMETRI PELAJAR (LIVE)*
+2026-05-02T13:22:43:            ^
+2026-05-02T13:22:43: SyntaxError: unterminated string literal (detected at line 222)
+2026-05-02T13:22:43:   File "/root/NilamAutomationTools/nilam_bot.py", line 222
+2026-05-02T13:22:43:     text = "📡 *TELEMETRI PELAJAR (LIVE)*
+2026-05-02T13:22:43:            ^
+2026-05-02T13:22:43: SyntaxError: unterminated string literal (detected at line 222)
+2026-05-02T13:22:43:   File "/root/NilamAutomationTools/nilam_bot.py", line 222
+2026-05-02T13:22:43:     text = "📡 *TELEMETRI PELAJAR (LIVE)*
+2026-05-02T13:22:43:            ^
+2026-05-02T13:22:43: SyntaxError: unterminated string literal (detected at line 222)
+2026-05-02T13:22:43:   File "/root/NilamAutomationTools/nilam_bot.py", line 222
+2026-05-02T13:22:43:     text = "📡 *TELEMETRI PELAJAR (LIVE)*
+2026-05-02T13:22:43:            ^
+2026-05-02T13:22:43: SyntaxError: unterminated string literal (detected at line 222)
+2026-05-02T13:22:43:   File "/root/NilamAutomationTools/nilam_bot.py", line 222
+2026-05-02T13:22:43:     text = "📡 *TELEMETRI PELAJAR (LIVE)*
+2026-05-02T13:22:43:            ^
+2026-05-02T13:22:43: SyntaxError: unterminated string literal (detected at line 222)

@@ -3,7 +3,7 @@
 console.log('%c[NILAM] Versi Percuma (FREE) sedang dimuatkan...','color:#a78bfa;font-weight:bold;font-size:14px');
 (async function(){
 
-var LIB_URL='https://cdn.jsdelivr.net/gh/Notfoundst12/Nilam@main/books_library.json';
+var LIB_URL='https://cdn.jsdelivr.net/gh/Notfoundst12/Nilam@1bc99e7/books_library.json';
 var UK='__nilam_used_free__'; // Separate tracking for free version
 var BOOKS=[],DELAY=3500,running=false,paused=false; // Slowed down significantly
 

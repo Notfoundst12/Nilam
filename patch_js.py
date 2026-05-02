@@ -3,7 +3,7 @@
 console.log('%c[NILAM] v12.0 sedang dimuatkan...','color:#8b5cf6;font-weight:bold;font-size:14px');
 (async function(){
 
-var LIB_URL='https://cdn.jsdelivr.net/gh/Notfoundst12/Nilam@1bc99e7/books_library.json';
+var LIB_URL='https://cdn.jsdelivr.net/gh/Notfoundst12/Nilam@main/books_library.json';
 var UK='__nilam_used__';
 var BOOKS=[], running=false, paused=false;
 window.__nilamConfig = { jitter: true, ghost: true, autoSleep: true, delay: 600, maxBooks: 5 };
@@ -619,7 +619,7 @@ function makeUI(){
   
   var html=`
   <div id="NP-FAB">
-    🚀
+    <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
   </div>
   <div id="NP-MENU">
      <div class="nm-header">
@@ -754,7 +754,7 @@ installRatingGuard();
 log('Memuat turun perpustakaan data...');
 
 // Fix Fetch Init - Direct GitHub to avoid jsDelivr cache/CSP
-fetch('https://cdn.jsdelivr.net/gh/Notfoundst12/Nilam@1bc99e7/books_library.json')
+fetch('https://raw.githubusercontent.com/Notfoundst12/Nilam/main/books_library.json')
   .then(r => { if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
   .then(async data => {
     BOOKS = data;
@@ -771,3 +771,6 @@ fetch('https://cdn.jsdelivr.net/gh/Notfoundst12/Nilam@1bc99e7/books_library.json
   });
 
 })();
+"""
+with open('/root/NilamAutomationTools/n.js', 'w', encoding='utf-8') as f:
+    f.write(njs_content)
