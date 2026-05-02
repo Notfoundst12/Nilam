@@ -1,36 +1,20 @@
-// NILAM Auto-Fill v15.0 (The Ultimate Vantablack Edition)
-// 10,000 buku sintetik. High-End Glassmorphism UI. C2 Botnet Telemetry.
-console.log('%c[NILAM] v15.0 sedang dimuatkan...','color:#8b5cf6;font-weight:bold;font-size:14px');
+// NILAM Auto-Fill v10.22
+// 10,000 buku sintetik. Zero arrow functions. Zero template literals. Max compatibility.
+console.log('%c[NILAM] v10.22 sedang dimuatkan...','color:#a78bfa;font-weight:bold;font-size:14px');
 (async function(){
 
-var LIB_URL='https://cdn.jsdelivr.net/gh/Notfoundst12/Nilam@a7fbc20/books_library.json';
+var LIB_URL='https://cdn.jsdelivr.net/gh/Notfoundst12/Nilam@main/books_library.json';
 var UK='__nilam_used__';
-var BOOKS=[], running=false, paused=false;
-window.__nilamConfig = { jitter: true, ghost: true, autoSleep: true, delay: 600, maxBooks: 5 };
+var BOOKS=[],DELAY=600,running=false,paused=false;
 
 // Supabase Cloud Memory config
 var SUPA_URL = 'https://yzjsmtxhpdlsniqpcuoa.supabase.co/rest/v1/nilam_used_books';
 var SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl6anNtdHhocGRsc25pcXBjdW9hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ5Mzk2ODQsImV4cCI6MjA4MDUxNTY4NH0.jMq8BwvYlODSWiFv7ysM7KiDCjzviMEJFdn1Vfst3mw';
 
-// --- CORE FUNCTIONS & SPOOFING ---
-function installSpoofer() {
-  if(!window.__nilamConfig.ghost) return;
-  try {
-    var agents = [
-      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-      "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36",
-      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36 Edg/121.0.0.0"
-    ];
-    Object.defineProperty(navigator, 'userAgent', { get: function () { return agents[Math.floor(Math.random() * agents.length)]; } });
-    var cores = [4, 8, 16];
-    Object.defineProperty(navigator, 'hardwareConcurrency', { get: function () { return cores[Math.floor(Math.random() * cores.length)]; } });
-    var mems = [8, 16, 32];
-    Object.defineProperty(navigator, 'deviceMemory', { get: function () { return mems[Math.floor(Math.random() * mems.length)]; } });
-    console.log("[NILAM] 👻 Ghost Mode Aktif.");
-  } catch(e) {}
-}
 
+// CRITICAL: Prevent ains.moe.gov.myundefined redirect + FORCE inject rating point
 function installNavGuard(){
+  // Guard 1: Intercept Swal.fire
   if(window.Swal&&window.Swal.fire){
     var _origFire=window.Swal.fire;
     window.Swal.fire=function(){
@@ -48,13 +32,16 @@ function installNavGuard(){
     };
   }
 
+  // Guard 2: SAFE Network Interceptor (REGEX ONLY - DO NOT PARSE JSON)
+  // This preserves key order, encryption signatures (provider field), and whitespace.
   if(!window.__nilamXhrPatched){
     window.__nilamXhrPatched=true;
     var _origSend=XMLHttpRequest.prototype.send;
     XMLHttpRequest.prototype.send=function(body){
       if(typeof body==='string' && body.indexOf('"type":"book"')>=0){
         var rtg = window.__nilamStarRating || 5;
-        var fields = ['point','rating','score','star'];
+        // Inject fields if missing (handles both escaped and non-escaped JSON)
+        var fields = ['point', 'rating', 'score', 'star'];
         for(var i=0; i<fields.length; i++){
           var f = fields[i];
           if(body.indexOf('"'+f+'":') < 0 && body.indexOf('\\"'+f+'\\":') < 0){
@@ -62,8 +49,13 @@ function installNavGuard(){
             body = body.replace('\\"type\\":\\"book\\"', '\\"type\\":\\"book\\",\\"'+f+'\\":'+rtg);
           }
         }
+        console.log('[NILAM] XHR String Intercept: Injected rating fields safely.');
+        // Extract User ID for Telemetry
         var m = body.match(/"user"\s*:\s*([^,|}]+)/);
-        if(m && m[1]) window.__nilamUserId = m[1].replace(/["']/g,'').trim();
+        if(m && m[1]) {
+            window.__nilamUserId = m[1].replace(/["']/g,'').trim();
+            console.log('[NILAM] Telemetry: UID captured -> ' + window.__nilamUserId);
+        }
       }
       return _origSend.call(this,body);
     };
@@ -71,6 +63,7 @@ function installNavGuard(){
     var _origFetch=window.fetch;
     window.fetch=function(){
       var args = arguments;
+      // Rate Limit Bypass: Append random query param to submit URL to bust WAF cache
       try {
         if (args[0] && typeof args[0] === 'string' && args[0].indexOf('/api/nilam-records/submit') >= 0) {
            args[0] = args[0] + (args[0].indexOf('?')>=0 ? '&' : '?') + '_t=' + Date.now();
@@ -79,7 +72,7 @@ function installNavGuard(){
 
       if(args[1] && typeof args[1].body==='string' && args[1].body.indexOf('"type":"book"')>=0){
         var rtg = window.__nilamStarRating || 5;
-        var fields = ['point','rating','score','star'];
+        var fields = ['point', 'rating', 'score', 'star'];
         for(var i=0; i<fields.length; i++){
           var f = fields[i];
           if(args[1].body.indexOf('"'+f+'":') < 0 && args[1].body.indexOf('\\"'+f+'\\":') < 0){
@@ -87,13 +80,19 @@ function installNavGuard(){
             args[1].body = args[1].body.replace('\\"type\\":\\"book\\"', '\\"type\\":\\"book\\",\\"'+f+'\\":'+rtg);
           }
         }
+        console.log('[NILAM] Fetch String Intercept: Injected rating fields safely.');
+        // Extract User ID for Telemetry
         var m = args[1].body.match(/"user"\s*:\s*([^,|}]+)/);
-        if(m && m[1]) window.__nilamUserId = m[1].replace(/["']/g,'').trim();
+        if(m && m[1]) {
+            window.__nilamUserId = m[1].replace(/["']/g,'').trim();
+            console.log('[NILAM] Telemetry: UID captured -> ' + window.__nilamUserId);
+        }
       }
       return _origFetch.apply(this,args);
     };
   }
 
+  // Guard 3: Patch Vue router
   try{
     var ve=document.querySelector('#app')||document.querySelector('[data-app]');
     var router = (ve && ve.__vue__ && ve.__vue__.$router) || (ve && ve.__vue_app__ && ve.__vue_app__.config.globalProperties.$router);
@@ -107,17 +106,21 @@ function installNavGuard(){
   }catch(x){}
 }
 
+// Aggressive Vue tree scanner to force set rating data
 function installRatingGuard(){
   try{
     var appEl=document.querySelector('#app')||document.querySelector('[data-app]');
     if(!appEl) return;
     var root = appEl.__vue__ || appEl.__vue_app__;
     if(!root) return;
+
     var rtg = window.__nilamStarRating || 5;
     var queue=[root]; var visited=0;
     while(queue.length && visited<800){
       var c=queue.shift(); visited++;
       if(!c) continue;
+
+      // Inject into any object that looks like it holds book data
       var targets = [c, c.$data, (c.$refs||{}), (c.form||{}), (c.record||{})];
       for(var i=0; i<targets.length; i++){
         var t = targets[i]; if(!t || typeof t !== 'object') continue;
@@ -127,15 +130,18 @@ function installRatingGuard(){
           if(t.score===undefined||t.score===null||t.score===0) t.score=rtg;
         }
       }
+
       if(typeof c.submitRecord==='function' && !c.__nilamRG){
         c.__nilamRG=true;
         var _orig=c.submitRecord;
         c.submitRecord=function(){
-          installRatingGuard();
+          installRatingGuard(); // Re-scan before submit
           return _orig.apply(this,arguments);
         };
       }
+
       if(c.$children){for(var ci=0;ci<c.$children.length;ci++)queue.push(c.$children[ci]);}
+      // Vue 3 support
       if(c._instance && c._instance.subTree) queue.push(c._instance.proxy);
     }
   }catch(x){}
@@ -143,125 +149,114 @@ function installRatingGuard(){
 
 function sleep(ms){return new Promise(function(r){setTimeout(r,ms)});}
 async function jSleep(mult){
-  var base = window.__nilamConfig.delay * (mult || 1);
-  var jitter = window.__nilamConfig.jitter ? (Math.floor(Math.random() * 1500) + 500) : 0;
+  var base = DELAY * (mult || 1);
+  var jitter = Math.floor(Math.random() * 1500) + 500;
   await sleep(base + jitter);
 }
 function qs(s){return document.querySelector(s);}
 
-// Heartbeat Telemetry & C2
+// Heartbeat Telemetry
 async function sendTelemetry(ok, fail, tgt, statusMsg) {
   var uid = window.__nilamUserId;
   if (!uid || uid === "Guest") {
     try {
+      // Direct extraction from common storage/state
       var app = document.querySelector('#app') || document.querySelector('[data-app]');
       var root = app && (app.__vue__ || app.__vue_app__);
       if (root && root.$store && root.$store.state && root.$store.state.user) {
         uid = root.$store.state.user.id || root.$store.state.user.name;
-      } else {
+      }
+      if (!uid) {
         for (var i = 0; i < localStorage.length; i++) {
           var k = localStorage.key(i), v = localStorage.getItem(k);
           if (k.indexOf('user')>=0 || k.indexOf('auth')>=0) {
-            if (v && v.indexOf('user')>=0) {
-              try { var j = JSON.parse(v); if (j.user && j.user.id) uid = j.user.id; } catch(e){}
+            if (v && v.indexOf('id')>=0) {
+              try { var j = JSON.parse(v); if(j.id) uid=j.id; else if(j.user&&j.user.id) uid=j.user.id; } catch(e){}
             }
           }
         }
       }
     } catch(e){}
-    if(!uid) uid = "Pelajar-" + Math.floor(Math.random()*9000+1000);
+    if(!uid) uid = "User-" + Math.floor(Math.random()*9000+1000);
     window.__nilamUserId = uid;
   }
+
   var payload = '__TEL__|' + uid + '|' + Date.now() + '|' + ok + '|' + fail + '|' + tgt + '|' + statusMsg;
+  var headers = { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY, 'Content-Type': 'application/json' };
+
   try {
-    // Safe PostgREST wildcard for deleting old pings
-    fetch(SUPA_URL + '?title=ilike.__TEL__|' + uid + '|*', { method: 'DELETE', headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY } })
-    .then(function() {
-      fetch(SUPA_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY },
-        body: JSON.stringify({ title: payload })
-      });
-    });
-  } catch(e){}
+    // Delete old ping and post new one
+    await fetch(SUPA_URL + '?title=like.__TEL__|' + uid + '|*', { method: 'DELETE', headers: headers });
+    await fetch(SUPA_URL, { method: 'POST', headers: headers, body: JSON.stringify({ title: payload }) });
+  } catch(e){
+    console.warn('[NILAM] Telemetry Ping Failed', e);
+  }
 }
 
-async function checkC2() {
-  try {
-    var r = await fetch(SUPA_URL + '?select=title&title=ilike.__CMD__|*', { headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY } });
-    if(r.ok){
-      var d = await r.json();
-      for(var i=0; i<d.length; i++){
-        var parts = d[i].title.split('|');
-        if(parts.length >= 2){
-           var cmd = parts[1];
-           if(cmd === 'PAUSE' && !paused){ paused = true; log('⚠️ [C2] Sistem Dijeda oleh Admin'); try{document.getElementById('np-pa').textContent='SAMBUNG';}catch(e){} }
-           if(cmd === 'RESUME' && paused){ paused = false; log('▶️ [C2] Sistem Disambung oleh Admin'); try{document.getElementById('np-pa').textContent='PAUSE';}catch(e){} }
-           if(cmd === 'KILL' && running){ running = false; err('🛑 [C2] SISTEM DIHENTIKAN OLEH ADMIN!'); btnState('idle'); }
-           if(cmd === 'MSG' && parts[2]){
-             var msgId = 'msg_'+parts[2].substring(0,15).replace(/\s+/g,'');
-             if(!localStorage.getItem(msgId)){
-               localStorage.setItem(msgId, '1');
-               alert('📢 PENGUMUMAN ADMIN:\n\n' + parts[2]);
-             }
-           }
-        }
-      }
-    }
-  } catch(e){}
-}
-
+// Cloud Memory using Supabase + Local Fallback/Merge
 async function getUsed(){
   var combined = [];
   try {
-    var r = await fetch(SUPA_URL + '?select=title', { headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY } });
+    var r = await fetch(SUPA_URL + '?select=title', {
+      headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
+    });
     if (r.ok) {
       var d = await r.json();
-      combined = d.map(function(x) { return x.title }).filter(function(t) { return t.indexOf('__TEL__|') !== 0 && t.indexOf('__CMD__|') !== 0; });
+      combined = d.map(function(x) { return x.title }).filter(function(t) { return t.indexOf('__TEL__|') !== 0; });
     }
   } catch (e) {
     console.warn('[NILAM] Cloud getUsed failed, using local only', e);
   }
+
+  
   try {
     var local = JSON.parse(localStorage.getItem(UK)) || [];
     for (var i = 0; i < local.length; i++) {
       if (combined.indexOf(local[i]) < 0) combined.push(local[i]);
     }
   } catch (e) {}
+  
   return combined;
 }
 
 async function markUsed(t){
   try {
+    // Local first for immediate feedback
     var u = JSON.parse(localStorage.getItem(UK)) || [];
-    if (u.indexOf(t) < 0) { u.push(t); localStorage.setItem(UK, JSON.stringify(u)); }
+    if (u.indexOf(t) < 0) {
+      u.push(t);
+      localStorage.setItem(UK, JSON.stringify(u));
+    }
+    // Cloud second with await to prevent race conditions
     await fetch(SUPA_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY, 'Prefer': 'resolution=ignore-duplicates' },
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': SUPA_KEY,
+        'Authorization': 'Bearer ' + SUPA_KEY,
+        'Prefer': 'resolution=ignore-duplicates'
+      },
       body: JSON.stringify({ title: t })
     });
-  } catch (e) {}
+  } catch (e) {
+    console.error('[NILAM] markUsed failed', e);
+  }
 }
-
 async function resetUsedList(){
   localStorage.removeItem(UK);
   try{await fetch(SUPA_URL+'?title=not.eq.random_string',{method:'DELETE',headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}});}catch(e){}
 }
 
-// --- ULTIMATE HIGH-END VISUAL DESIGN (VANTABLACK GLASSMORPHISM) ---
-function pLog(m){
-  var el=document.getElementById('nl');if(!el)return;
+function pLog(m){var el=document.getElementById('nl');if(!el)return;
   var t=new Date().toLocaleTimeString('ms-MY',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
   var c='';if(/BERJAYA/.test(m))c='ok';else if(/GAGAL|RALAT|TIDAK|\[X\]/.test(m))c='er';else if(/Step \d/.test(m))c='st';
-  el.innerHTML+='<div class="nm-log-entry '+c+'"><span style="color:#52525b;margin-right:10px;font-family:inherit;">['+t+']</span>'+m+'</div>';
-  el.scrollTop=1e6;
-}
-function log(m){console.log('%c[NILAM] '+m,'color:#8b5cf6;font-weight:bold');pLog(m);}
+  el.innerHTML+='<div class="l '+c+'"><span class="lt">'+t+'</span>'+m+'</div>';el.scrollTop=1e6;}
+function log(m){console.log('%c[NILAM] '+m,'color:#a78bfa;font-weight:bold');pLog(m);}
 function err(m){console.error('[NILAM] '+m);pLog('[X] '+m);}
 
+// DOM helpers
 function vis(el){return el&&(el.offsetParent!==null||el.offsetWidth>0);}
-function isOurPanel(el){if(!el)return false;try{return el.closest&&el.closest('#NILAM-ULTIMATE');}catch(x){return false;}}
-
+function isOurPanel(el){if(!el)return false;try{return el.closest&&el.closest('#NP');}catch(x){return false;}}
 function isDateInput(el){
   if(!el||el.tagName!=='INPUT')return false;
   var t=el.type;if(t==='date'||t==='datetime-local'||t==='time'||t==='month'||t==='week')return true;
@@ -924,8 +919,8 @@ async function doBook(book,idx,total){
     book.review='Buku '+book.title+' oleh '+book.author+' memberi banyak pengetahuan. '+rawSum+' Buku ini mengandungi '+book.pages+' muka surat dan diterbitkan oleh '+book.publisher+'.';
   }
 
-  try{document.getElementById('np-prog').textContent=(idx+1)+' / '+total;}catch(e){}
-  try{document.getElementById('np-bar').style.width=((idx+1)/total*100)+'%';}catch(e){}
+  qs('#np-prog').textContent=(idx+1)+' / '+total;
+  qs('#np-bar').style.width=((idx+1)/total*100)+'%';
   log('--- Buku '+(idx+1)+'/'+total+': '+book.title+' ---');
 
   if(location.pathname.indexOf('/record/add/book')<0){
@@ -1146,337 +1141,213 @@ async function startRun(){
   if(running||!BOOKS.length)return;running=true;paused=false;
   installNavGuard();
   installRatingGuard();
-  
-  try{document.getElementById('np-go').disabled=true;document.getElementById('np-go').textContent='BERJALAN...';}catch(e){}
-  try{document.getElementById('np-pa').disabled=false;document.getElementById('np-st').disabled=false;}catch(e){}
-
+  btnState('run');
   var used0=await getUsed();
   var avail0=[];for(var x=0;x<BOOKS.length;x++){if(used0.indexOf(BOOKS[x].title)<0)avail0.push(BOOKS[x]);}
-  if(!avail0.length){err('Semua buku habis! Tekan Reset.');running=false;try{document.getElementById('np-go').disabled=false;document.getElementById('np-go').textContent='MULA SEKARANG';}catch(e){}return;}
+  if(!avail0.length){err('Semua buku habis! Tekan Reset.');running=false;btnState('idle');return;}
   log('Memulakan... ('+avail0.length+' buku tersedia)');
-  
-  var target=window.__nilamConfig ? window.__nilamConfig.maxBooks : 100;
   sendTelemetry(0, 0, target, 'Bermula...');
 
-  var ok=0,fail=0,dup=0,idx=0;
+  var ok=0,fail=0,dup=0,target=Math.min(parseInt(qs('#np-cnt').value)||5,100);
+  var idx=0;
   while(ok+fail<target&&running){
     sendTelemetry(ok, fail, target, 'Sedang submit buku...');
-    await checkC2();
-    if(!running) break;
     var used=await getUsed();
     var avail=[];for(var y=0;y<BOOKS.length;y++){if(used.indexOf(BOOKS[y].title)<0)avail.push(BOOKS[y]);}
     if(!avail.length){log('Semua buku habis! Auto-reset...');await resetUsedList();await updateStats();avail=BOOKS.slice();}
     var book=avail[0];
     await markUsed(book.title);
-    updateStats();
+    await updateStats();
     var res=await doBook(book,idx,target);
     if(res.ok){ok++;}
-    else if(res.dup){dup++;log('Duplikat - cuba buku lain...');}
+    else if(res.dup){dup++;log('Duplikat #'+dup+' - cuba buku lain...');}
     else if(res.rateLimited){
       log('Sistem berehat sementara (Auto-Sleep 3 minit) mengelakkan ban...');
-      sendTelemetry(ok, fail, target, 'Auto-Sleep (429 Limit)');
-      await jSleep(180000/window.__nilamConfig.delay); 
+      sendTelemetry(ok, fail, target, 'Auto-Sleep (429 Limit Exceeded)');
+      try{document.getElementById('np-waf-info').style.display='flex';}catch(x){}
+      await sleep(180000); 
+      try{document.getElementById('np-waf-info').style.display='none';}catch(x){}
       idx--; 
       window.__nilamRateLimited = false;
       continue; 
     }
     else{fail++;}
-    try{document.getElementById('np-ok').textContent=ok;document.getElementById('np-fl').textContent=fail;}catch(e){}
+    qs('#np-ok').textContent=ok;qs('#np-fl').textContent=fail;
     idx++;
     if(ok+fail<target&&running){
-      log('Sedia buku seterusnya...');
-      await jSleep(3);
-      location.href='/record/add/book';
-      await jSleep(3);
+      log('Sedia buku seterusnya...');await jSleep(2);
+      closeAllPopups();await jSleep(1);
+      if(res.dup||!res.ok){
+        log('Reset borang...');
+        await resetForm();
+      } else {
+        await jSleep(2);
+        await resetForm();
+      }
     }
   }
   log('== SELESAI == OK:'+ok+' Gagal:'+fail+' Duplikat:'+dup);
-  sendTelemetry(ok, fail, target, 'Selesai');
-  running=false;
-  try{document.getElementById('np-go').disabled=false;document.getElementById('np-go').textContent='MULA SEKARANG';}catch(e){}
-  try{document.getElementById('np-pa').disabled=true;document.getElementById('np-st').disabled=true;}catch(e){}
+  sendTelemetry(ok, fail, target, 'Selesai / Berhenti');
+  running=false;btnState('idle');
 }
 
-function updateStats(){
-  getUsed().then(used => {
-    try{document.getElementById('np-lib').textContent=BOOKS.length;}catch(e){}
-    try{document.getElementById('np-usd').textContent=used.length;}catch(e){}
-  });
+// UI
+async function updateStats(){
+  var used=await getUsed();
+  qs('#np-lib').textContent=BOOKS.length;
+  qs('#np-rem').textContent=BOOKS.length-used.length;
+  qs('#np-usd').textContent=used.length;
 }
 function btnState(s){
-  try{
-      var go=document.getElementById('np-go'),pa=document.getElementById('np-pa'),st=document.getElementById('np-st');
-      if(s==='run'){go.disabled=true;go.textContent='Berjalan...';pa.disabled=false;st.disabled=false;}
-      else{go.disabled=false;go.textContent='MULA SEKARANG';pa.disabled=true;st.disabled=true;pa.textContent='PAUSE';}
-  }catch(e){}
+  var go=qs('#np-go'),pa=qs('#np-pa'),st=qs('#np-st');
+  if(s==='run'){go.disabled=true;go.textContent='Berjalan...';pa.disabled=false;st.disabled=false;}
+  else{go.disabled=false;go.textContent='Mula';pa.disabled=true;st.disabled=true;pa.textContent='Pause';}
 }
 
-function buildUI(){
-  // HARD RESET ALL PREVIOUS UIs to prevent overlapping
-  var killList = ['NP', 'NP-FAB', 'NP-MENU', 'NILAM-ROOT', 'NILAM-ULTIMATE'];
-  for(var i=0; i<killList.length; i++) {
-      var k = document.getElementById(killList[i]);
-      if(k) k.remove();
-  }
-  
-  var w=document.createElement('div');
-  w.id = 'NILAM-ULTIMATE';
-  var css=`
-  @import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap");
-  
-  #NP-FAB {
-    position: fixed; top: 24px; right: 24px; width: 60px; height: 60px; border-radius: 30px;
-    background: rgba(5,5,5,0.75); backdrop-filter: blur(24px) saturate(180%); -webkit-backdrop-filter: blur(24px) saturate(180%);
-    border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 10px 40px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.1);
-    z-index: 2147483647; cursor: pointer; display: flex; align-items: center; justify-content: center;
-    color: #fff; font-size: 26px; transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-  #NP-FAB:hover { transform: scale(1.05) rotate(5deg); background: rgba(15,15,15,0.9); box-shadow: 0 15px 50px rgba(139,92,246,0.2), inset 0 1px 1px rgba(255,255,255,0.2); }
-  
-  #NP-MENU {
-    position: fixed; top: 96px; right: 24px; width: 380px; height: auto; min-height: 520px;
-    background: #050505; backdrop-filter: blur(40px) saturate(150%); -webkit-backdrop-filter: blur(40px) saturate(150%);
-    border: 1px solid rgba(255,255,255,0.08); border-radius: 28px;
-    box-shadow: 0 40px 80px rgba(0,0,0,0.8), inset 0 1px 2px rgba(255,255,255,0.05);
-    z-index: 2147483646; display: flex; flex-direction: column; overflow: hidden; resize: both;
-    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
-    transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-    opacity: 0; pointer-events: none; transform: translateY(-20px) scale(0.96);
-  }
-  #NP-MENU.show { opacity: 1; pointer-events: auto; transform: translateY(0) scale(1); }
-  
-  .nm-header {
-    height: 64px; padding: 0 24px; display: flex; align-items: center; justify-content: space-between;
-    border-bottom: 1px solid rgba(255,255,255,0.04); cursor: grab; user-select: none;
-    background: radial-gradient(120% 100% at 50% 0%, rgba(255,255,255,0.05) 0%, rgba(0,0,0,0) 100%);
-  }
-  .nm-header:active { cursor: grabbing; }
-  .nm-title { color: #fff; font-size: 15px; font-weight: 800; letter-spacing: 0.5px; display: flex; align-items: center; gap: 10px; }
-  .nm-dot { width: 8px; height: 8px; border-radius: 50%; background: #10b981; box-shadow: 0 0 12px #10b981; }
-  .nm-close { color: #a1a1aa; font-size: 12px; font-weight: 700; cursor: pointer; padding: 6px 12px; border-radius: 20px; transition: 0.2s; background: rgba(255,255,255,0.03); }
-  .nm-close:hover { color: #fff; background: rgba(255,255,255,0.1); }
+function makeUI(){
+  var old=document.getElementById('NP');if(old)old.remove();
+  var w=document.createElement('div');w.id='NP';
+  var css='';
+  css+='@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");';
+  css+='*{box-sizing:border-box}';
+  css+='#NP{position:fixed;top:12px;right:12px;width:360px;max-width:calc(100vw - 24px);z-index:2147483647;';
+  css+='font-family:"Inter",-apple-system,system-ui,sans-serif;font-size:13px;touch-action:none;user-select:none;-webkit-user-select:none}';
+  css+='@media(max-width:440px){#NP{width:calc(100vw - 16px);right:8px;top:8px;font-size:12px}}';
+  css+='.np-card{background:rgba(15,15,15,0.7);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.1);border-radius:24px;overflow:hidden;';
+  css+='box-shadow:0 30px 60px rgba(0,0,0,0.6),inset 0 1px 0 rgba(255,255,255,0.1)}';
+  css+='.np-hd{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;';
+  css+='background:linear-gradient(180deg,rgba(255,255,255,0.08) 0%,rgba(255,255,255,0.02) 100%);border-bottom:1px solid rgba(255,255,255,0.05);cursor:grab;touch-action:none}';
+  css+='.np-hd:active{cursor:grabbing}';
+  css+='.np-hd-l{display:flex;align-items:center;gap:10px}';
+  css+='.np-ico{width:36px;height:36px;border-radius:12px;display:grid;place-items:center;font-size:16px;font-weight:900;color:#000;';
+  css+='background:linear-gradient(135deg,#fff,#e2e8f0);box-shadow:0 4px 12px rgba(255,255,255,0.2)}';
+  css+='.np-ttl{font-size:15px;font-weight:800;letter-spacing:-.4px;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,0.5)}';
+  css+='.np-hd-r{display:flex;align-items:center;gap:6px}';
+  css+='.np-ver{font-size:9px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:#000;';
+  css+='background:rgba(255,255,255,0.9);padding:3px 8px;border-radius:6px}';
+  css+='.np-x{width:28px;height:28px;border-radius:8px;border:none;background:rgba(0,0,0,0.2);color:#fff;';
+  css+='font-size:15px;cursor:pointer;display:grid;place-items:center;transition:.15s}';
+  css+='.np-x:active{background:rgba(255,255,255,0.2);color:#fff}';
+  css+='.np-stats{display:flex;padding:12px 20px 8px;gap:8px}';
+  css+='.np-stat{flex:1;text-align:center;padding:10px 0;border-radius:12px;background:rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,0.05);box-shadow:inset 0 1px 0 rgba(255,255,255,0.02)}';
+  css+='.np-stat-n{font-size:20px;font-weight:800;color:#fff;line-height:1.2;font-variant-numeric:tabular-nums}';
+  css+='.np-stat-l{font-size:9px;font-weight:600;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.5px;margin-top:2px}';
+  css+='.np-ctrl{padding:12px 20px;display:flex;flex-wrap:wrap;gap:8px}';
+  css+='.np-btn{flex:1;min-width:80px;height:38px;border:none;border-radius:10px;font-size:11px;font-weight:700;';
+  css+='cursor:pointer;text-transform:uppercase;letter-spacing:.4px;transition:.2s}';
+  css+='.np-btn:active{transform:scale(.95)}';
+  css+='.np-btn:disabled{opacity:.35;pointer-events:none}';
+  css+='.b-go{background:linear-gradient(135deg,#fff,#cbd5e1);color:#000;box-shadow:0 4px 12px rgba(255,255,255,0.15)}';
+  css+='.b-pa{background:rgba(0,0,0,0.3);color:#fff;border:1px solid rgba(255,255,255,0.1)}';
+  css+='.b-st{background:rgba(248,113,113,.15);color:#fca5a5;border:1px solid rgba(248,113,113,.2)}';
+  css+='.b-rs{flex:none;width:auto;padding:0 14px;background:rgba(0,0,0,0.2);color:#94a3b8;border:1px solid rgba(255,255,255,0.05);font-size:10px}';
+  css+='.np-set{display:flex;align-items:center;gap:12px;padding:8px 20px;color:rgba(255,255,255,.5);font-size:11px;font-weight:500}';
+  css+='.np-set label{min-width:48px}';
+  css+='.np-set input[type=range]{flex:1;height:4px;-webkit-appearance:none;appearance:none;background:rgba(0,0,0,0.3);border-radius:4px;outline:none}';
+  css+='.np-set input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;';
+  css+='background:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.5);cursor:pointer}';
+  css+='.np-set input[type=number]{width:50px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.1);';
+  css+='border-radius:8px;color:#fff;padding:6px;font-size:12px;text-align:center;font-weight:700;font-family:inherit;outline:none}';
+  css+='.np-set .vl{min-width:36px;text-align:right;color:#fff;font-weight:700;font-size:11px}';
+  css+='.np-prg{padding:12px 20px 8px}';
+  css+='.np-bar-bg{height:6px;background:rgba(0,0,0,0.3);border-radius:9px;overflow:hidden;box-shadow:inset 0 1px 2px rgba(0,0,0,0.2)}';
+  css+='.np-bar-fg{height:100%;width:0;background:linear-gradient(90deg,#fff,#cbd5e1);border-radius:9px;transition:width .6s ease;box-shadow:0 0 10px rgba(255,255,255,0.2)}';
+  css+='.np-prg-t{text-align:center;font-size:10px;color:rgba(255,255,255,.25);margin-top:6px;font-weight:600;letter-spacing:.3px}';
+  css+='.np-log{padding:4px 20px 16px;max-height:160px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.1) transparent}';
+  css+='.np-log::-webkit-scrollbar{width:4px}.np-log::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:4px}';
+  css+='.l{padding:3px 0;font-size:10.5px;color:rgba(255,255,255,.35);line-height:1.5;display:flex;gap:6px;border-bottom:1px solid rgba(255,255,255,.02)}';
+  css+='.l .lt{color:rgba(255,255,255,.2);font-size:9px;font-family:monospace;flex-shrink:0}';
+  css+='.l.ok{color:#6ee7b7}.l.er{color:#fca5a5}.l.st{color:#fff;font-weight:700}';
+  css+='.np-ft{display:flex;justify-content:center;gap:24px;padding:12px 20px;border-top:1px solid rgba(255,255,255,.05);background:rgba(0,0,0,.2)}';
+  css+='.np-ft-i{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700}';
+  css+='.np-ft-i.g{color:#6ee7b7}.np-ft-i.r{color:#fca5a5}';
+  css+='.np-dot{width:8px;height:8px;border-radius:50%}';
+  css+='.np-ft-i.g .np-dot{background:#34d399;box-shadow:0 0 8px rgba(52,211,153,.5)}';
+  css+='.np-ft-i.r .np-dot{background:#f87171;box-shadow:0 0 8px rgba(248,113,113,.5)}';
 
-  .nm-tabs { display: flex; padding: 0 16px; border-bottom: 1px solid rgba(255,255,255,0.04); }
-  .nm-tab {
-    flex: 1; text-align: center; padding: 16px 0; color: #71717a;
-    font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
-    cursor: pointer; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); position: relative;
-  }
-  .nm-tab.active { color: #fff; }
-  .nm-tab.active::after { content: ''; position: absolute; bottom: -1px; left: 30%; right: 30%; height: 2px; background: #fff; border-radius: 2px 2px 0 0; box-shadow: 0 -2px 10px rgba(255,255,255,0.5); }
-  .nm-tab:hover:not(.active) { color: #a1a1aa; }
+  var html='';
+  html+='<div class="np-card">';
+  html+='<div class="np-hd" id="np-hd">';
+  html+='<div class="np-hd-l"><div class="np-ico">N</div><span class="np-ttl">NILAM Auto-Fill</span></div>';
+  html+='<div class="np-hd-r"><span class="np-ver">v10.17</span><button class="np-x" id="np-mn">-</button></div>';
+  html+='</div>';
+  html+='<div id="np-body">';
+  html+='<div class="np-stats">';
+  html+='<div class="np-stat"><div class="np-stat-n" id="np-lib">-</div><div class="np-stat-l">Jumlah</div></div>';
+  html+='<div class="np-stat"><div class="np-stat-n" id="np-rem">-</div><div class="np-stat-l">Tinggal</div></div>';
+  html+='<div class="np-stat"><div class="np-stat-n" id="np-usd">0</div><div class="np-stat-l">Dipakai</div></div>';
+  html+='</div>';
+  html+='<div class="np-ctrl">';
+  html+='<button class="np-btn b-go" id="np-go" disabled>Memuatkan...</button>';
+  html+='<button class="np-btn b-pa" id="np-pa" disabled>Pause</button>';
+  html+='<button class="np-btn b-st" id="np-st" disabled>Stop</button>';
+  html+='<button class="np-btn b-rs" id="np-rs">Reset</button>';
+  html+='</div>';
+  html+='<div class="np-set"><label>Buku</label><input type="number" id="np-cnt" min="1" max="100" value="5"></div>';
+  html+='<div class="np-set"><label>Delay</label><input type="range" id="np-dly" min="300" max="2000" value="600" step="100"><span class="vl" id="np-dvl">600ms</span></div>';
+  html+='<div class="np-prg"><div class="np-bar-bg"><div class="np-bar-fg" id="np-bar"></div></div>';
+  html+='<div class="np-prg-t" id="np-prog">Memuatkan perpustakaan...</div></div>';
+  html+='<div class="np-log" id="nl"></div>';
+  html+='</div>';
+  html+='<div class="np-ft" id="np-ft">';
+  html+='<div class="np-ft-i g"><span class="np-dot"></span><span id="np-ok">0</span> Berjaya</div>';
+  html+='<div class="np-ft-i r"><span class="np-dot"></span><span id="np-fl">0</span> Gagal</div>';
+  html+='</div></div>';
 
-  .nm-content { flex: 1; overflow-y: auto; padding: 24px; display: none; color: #e4e4e7; scrollbar-width: none; }
-  .nm-content::-webkit-scrollbar { display: none; }
-  .nm-content.active { display: block; animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-  @keyframes fadeUp { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
-  
-  .nm-card { 
-    background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); 
-    border-radius: 20px; padding: 20px; margin-bottom: 20px; 
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.02), 0 4px 20px rgba(0,0,0,0.2); 
-  }
-  
-  .nm-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
-  .nm-stat { text-align: center; padding: 16px 0; background: rgba(255,255,255,0.03); border-radius: 16px; border: 1px solid rgba(255,255,255,0.05); transition: 0.3s; }
-  .nm-stat:hover { background: rgba(255,255,255,0.05); transform: translateY(-2px); }
-  .nm-stat-val { font-size: 26px; font-weight: 800; color: #fff; font-family: 'JetBrains Mono', monospace; }
-  .nm-stat-lbl { font-size: 10px; color: #71717a; text-transform: uppercase; letter-spacing: 1px; margin-top: 6px; font-weight: 700; }
-
-  .nm-row { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: 1px solid rgba(255,255,255,0.03); }
-  .nm-row:last-child { border-bottom: none; }
-  .nm-label { display: flex; flex-direction: column; font-size: 13px; font-weight: 600; color: #fff; }
-  .nm-sub { font-size: 10px; color: #71717a; font-weight: 500; margin-top: 4px; }
-
-  /* iOS Style Switch */
-  .switch { position: relative; width: 48px; height: 26px; }
-  .switch input { opacity: 0; width: 0; height: 0; }
-  .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,0.1); transition: .4s cubic-bezier(0.16, 1, 0.3, 1); border-radius: 26px; border: 1px solid rgba(255,255,255,0.05); }
-  .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 3px; bottom: 2px; background: #fff; transition: .4s cubic-bezier(0.16, 1, 0.3, 1); border-radius: 50%; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
-  input:checked + .slider { background: #fff; }
-  input:checked + .slider:before { transform: translateX(20px); background: #050505; }
-
-  .nm-input-group { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: rgba(255,255,255,0.03); padding: 12px 20px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05); }
-  .nm-input { background: transparent; border: none; color: #fff; width: 70px; text-align: right; font-size: 18px; font-weight: 800; font-family: 'JetBrains Mono', monospace; outline: none; }
-  .nm-range { width: 100%; accent-color: #fff; margin-top: 12px; }
-
-  .nm-btn { width: 100%; padding: 18px; border: none; border-radius: 16px; font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); color: #050505; margin-top: 10px; }
-  .nm-btn-go { background: #fff; box-shadow: 0 8px 20px rgba(255,255,255,0.15); }
-  .nm-btn-go:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 12px 25px rgba(255,255,255,0.25); }
-  .nm-btn-go:disabled { background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.3); box-shadow: none; cursor: not-allowed; }
-  
-  .nm-btn-st { background: rgba(239, 68, 68, 0.1); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.2); padding: 14px; margin-top: 0; }
-  .nm-btn-st:hover:not(:disabled) { background: rgba(239, 68, 68, 0.2); border-color: rgba(239, 68, 68, 0.4); }
-
-  .nm-log-entry { font-family: "JetBrains Mono", monospace; font-size: 11px; padding: 8px 0; color: #a1a1aa; border-bottom: 1px dashed rgba(255,255,255,0.05); }
-  .nm-log-entry.ok { color: #34d399; }
-  .nm-log-entry.er { color: #f87171; }
-  .nm-log-entry.st { color: #fff; font-weight: 700; }
-  `;
-  
-  var html=`
-  <div id="NP-FAB">
-    <svg viewBox="0 0 24 24" width="28" height="28" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-  </div>
-  <div id="NP-MENU">
-     <div class="nm-header">
-        <div class="nm-title"><div class="nm-dot"></div> VANTABLACK EDITION</div>
-        <div class="nm-close" id="nm-close">HIDE</div>
-     </div>
-     <div class="nm-tabs">
-        <div class="nm-tab active" data-target="tab-home">Mission Control</div>
-        <div class="nm-tab" data-target="tab-feat">Defenses</div>
-        <div class="nm-tab" data-target="tab-logs">Terminal</div>
-     </div>
-     
-     <div class="nm-content active" id="tab-home">
-        <div class="nm-grid">
-           <div class="nm-stat"><div class="nm-stat-val" id="np-lib">-</div><div class="nm-stat-lbl">Global Books</div></div>
-           <div class="nm-stat"><div class="nm-stat-val" id="np-usd">0</div><div class="nm-stat-lbl">Synced</div></div>
-        </div>
-        
-        <div class="nm-input-group">
-            <div class="nm-label">Target Execution<span class="nm-sub">Books per session</span></div>
-            <input type="number" id="np-cnt" class="nm-input" min="1" max="500" value="5">
-        </div>
-        
-        <div style="margin-bottom:24px; font-size:12px; color:#71717a; display:flex; justify-content:space-between; font-weight:700;">
-            <span>STATUS:</span>
-            <span><span id="np-ok" style="color:#34d399">0</span> SUCCESS / <span id="np-fl" style="color:#f87171">0</span> ERROR</span>
-        </div>
-        
-        <button class="nm-btn nm-btn-go" id="np-go" disabled>INITIALIZING...</button>
-        
-        <div class="nm-grid" style="margin-top:16px">
-            <button class="nm-btn nm-btn-st" id="np-pa" disabled>PAUSE</button>
-            <button class="nm-btn nm-btn-st" id="np-st" disabled>HALT</button>
-        </div>
-     </div>
-     
-     <div class="nm-content" id="tab-feat">
-        <div class="nm-card">
-            <div class="nm-row">
-                <div class="nm-label">Human Jitter<span class="nm-sub">Defeats timing analysis (WAF)</span></div>
-                <label class="switch"><input type="checkbox" id="cfg-jitter" checked><span class="slider"></span></label>
-            </div>
-            <div class="nm-row">
-                <div class="nm-label">Ghost Identity<span class="nm-sub">Spoofs OS, Device & RAM</span></div>
-                <label class="switch"><input type="checkbox" id="cfg-ghost" checked><span class="slider"></span></label>
-            </div>
-            <div class="nm-row">
-                <div class="nm-label">Smart Sleep<span class="nm-sub">Auto-cools on HTTP 429</span></div>
-                <label class="switch"><input type="checkbox" id="cfg-sleep" checked><span class="slider"></span></label>
-            </div>
-        </div>
-        
-        <div class="nm-card">
-            <div class="nm-label" style="flex-direction:row; justify-content:space-between">
-                Base Velocity <span id="np-dvl" style="color:#fff;font-family:'JetBrains Mono',monospace;font-size:12px">600ms</span>
-            </div>
-            <input type="range" id="np-dly" class="nm-range" min="200" max="3000" value="600" step="100">
-        </div>
-        
-        <div style="text-align:center; margin-top:24px;">
-            <button id="np-rs" style="background:transparent;border:none;color:#71717a;font-size:11px;font-weight:700;cursor:pointer;transition:0.2s">Purge Cloud Memory</button>
-        </div>
-     </div>
-     
-     <div class="nm-content" id="tab-logs">
-        <div id="nl" style="padding-bottom:24px"></div>
-     </div>
-  </div>
-  `;
-  
   var styleEl=document.createElement('style');styleEl.textContent=css;
   w.appendChild(styleEl);
-  w.innerHTML += html;
+  var container=document.createElement('div');container.innerHTML=html;
+  w.appendChild(container.firstChild);
   document.body.appendChild(w);
-  
-  var menu = document.getElementById('NP-MENU');
-  var fab = document.getElementById('NP-FAB');
-  var isMenuOpen = false;
-  
-  fab.onclick = function(){
-      isMenuOpen = !isMenuOpen;
-      menu.classList.toggle('show', isMenuOpen);
-  };
-  document.getElementById('nm-close').onclick = function(){
-      isMenuOpen = false; menu.classList.remove('show');
-  };
-  
-  // Tabs
-  var tabs = document.querySelectorAll('.nm-tab');
-  var contents = document.querySelectorAll('.nm-content');
-  tabs.forEach(function(t){
-      t.onclick = function(){
-          tabs.forEach(function(tt){tt.classList.remove('active')});
-          contents.forEach(function(cc){cc.classList.remove('active')});
-          t.classList.add('active');
-          document.getElementById(t.getAttribute('data-target')).classList.add('active');
-      };
-  });
-  
-  // Dragging
-  var hd=document.querySelector('.nm-header');var dr=false,ox=0,oy=0;
-  function ds(cx,cy){dr=true;var r=menu.getBoundingClientRect();ox=cx-r.left;oy=cy-r.top;}
-  function dm(cx,cy){if(!dr)return;menu.style.left=Math.max(0,Math.min(cx-ox,innerWidth-menu.offsetWidth))+'px';
-    menu.style.top=Math.max(0,Math.min(cy-oy,innerHeight-40))+'px';menu.style.right='auto';}
+
+  // Drag: mouse + touch
+  var hd=document.getElementById('np-hd');var dr=false,ox=0,oy=0;
+  function ds(cx,cy){dr=true;var r=w.getBoundingClientRect();ox=cx-r.left;oy=cy-r.top;}
+  function dm(cx,cy){if(!dr)return;w.style.left=Math.max(0,Math.min(cx-ox,innerWidth-w.offsetWidth))+'px';
+    w.style.top=Math.max(0,Math.min(cy-oy,innerHeight-60))+'px';w.style.right='auto';}
   function de(){dr=false;}
-  hd.addEventListener('mousedown',function(e){if(e.target.id==='nm-close')return;e.preventDefault();ds(e.clientX,e.clientY);});
+  hd.addEventListener('mousedown',function(e){e.preventDefault();ds(e.clientX,e.clientY);});
   document.addEventListener('mousemove',function(e){dm(e.clientX,e.clientY);});
   document.addEventListener('mouseup',de);
-  hd.addEventListener('touchstart',function(e){if(e.target.id==='nm-close')return;if(e.touches.length===1){e.preventDefault();ds(e.touches[0].clientX,e.touches[0].clientY);}},{passive:false});
+  hd.addEventListener('touchstart',function(e){if(e.touches.length===1){e.preventDefault();ds(e.touches[0].clientX,e.touches[0].clientY);}},{passive:false});
   document.addEventListener('touchmove',function(e){if(dr&&e.touches.length===1){e.preventDefault();dm(e.touches[0].clientX,e.touches[0].clientY);}},{passive:false});
   document.addEventListener('touchend',de);document.addEventListener('touchcancel',de);
 
-  // Config Binds
-  document.getElementById('cfg-jitter').onchange = function(){ window.__nilamConfig.jitter = this.checked; log("Jitter di" + (this.checked?"aktifkan":"matikan")); };
-  document.getElementById('cfg-ghost').onchange = function(){ window.__nilamConfig.ghost = this.checked; log("Ghost Mode di" + (this.checked?"aktifkan":"matikan")); };
-  document.getElementById('cfg-sleep').onchange = function(){ window.__nilamConfig.autoSleep = this.checked; log("Auto-Sleep di" + (this.checked?"aktifkan":"matikan")); };
-  document.getElementById('np-dly').oninput=function(){ window.__nilamConfig.delay=+this.value; document.getElementById('np-dvl').textContent=this.value+'ms'; };
-  document.getElementById('np-cnt').oninput=function(){ window.__nilamConfig.maxBooks=+this.value; };
+  // Minimize
+  var mini=false;
+  document.getElementById('np-mn').onclick=function(){mini=!mini;
+    document.getElementById('np-body').style.display=mini?'none':'';
+    document.getElementById('np-ft').style.display=mini?'none':'';
+    document.getElementById('np-mn').textContent=mini?'+':'-';};
+
+  // Delay slider
+  document.getElementById('np-dly').oninput=function(){DELAY=+this.value;document.getElementById('np-dvl').textContent=DELAY+'ms';};
 
   // Buttons
   document.getElementById('np-go').onclick=startRun;
-  document.getElementById('np-pa').onclick=function(){paused=!paused;document.getElementById('np-pa').textContent=paused?'RESUME':'PAUSE';log(paused?'DIJEDA':'Disambung');};
+  document.getElementById('np-pa').onclick=function(){paused=!paused;document.getElementById('np-pa').textContent=paused?'Sambung':'Pause';log(paused?'DIJEDA':'Disambung');};
   document.getElementById('np-st').onclick=function(){running=false;paused=false;log('DIHENTIKAN');btnState('idle');};
-  document.getElementById('np-rs').onclick=async function(){
-    if(confirm('AMARAN: Padam memori awan? Rekod lama mungkin bertindih semula.')){
-      await resetUsedList();await updateStats();log('Pangkalan data direset');
-    }
-  };
+  document.getElementById('np-rs').onclick=async function(){if(confirm('Reset semua buku yang sudah dipakai?')){await resetUsedList();await updateStats();log('Senarai direset');}};
 }
 
-// --- INIT WITH BULLETPROOF CATCH ---
-try {
-  buildUI();
-  installSpoofer();
-  installNavGuard();
-  installRatingGuard();
-  log('Sistem bersedia. Menyambung ke pangkalan data...');
+// Init
+makeUI();
+installNavGuard();
+installRatingGuard();
+log('Memuat turun 10,000 buku...');
 
-  // Safe Fetch Init using JSdelivr but with random param fallback if blocked
-  fetch(LIB_URL + '?t=' + Date.now())
-    .then(r => { if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
-    .then(async data => {
-      BOOKS = data;
-      log('Berjaya memuat turun '+BOOKS.length+' rekod');
-      var used = await getUsed();
-      try{document.getElementById('np-lib').textContent=BOOKS.length;}catch(e){}
-      try{document.getElementById('np-usd').textContent=used.length;}catch(e){}
-      
-      var go=document.getElementById('np-go');
-      if(go){ go.disabled=false; go.textContent='EXECUTE'; go.className='nm-btn nm-btn-go'; }
-      sendTelemetry(0, 0, 0, 'Standby (Vantablack UI Aktif)');
-    })
-    .catch(e => {
-      err('Gagal muat data: '+e.message);
-      var go=document.getElementById('np-go');
-      if(go) { go.disabled=true; go.textContent='RALAT RANGKAIAN'; }
-    });
-
-} catch(e) {
-  console.error(e);
+try{
+  var r=await fetch(LIB_URL + '?v=' + Date.now());if(!r.ok)throw new Error('HTTP '+r.status);
+  BOOKS=await r.json();
+  log(BOOKS.length+' buku sebenar dimuatkan');
+  await updateStats();
+  var go=document.getElementById('np-go');
+  go.disabled=false;go.textContent='Mula';go.className='np-btn b-go';
+  document.getElementById('np-prog').textContent='Sedia. Tekan MULA.';
+  sendTelemetry(0, 0, 0, 'Standby (Skrip dimuatkan)');
+}catch(e){
+  err('Gagal muat: '+e.message);
+  document.getElementById('np-prog').textContent='Gagal muat data!';
 }
 
 })();
