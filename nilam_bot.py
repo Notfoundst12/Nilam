@@ -325,12 +325,14 @@ def handle_query(call):
             markup = InlineKeyboardMarkup().add(InlineKeyboardButton("💎 Naik Taraf PRO", callback_data="cmd_upgrade"), InlineKeyboardButton("🔙 Kembali", callback_data="menu_actions"))
         else:
             text = (
-                "<b>💻 SKRIP SUNTIKAN v10.25 [PRO/OWNER]</b>\n"
+                "<b>💻 SKRIP SUNTIKAN v10.40 [PRO/OWNER]</b>\n"
                 "━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
                 "Anda mempunyai akses premium. Skrip ini dilengkapi dengan ciri Stealth sepenuhnya.\n\n"
                 "<b>Salin kod di bawah ke Console:</b>\n"
                 "<code>var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/gh/Notfoundst12/Nilam@main/n.js?v='+Date.now();document.head.appendChild(s);</code>\n\n"
                 "<blockquote>🛡️ <b>Ciri Premium Aktif:</b>\n"
+                "✅ <b>[NEW]</b> Anti-Fingerprinting (Spoof OS & RAM)\n"
+                "✅ <b>[NEW]</b> AI-Smart Review Generator\n"
                 "✅ WAF Cache-Busting\n"
                 "✅ Human Jitter Delay\n"
                 "✅ Smart Auto-Sleep (Anti-Ban)</blockquote>"

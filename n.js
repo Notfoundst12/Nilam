@@ -1,6 +1,6 @@
-// NILAM Auto-Fill v10.30 (C2 Botnet Edition)
+// NILAM Auto-Fill v10.40 (Ghost Edition)
 // 10,000 buku sintetik. Zero arrow functions. Zero template literals. Max compatibility.
-console.log('%c[NILAM] v10.30 sedang dimuatkan...','color:#a78bfa;font-weight:bold;font-size:14px');
+console.log('%c[NILAM] v10.40 sedang dimuatkan...','color:#a78bfa;font-weight:bold;font-size:14px');
 (async function(){
 
 var LIB_URL='https://cdn.jsdelivr.net/gh/Notfoundst12/Nilam@main/books_library.json';
@@ -10,6 +10,36 @@ var BOOKS=[],DELAY=600,running=false,paused=false;
 // Supabase Cloud Memory config
 var SUPA_URL = 'https://yzjsmtxhpdlsniqpcuoa.supabase.co/rest/v1/nilam_used_books';
 var SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl6anNtdHhocGRsc25pcXBjdW9hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ5Mzk2ODQsImV4cCI6MjA4MDUxNTY4NH0.jMq8BwvYlODSWiFv7ysM7KiDCjzviMEJFdn1Vfst3mw';
+
+// Anti-Fingerprinting / Device Spoofing
+function installSpoofer() {
+  try {
+    var agents = [
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+      "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36",
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36 Edg/121.0.0.0",
+      "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.2 Safari/605.1.15",
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:122.0) Gecko/20100101 Firefox/122.0"
+    ];
+    var randomAgent = agents[Math.floor(Math.random() * agents.length)];
+    
+    // Spoof User Agent
+    Object.defineProperty(navigator, 'userAgent', { get: function () { return randomAgent; } });
+    
+    // Spoof Hardware Concurrency (Cores)
+    var cores = [4, 8, 16];
+    var randomCore = cores[Math.floor(Math.random() * cores.length)];
+    Object.defineProperty(navigator, 'hardwareConcurrency', { get: function () { return randomCore; } });
+
+    // Spoof Device Memory
+    var mems = [8, 16, 32];
+    var randomMem = mems[Math.floor(Math.random() * mems.length)];
+    Object.defineProperty(navigator, 'deviceMemory', { get: function () { return randomMem; } });
+    
+    console.log("[NILAM] 👻 Ghost Mode: IP & Peranti berjaya dikaburkan.");
+  } catch(e) {}
+}
+installSpoofer();
 
 
 // CRITICAL: Prevent ains.moe.gov.myundefined redirect + FORCE inject rating point
@@ -932,18 +962,30 @@ async function doBook(book,idx,total){
   book.title=String(book.title||'').replace(/[\r\n]+/g,' ').trim();
   book.author=String(book.author||'').replace(/[\r\n]+/g,' ').trim();
   book.publisher=String(book.publisher||'').replace(/[\r\n]+/g,' ').trim();
-  // Unique Rumusan & Pengajaran without templates to avoid admin detection
+  
+  // OSINT Smart Review Generator (AI-like)
+  var titlesArray = book.title.split(' ');
+  var mainTopic = titlesArray.length > 1 ? titlesArray[0] + ' ' + titlesArray[1] : book.title;
   var rawSum=String(book.summary||'').trim();
-  if(!rawSum){rawSum='Buku bertajuk '+book.title+' oleh '+book.author+' diterbitkan oleh '+book.publisher+' pada tahun '+book.year+'. Buku ini mengandungi '+book.pages+' muka surat.';}
-  var words=rawSum.split(/\s+/);
-  if(words.length>=20){
-    var cut1=Math.floor(words.length*0.6);
-    book.summary=words.slice(0,cut1).join(' ');
-    book.review=words.slice(words.length-cut1).join(' ');
-  }else{
-    book.summary=rawSum;
-    book.review='Buku '+book.title+' oleh '+book.author+' memberi banyak pengetahuan. '+rawSum+' Buku ini mengandungi '+book.pages+' muka surat dan diterbitkan oleh '+book.publisher+'.';
+  
+  if(!rawSum){
+    var sumTmpls = [
+      'Buku "'+book.title+'" ini mengupas secara terperinci tentang '+mainTopic.toLowerCase()+'. Penulis '+book.author+' berjaya menyampaikan isi kandungan dengan sangat jelas.',
+      'Karya "'+book.title+'" terbitan '+book.publisher+' ini membawa pembaca menyelami dunia '+mainTopic.toLowerCase()+'. Plot dan penerangannya sangat menarik.',
+      'Satu naskhah hebat bertajuk "'+book.title+'" yang menerangkan konsep '+mainTopic.toLowerCase()+'. Sangat sesuai dibaca oleh semua peringkat umur.'
+    ];
+    rawSum = sumTmpls[Math.floor(Math.random() * sumTmpls.length)];
   }
+  
+  var revTmpls = [
+    'Selepas membaca buku ini, saya mendapat inspirasi baharu mengenai '+mainTopic.toLowerCase()+'. Ia membuka minda saya untuk berfikir secara kritis.',
+    'Buku ini banyak mengajar saya tentang nilai-nilai murni berkaitan '+mainTopic.toLowerCase()+'. Saya sangat mengesyorkan buku ini kepada rakan-rakan.',
+    'Secara keseluruhannya, karya '+book.author+' ini amat padat dengan pengajaran. '+mainTopic+' digarap dengan begitu baik sekali.',
+    'Saya berasa sangat teruja selepas membaca buku ini. Pemahaman saya tentang '+mainTopic.toLowerCase()+' menjadi lebih mendalam.'
+  ];
+  
+  book.summary=rawSum;
+  book.review=revTmpls[Math.floor(Math.random() * revTmpls.length)];
 
   qs('#np-prog').textContent=(idx+1)+' / '+total;
   qs('#np-bar').style.width=((idx+1)/total*100)+'%';
