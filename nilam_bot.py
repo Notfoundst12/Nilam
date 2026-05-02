@@ -155,6 +155,44 @@ def get_system_menu():
     )
     return markup
 
+@bot.message_handler(commands=['addpro'])
+def add_pro_user(message):
+    user_id = message.chat.id
+    if get_user_plan(user_id) != "owner":
+        bot.reply_to(message, "⛔ Akses Ditolak! Ciri ini khas untuk Pemilik (Owner) sahaja.")
+        return
+        
+    try:
+        target_id = message.text.split(' ')[1]
+        users = load_users()
+        if target_id not in users:
+            users[target_id] = {"plan": "pro", "joined": time.time()}
+        else:
+            users[target_id]["plan"] = "pro"
+        save_users(users)
+        bot.reply_to(message, f"✅ Berjaya! ID pengguna <code>{target_id}</code> telah dinaik taraf ke pelan <b>PRO</b>.", parse_mode="HTML")
+    except IndexError:
+        bot.reply_to(message, "⚠️ Format salah. Sila guna:\n`/addpro <user_id>`", parse_mode="Markdown")
+
+@bot.message_handler(commands=['removepro'])
+def remove_pro_user(message):
+    user_id = message.chat.id
+    if get_user_plan(user_id) != "owner":
+        bot.reply_to(message, "⛔ Akses Ditolak! Ciri ini khas untuk Pemilik (Owner) sahaja.")
+        return
+        
+    try:
+        target_id = message.text.split(' ')[1]
+        users = load_users()
+        if target_id in users:
+            users[target_id]["plan"] = "free"
+            save_users(users)
+            bot.reply_to(message, f"✅ Berjaya! ID pengguna <code>{target_id}</code> telah diturunkan taraf ke pelan <b>FREE</b>.", parse_mode="HTML")
+        else:
+            bot.reply_to(message, f"⚠️ Pengguna <code>{target_id}</code> tidak dijumpai dalam sistem.", parse_mode="HTML")
+    except IndexError:
+        bot.reply_to(message, "⚠️ Format salah. Sila guna:\n`/removepro <user_id>`", parse_mode="Markdown")
+
 @bot.message_handler(commands=['start', 'help'])
 def send_welcome(message):
     user_id = message.chat.id
