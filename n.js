@@ -174,7 +174,7 @@ async function sendTelemetry(ok, fail, tgt, statusMsg) {
   }
   var payload = '__TEL__|' + uid + '|' + Date.now() + '|' + ok + '|' + fail + '|' + tgt + '|' + statusMsg;
   try {
-    fetch(SUPA_URL + '?title=like.__TEL__|' + uid + '|*', { method: 'DELETE', headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY } })
+    fetch(SUPA_URL + '?title=like.' + encodeURIComponent('__TEL__|' + uid + '|%'), { method: 'DELETE', headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY } })
     .then(function() {
       fetch(SUPA_URL, {
         method: 'POST',
@@ -646,9 +646,12 @@ function makeUI(){
             <input type="number" id="np-cnt" class="nm-input" min="1" max="500" value="5">
         </div>
         
-        <div style="margin-bottom:20px; font-size:12px; color:#94a3b8; display:flex; justify-content:space-between; font-weight:600;">
-            <span>Progress:</span>
+        <div style="margin-bottom:10px; font-size:12px; color:#94a3b8; display:flex; justify-content:space-between; font-weight:600;">
+            <span id="np-prog">Sedia. Tekan MULA.</span>
             <span><span id="np-ok" style="color:#34d399">0</span> OK / <span id="np-fl" style="color:#f87171">0</span> FAIL</span>
+        </div>
+        <div style="background:rgba(0,0,0,0.3);height:6px;border-radius:4px;margin-bottom:20px;overflow:hidden;">
+            <div id="np-bar" style="background:linear-gradient(90deg,#8b5cf6,#3b82f6);height:100%;width:0%;transition:0.3s;"></div>
         </div>
         
         <button class="nm-btn nm-btn-go" id="np-go" disabled>INITIALIZING...</button>
