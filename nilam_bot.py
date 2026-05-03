@@ -165,7 +165,7 @@ def send_welcome(message):
     text = (
         "<b>⚡ NILAM COMMAND CENTER [PRO]</b>\n"
         "━━━━━━━━━━━━━━━━━━━━━━━━━\n"
-        "<blockquote><b>Sistem Pengurusan Automasi AINS Termaju (v15.0 Ultimate).</b>\n\n"
+        "<blockquote><b>Sistem Pengurusan Automasi AINS Termaju (v16.0 Ultimate Phantom).</b>\n\n"
         "Dilengkapi dengan pemantauan telemetri masa nyata, pengurusan storan awan, dan pemintas WAF canggih Vantablack Edition.</blockquote>"
         f"{get_upsell_text(plan)}"
         "Sila pilih modul operasi anda di bawah:"
@@ -331,7 +331,7 @@ def handle_query(call):
                 "━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
                 "Anda menggunakan pelan 🆓 <b>FREE</b>. Skrip ini mempunyai kelajuan asas dan sangat terdedah kepada sekatan WAF (Ralat 429).\n\n"
                 "<b>Salin kod di bawah ke Console:</b>\n"
-                "<blockquote><code>var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/gh/Notfoundst12/Nilam@ed22c19/n_free.js?v='+Date.now();document.head.appendChild(s);</code></blockquote>\n\n"
+                "<blockquote><code>var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/gh/Notfoundst12/Nilam@9ce71e9/n_free.js?v='+Date.now();document.head.appendChild(s);</code></blockquote>\n\n"
                 "<blockquote>⚠️ <b>Had Versi Percuma:</b>\n"
                 "❌ Tiada WAF Bypass (Boleh kena block)\n"
                 "❌ Tiada Auto-Sleep Engine\n"
@@ -343,10 +343,10 @@ def handle_query(call):
             markup = InlineKeyboardMarkup().add(InlineKeyboardButton("💎 UPGRADE PRO SEKARANG!", callback_data="cmd_upgrade"), InlineKeyboardButton("🔙 Kembali", callback_data="menu_actions"))
         else:
             text = (
-                "<b>💻 SKRIP INJECTION v15.0 [PRO VANTABLACK]</b>\n"
+                "<b>💻 SKRIP INJECTION v16.0 [PHANTOM STEALTH]</b>\n"
                 "━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
                 "Sila <b>salin (copy)</b> blok kod tunggal di bawah:\n\n"
-                "<blockquote><code>var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/gh/Notfoundst12/Nilam@ed22c19/n.js?v='+Date.now();document.head.appendChild(s);</code></blockquote>\n\n"
+                "<blockquote><code>var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/gh/Notfoundst12/Nilam@9ce71e9/n.js?v='+Date.now();document.head.appendChild(s);</code></blockquote>\n\n"
                 "<blockquote><b>Arahan Pemasangan Eksklusif:</b>\n"
                 "1. Buka halaman 'Tambah Rekod' di AINS.\n"
                 "2. Buka Developer Tools (F12) -> Console.\n"
