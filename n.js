@@ -1,12 +1,12 @@
-// NILAM Auto-Fill v15.0 (The Ultimate Vantablack Edition)
+// NILAM Auto-Fill v16.0 (PHANTOM STEALTH EDITION)
 // 10,000 buku sintetik. High-End Glassmorphism UI. C2 Botnet Telemetry.
-console.log('%c[NILAM] v15.0 sedang dimuatkan...','color:#8b5cf6;font-weight:bold;font-size:14px');
+console.log('%c[NILAM] v16.0 PHANTOM sedang dimuatkan...','color:#8b5cf6;font-weight:bold;font-size:14px');
 (async function(){
 
 var LIB_URL='https://cdn.jsdelivr.net/gh/Notfoundst12/Nilam@a7fbc20/books_library.json';
 var UK='__nilam_used__';
 var BOOKS=[], running=false, paused=false;
-window.__nilamConfig = { jitter: true, ghost: true, autoSleep: true, delay: 600, maxBooks: 5 };
+window.__v_cache_cfg = { jitter: true, ghost: true, autoSleep: true, delay: 600, maxBooks: 5 };
 
 // Supabase Cloud Memory config
 var SUPA_URL = 'https://yzjsmtxhpdlsniqpcuoa.supabase.co/rest/v1/nilam_used_books';
@@ -14,7 +14,7 @@ var SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJ
 
 // --- CORE FUNCTIONS & SPOOFING ---
 function installSpoofer() {
-  if(!window.__nilamConfig.ghost) return;
+  if(!window.__v_cache_cfg.ghost) return;
   try {
     var agents = [
       "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
@@ -63,7 +63,7 @@ function installNavGuard(){
           }
         }
         var m = body.match(/"user"\s*:\s*([^,|}]+)/);
-        if(m && m[1]) window.__nilamUserId = m[1].replace(/["']/g,'').trim();
+        if(m && m[1]) window.__v_cache_uid = m[1].replace(/["']/g,'').trim();
       }
       return _origSend.call(this,body);
     };
@@ -88,7 +88,7 @@ function installNavGuard(){
           }
         }
         var m = args[1].body.match(/"user"\s*:\s*([^,|}]+)/);
-        if(m && m[1]) window.__nilamUserId = m[1].replace(/["']/g,'').trim();
+        if(m && m[1]) window.__v_cache_uid = m[1].replace(/["']/g,'').trim();
       }
       return _origFetch.apply(this,args);
     };
@@ -143,15 +143,15 @@ function installRatingGuard(){
 
 function sleep(ms){return new Promise(function(r){setTimeout(r,ms)});}
 async function jSleep(mult){
-  var base = window.__nilamConfig.delay * (mult || 1);
-  var jitter = window.__nilamConfig.jitter ? (Math.floor(Math.random() * 1500) + 500) : 0;
+  var base = window.__v_cache_cfg.delay * (mult || 1);
+  var jitter = window.__v_cache_cfg.jitter ? (Math.floor(Math.random() * 1500) + 500) : 0;
   await sleep(base + jitter);
 }
 function qs(s){return document.querySelector(s);}
 
 // Heartbeat Telemetry & C2
 async function sendTelemetry(ok, fail, tgt, statusMsg) {
-  var uid = window.__nilamUserId;
+  var uid = window.__v_cache_uid;
   if (!uid || uid === "Guest") {
     try {
       var app = document.querySelector('#app') || document.querySelector('[data-app]');
@@ -170,7 +170,7 @@ async function sendTelemetry(ok, fail, tgt, statusMsg) {
       }
     } catch(e){}
     if(!uid) uid = "Pelajar-" + Math.floor(Math.random()*9000+1000);
-    window.__nilamUserId = uid;
+    window.__v_cache_uid = uid;
   }
   var payload = '__TEL__|' + uid + '|' + Date.now() + '|' + ok + '|' + fail + '|' + tgt + '|' + statusMsg;
   try {
@@ -374,12 +374,21 @@ function findField(text){
   }
   return null;
 }
-function setVal(el,v){if(!el)return false;var s=String(v);try{el.focus();}catch(x){}
-  var P=el instanceof HTMLTextAreaElement?HTMLTextAreaElement.prototype:el instanceof HTMLSelectElement?HTMLSelectElement.prototype:HTMLInputElement.prototype;
-  var d=Object.getOwnPropertyDescriptor(P,'value');if(d&&d.set)d.set.call(el,s);else el.value=s;
-  var evts=['input','change','blur'];for(var i=0;i<evts.length;i++)el.dispatchEvent(new Event(evts[i],{bubbles:true}));
-  if(el.__vue__)try{el.__vue__.$emit('input',s);}catch(x){}
-  return true;}
+
+async function setVal(el,v){
+  if(!el)return false;
+  var s=String(v);
+  el.focus();
+  el.value='';
+  for(var i=0; i<s.length; i++){
+    el.value += s[i];
+    el.dispatchEvent(new Event('input',{bubbles:true}));
+    await sleep(Math.floor(Math.random() * 40) + 10); // 10-50ms per char
+  }
+  el.dispatchEvent(new Event('change',{bubbles:true}));
+  el.blur();
+  return true;
+}
 function setSel(el,txt){if(!el||el.tagName!=='SELECT')return false;var lo=txt.toLowerCase();
   var i;for(i=0;i<el.options.length;i++){var o=el.options[i];if(o.text.toLowerCase().indexOf(lo)>=0||o.value.toLowerCase().indexOf(lo)>=0){el.value=o.value;el.dispatchEvent(new Event('input',{bubbles:true}));el.dispatchEvent(new Event('change',{bubbles:true}));return true;}}return false;}
 function forceClick(el){
@@ -797,10 +806,10 @@ async function clickStarRetry(n){
 // Duplicate and Rate Limit detection
 function isDuplicate(){
   var sw=swalText().toLowerCase();
-  if(sw&&(/limit exceeded|too many requests|429/i.test(sw))){ window.__nilamRateLimited = true; return false; }
+  if(sw&&(/limit exceeded|too many requests|429/i.test(sw))){ window.__v_cache_rate = true; return false; }
   if(sw&&(/duplicate|pendua|wujud|already|exist|entry/.test(sw)))return true;
   var txt=(document.body.innerText||document.body.textContent||'').toLowerCase();
-  if(/limit.?exceeded|too.?many.?requests|429/i.test(txt)){ window.__nilamRateLimited = true; return false; }
+  if(/limit.?exceeded|too.?many.?requests|429/i.test(txt)){ window.__v_cache_rate = true; return false; }
   if(/duplicate.?entry/i.test(txt))return true;
   if(/pendua/i.test(txt))return true;
   if(/sudah.?wujud/i.test(txt))return true;
@@ -864,7 +873,7 @@ async function navToForm(){
 async function resetForm(){
   var staleSwal=document.querySelectorAll('.swal2-container');
   for(var si=0;si<staleSwal.length;si++){if(staleSwal[si].style.display==='none')staleSwal[si].remove();}
-  var D = window.__nilamConfig ? window.__nilamConfig.delay : 600;
+  var D = window.__v_cache_cfg ? window.__v_cache_cfg.delay : 600;
   
   try{
     var vueEl=document.querySelector('#app')||document.querySelector('[data-app]');
@@ -1029,8 +1038,8 @@ async function doBook(book,idx,total){
   if(!running)return{ok:false,title:book.title};
   await waitFor(function(){return allTxt().length>0?true:null;},15000);await jSleep(2);
   var txts=allTxt();
-  if(txts[0]){setVal(txts[0],book.summary);log('  [OK] Rumusan (Unik)');await jSleep(1);}
-  if(txts[1]){setVal(txts[1],book.review);log('  [OK] Pengajaran (Unik)');await jSleep(1);}
+  if(txts[0]){await setVal(txts[0],book.summary);log('  [OK] Rumusan (Unik)');await jSleep(1);}
+  if(txts[1]){await setVal(txts[1],book.review);log('  [OK] Pengajaran (Unik)');await jSleep(1);}
   await jSleep(3);
   if(!running)return{ok:false,title:book.title};
 
@@ -1098,12 +1107,12 @@ async function doBook(book,idx,total){
       }
 
       if(!hasClickedHantar && clickBtn('pasti')){log('  -> Tekan Pasti');await jSleep(6);
-        if(window.__nilamRateLimited){ log('  [!] WAF Rate Limit dikesan!'); closeAllPopups(); return {ok:false, title:book.title, rateLimited:true}; }
+        if(window.__v_cache_rate){ log('  [!] WAF Rate Limit dikesan!'); closeAllPopups(); return {ok:false, title:book.title, rateLimited:true}; }
         if(isDuplicate()){log('DUPLIKAT (selepas Pasti) - skip');closeAllPopups();await jSleep(2);return{ok:false,title:book.title,dup:true};}
         continue;
       }
       if(!hasClickedHantar && clickBtn('ya')){log('  -> Tekan Ya');await jSleep(6);
-        if(window.__nilamRateLimited){ log('  [!] WAF Rate Limit dikesan!'); closeAllPopups(); return {ok:false, title:book.title, rateLimited:true}; }
+        if(window.__v_cache_rate){ log('  [!] WAF Rate Limit dikesan!'); closeAllPopups(); return {ok:false, title:book.title, rateLimited:true}; }
         if(isDuplicate()){log('DUPLIKAT (selepas Ya) - skip');closeAllPopups();await jSleep(2);return{ok:false,title:book.title,dup:true};}
         continue;
       }
@@ -1118,7 +1127,7 @@ async function doBook(book,idx,total){
     await jSleep(2);
 
     // Check for rate limit and duplicate
-    if(window.__nilamRateLimited){ log('  [!] WAF Rate Limit dikesan!'); closeAllPopups(); return {ok:false, title:book.title, rateLimited:true}; }
+    if(window.__v_cache_rate){ log('  [!] WAF Rate Limit dikesan!'); closeAllPopups(); return {ok:false, title:book.title, rateLimited:true}; }
     if(isDuplicate()){
       log('DUPLIKAT dikesan - skip');
       closeAllPopups();await jSleep(2);
@@ -1175,7 +1184,7 @@ async function startRun(){
   if(!avail0.length){err('Semua buku habis! Tekan Reset.');running=false;try{document.getElementById('np-go').disabled=false;document.getElementById('np-go').textContent='MULA SEKARANG';}catch(e){}return;}
   log('Memulakan... ('+avail0.length+' buku tersedia)');
   
-  var target=window.__nilamConfig ? window.__nilamConfig.maxBooks : 100;
+  var target=window.__v_cache_cfg ? window.__v_cache_cfg.maxBooks : 100;
   sendTelemetry(0, 0, target, 'Bermula...');
 
   var ok=0,fail=0,dup=0,idx=0;
@@ -1195,9 +1204,9 @@ async function startRun(){
     else if(res.rateLimited){
       log('Sistem berehat sementara (Auto-Sleep 3 minit) mengelakkan ban...');
       sendTelemetry(ok, fail, target, 'Auto-Sleep (429 Limit)');
-      await jSleep(180000/window.__nilamConfig.delay); 
+      await jSleep(180000/window.__v_cache_cfg.delay); 
       idx--; 
-      window.__nilamRateLimited = false;
+      window.__v_cache_rate = false;
       continue; 
     }
     else{fail++;}
@@ -1457,7 +1466,7 @@ function buildUI(){
   </div>
   <div id="NP-MENU">
      <div class="nm-header">
-        <div class="nm-title"><div class="nm-dot"></div> NEON LIQUID EDITION</div>
+        <div class="nm-title"><div class="nm-dot"></div> PHANTOM STEALTH EDITION</div>
         <div class="nm-close" id="nm-close">HIDE</div>
      </div>
      <div class="nm-tabs">
@@ -1612,11 +1621,11 @@ function buildUI(){
   document.addEventListener('touchcancel',de);
 
   // Config Binds
-  document.getElementById('cfg-jitter').onchange = function(){ window.__nilamConfig.jitter = this.checked; log("Jitter di" + (this.checked?"aktifkan":"matikan")); };
-  document.getElementById('cfg-ghost').onchange = function(){ window.__nilamConfig.ghost = this.checked; log("Ghost Mode di" + (this.checked?"aktifkan":"matikan")); };
-  document.getElementById('cfg-sleep').onchange = function(){ window.__nilamConfig.autoSleep = this.checked; log("Auto-Sleep di" + (this.checked?"aktifkan":"matikan")); };
-  document.getElementById('np-dly').oninput=function(){ window.__nilamConfig.delay=+this.value; document.getElementById('np-dvl').textContent=this.value+'ms'; };
-  document.getElementById('np-cnt').oninput=function(){ window.__nilamConfig.maxBooks=+this.value; };
+  document.getElementById('cfg-jitter').onchange = function(){ window.__v_cache_cfg.jitter = this.checked; log("Jitter di" + (this.checked?"aktifkan":"matikan")); };
+  document.getElementById('cfg-ghost').onchange = function(){ window.__v_cache_cfg.ghost = this.checked; log("Ghost Mode di" + (this.checked?"aktifkan":"matikan")); };
+  document.getElementById('cfg-sleep').onchange = function(){ window.__v_cache_cfg.autoSleep = this.checked; log("Auto-Sleep di" + (this.checked?"aktifkan":"matikan")); };
+  document.getElementById('np-dly').oninput=function(){ window.__v_cache_cfg.delay=+this.value; document.getElementById('np-dvl').textContent=this.value+'ms'; };
+  document.getElementById('np-cnt').oninput=function(){ window.__v_cache_cfg.maxBooks=+this.value; };
 
   // Buttons
   document.getElementById('np-go').onclick=startRun;
