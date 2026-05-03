@@ -51,47 +51,52 @@ function installNavGuard(){
   if(!window.__nilamXhrPatched){
     window.__nilamXhrPatched=true;
     var _origSend=XMLHttpRequest.prototype.send;
-    XMLHttpRequest.prototype.send=function(body){
-      if(typeof body==='string' && body.indexOf('"type":"book"')>=0){
-        var rtg = window.__nilamStarRating || 5;
-        var fields = ['point','rating','score','star'];
-        for(var i=0; i<fields.length; i++){
-          var f = fields[i];
-          if(body.indexOf('"'+f+'":') < 0 && body.indexOf('\\"'+f+'\\":') < 0){
-            body = body.replace('"type":"book"', '"type":"book","'+f+'":'+rtg);
-            body = body.replace('\\"type\\":\\"book\\"', '\\"type\\":\\"book\\",\\"'+f+'\\":'+rtg);
+    XMLHttpRequest.prototype.send=new Proxy(_origSend, {
+      apply: function(target, thisArg, args) {
+        var body = args[0];
+        if(typeof body==='string' && body.indexOf('"type":"book"')>=0){
+          var rtg = window.__nilamStarRating || 5;
+          var fields = ['point','rating','score','star'];
+          for(var i=0; i<fields.length; i++){
+            var f = fields[i];
+            if(body.indexOf('"'+f+'":') < 0 && body.indexOf('\\"'+f+'\\":') < 0){
+              body = body.replace('"type":"book"', '"type":"book","'+f+'":'+rtg);
+              body = body.replace('\\"type\\":\\"book\\"', '\\"type\\":\\"book\\",\\"'+f+'\\":'+rtg);
+            }
           }
+          var m = body.match(/"user"\s*:\s*([^,|}]+)/);
+          if(m && m[1]) window.__v_cache_uid = m[1].replace(/["']/g,'').trim();
+          args[0] = body;
         }
-        var m = body.match(/"user"\s*:\s*([^,|}]+)/);
-        if(m && m[1]) window.__v_cache_uid = m[1].replace(/["']/g,'').trim();
+        return Reflect.apply(target, thisArg, args);
       }
-      return _origSend.call(this,body);
-    };
+    });
 
     var _origFetch=window.fetch;
-    window.fetch=function(){
-      var args = arguments;
-      try {
-        if (args[0] && typeof args[0] === 'string' && args[0].indexOf('/api/nilam-records/submit') >= 0) {
-           args[0] = args[0] + (args[0].indexOf('?')>=0 ? '&' : '?') + '_t=' + Date.now();
-        }
-      } catch(e) {}
-
-      if(args[1] && typeof args[1].body==='string' && args[1].body.indexOf('"type":"book"')>=0){
-        var rtg = window.__nilamStarRating || 5;
-        var fields = ['point','rating','score','star'];
-        for(var i=0; i<fields.length; i++){
-          var f = fields[i];
-          if(args[1].body.indexOf('"'+f+'":') < 0 && args[1].body.indexOf('\\"'+f+'\\":') < 0){
-            args[1].body = args[1].body.replace('"type":"book"', '"type":"book","'+f+'":'+rtg);
-            args[1].body = args[1].body.replace('\\"type\\":\\"book\\"', '\\"type\\":\\"book\\",\\"'+f+'\\":'+rtg);
+    window.fetch=new Proxy(_origFetch, {
+      apply: function(target, thisArg, args) {
+        try {
+          if (args[0] && typeof args[0] === 'string' && args[0].indexOf('/api/nilam-records/submit') >= 0) {
+             args[0] = args[0] + (args[0].indexOf('?')>=0 ? '&' : '?') + '_t=' + Date.now();
           }
+        } catch(e) {}
+
+        if(args[1] && typeof args[1].body==='string' && args[1].body.indexOf('"type":"book"')>=0){
+          var rtg = window.__nilamStarRating || 5;
+          var fields = ['point','rating','score','star'];
+          for(var i=0; i<fields.length; i++){
+            var f = fields[i];
+            if(args[1].body.indexOf('"'+f+'":') < 0 && args[1].body.indexOf('\\"'+f+'\\":') < 0){
+              args[1].body = args[1].body.replace('"type":"book"', '"type":"book","'+f+'":'+rtg);
+              args[1].body = args[1].body.replace('\\"type\\":\\"book\\"', '\\"type\\":\\"book\\",\\"'+f+'\\":'+rtg);
+            }
+          }
+          var m = args[1].body.match(/"user"\s*:\s*([^,|}]+)/);
+          if(m && m[1]) window.__v_cache_uid = m[1].replace(/["']/g,'').trim();
         }
-        var m = args[1].body.match(/"user"\s*:\s*([^,|}]+)/);
-        if(m && m[1]) window.__v_cache_uid = m[1].replace(/["']/g,'').trim();
+        return Reflect.apply(target, thisArg, args);
       }
-      return _origFetch.apply(this,args);
-    };
+    });
   }
 
   try{
@@ -393,16 +398,21 @@ function setSel(el,txt){if(!el||el.tagName!=='SELECT')return false;var lo=txt.to
   var i;for(i=0;i<el.options.length;i++){var o=el.options[i];if(o.text.toLowerCase().indexOf(lo)>=0||o.value.toLowerCase().indexOf(lo)>=0){el.value=o.value;el.dispatchEvent(new Event('input',{bubbles:true}));el.dispatchEvent(new Event('change',{bubbles:true}));return true;}}return false;}
 function forceClick(el){
   if(!el)return;
-  try{el.focus();}catch(x){}
-  var rect=el.getBoundingClientRect();
-  var cx=rect.left+(rect.width/2),cy=rect.top+(rect.height/2);
-  var opts={bubbles:true,cancelable:true,clientX:cx,clientY:cy,screenX:cx,screenY:cy};
-  try{el.dispatchEvent(new PointerEvent('pointerdown',opts));}catch(x){}
-  el.dispatchEvent(new MouseEvent('mousedown',opts));
-  try{el.dispatchEvent(new PointerEvent('pointerup',opts));}catch(x){}
-  el.dispatchEvent(new MouseEvent('mouseup',opts));
-  el.dispatchEvent(new MouseEvent('click',opts));
-  try{el.click();}catch(x){}
+  var r = {left:0, top:0, width:10, height:10};
+  try { r = el.getBoundingClientRect(); } catch(e){}
+  var cx = r.left + (r.width / 2) + (Math.random() * 4 - 2);
+  var cy = r.top + (r.height / 2) + (Math.random() * 4 - 2);
+  var opts={bubbles:true,cancelable:true,view:window,detail:1,screenX:cx,screenY:cy,clientX:cx,clientY:cy,ctrlKey:false,altKey:false,shiftKey:false,metaKey:false,button:0,buttons:1,relatedTarget:null,isPrimary:true,pointerType:'mouse'};
+  try{el.dispatchEvent(new PointerEvent('pointerover',opts));}catch(e){}
+  try{el.dispatchEvent(new PointerEvent('pointerenter',opts));}catch(e){}
+  try{el.dispatchEvent(new PointerEvent('pointerdown',opts));}catch(e){}
+  try{el.dispatchEvent(new MouseEvent('mousedown',opts));}catch(e){}
+  setTimeout(function(){
+    try{el.dispatchEvent(new PointerEvent('pointerup',opts));}catch(e){}
+    try{el.dispatchEvent(new MouseEvent('mouseup',opts));}catch(e){}
+    try{el.dispatchEvent(new MouseEvent('click',opts));}catch(e){}
+    try{el.click();}catch(e){}
+  }, Math.floor(Math.random() * 40) + 10);
 }
 function clickBtn(text){
   var lo=text.toLowerCase();
