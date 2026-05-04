@@ -1,0 +1,29 @@
+END-USER LICENSE AGREEMENT (EULA)
+FOR NILAM COMMAND CENTER PRO
+
+IMPORTANT—READ CAREFULLY: This End-User License Agreement ("EULA") is a legal agreement between you (either an individual or a single entity) and the developers of NILAM Command Center PRO ("Software").
+
+By installing, copying, or otherwise using the Software, you agree to be bound by the terms of this EULA. If you do not agree to the terms of this EULA, do not use the Software.
+
+1. GRANT OF LICENSE
+The Software is licensed, not sold. Upon your subscription (Free or PRO), we grant you a personal, non-exclusive, non-transferable, limited license to use the Software strictly for your personal, non-commercial use, subject to the limitations below.
+
+2. DESCRIPTION OF OTHER RIGHTS AND LIMITATIONS
+(a) No Reverse Engineering or Modification: You may not reverse engineer, decompile, deobfuscate, disassemble, or modify the Software (including `n.js` and `nilam_bot.py`).
+(b) No Redistribution: You may not distribute, rent, lease, lend, sell, or sublicense the Software, nor may you provide access to the Software's premium features to third parties without authorization.
+(c) Fair Use: You agree not to abuse the Command and Control (C2) servers, Supabase instances, or Telegram Bots through excessive requests, DDoS attacks, or any malicious actions.
+
+3. DISCLAIMER OF WARRANTIES
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
+
+4. LIMITATION OF LIABILITY
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. 
+This includes, but is not limited to, account bans, legal actions, or disciplinary measures taken by third-party platforms (e.g., MOE AINS Portal) due to the use of this automation tool.
+
+5. TERMINATION
+Without prejudice to any other rights, the developers may terminate this EULA if you fail to comply with the terms and conditions of this EULA. In such event, your access to the Telegram Bot, Cloud Memory, and the Software will be revoked permanently.
+
+6. AFFILIATION
+The Software is an independent project and is NOT affiliated with, endorsed by, or sponsored by the Ministry of Education Malaysia (KPM) or any government entity.
+
+By using the Software, you acknowledge that you have read this EULA, understand it, and agree to be bound by its terms and conditions.
