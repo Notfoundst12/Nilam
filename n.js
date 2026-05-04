@@ -383,11 +383,11 @@
       return;
     }
     
-    // Hardcap to 3 books per session to prevent velocity bans
-    if (CFG.m > 3) {
-      CFG.m = 3;
+    // Hardcap to 30 books per session to prevent velocity bans
+    if (CFG.m > 30) {
+      CFG.m = 30;
       document.getElementById('v17-tgt').innerText = CFG.m;
-      uLog('⚠️ SEC-OP: Target reduced to 3 (Max Safe Limit).');
+      uLog('⚠️ SEC-OP: Target reduced to 30 (Max Safe Limit).');
     }
 
     isR = true; isP = false;
