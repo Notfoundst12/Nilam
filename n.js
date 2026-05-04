@@ -375,6 +375,21 @@
   // --- 7. CORE LOGIC (Simulated stealth automation) ---
   async function start() {
     if (isR || !BOOKS.length) return;
+    
+    // BEHAVIORAL THROTTLING (Anti-Backend Heuristics)
+    const hour = new Date().getHours();
+    if (hour >= 0 && hour < 6) {
+      alert("⚠️ SISTEM DISEKAT (BEHAVIORAL GUARD) ⚠️\\n\\nDemi keselamatan akaun anda, automasi tidak dibenarkan beroperasi dari jam 12:00 AM hingga 6:00 AM. Aktiviti pada waktu ini sangat mudah dikesan sebagai 'Penyalahgunaan Sistem' oleh AINS.\\n\\nSila cuba lagi pada waktu siang.");
+      return;
+    }
+    
+    // Hardcap to 3 books per session to prevent velocity bans
+    if (CFG.m > 3) {
+      CFG.m = 3;
+      document.getElementById('v17-tgt').innerText = CFG.m;
+      uLog('⚠️ SEC-OP: Target reduced to 3 (Max Safe Limit).');
+    }
+
     isR = true; isP = false;
     document.getElementById('v17-start').innerText = 'Running...';
     
@@ -423,35 +438,5 @@
   // Boot
   initUI();
   fetch(`${LIB_URL}?t=${Date.now()}`).then(r=>r.json()).then(d => { BOOKS = d; uLog(`Database synced: ${d.length} books.`); }).catch(()=>uLog('ERR: Failed to sync database.'));
-
-  // --- 8. RED-TEAM: DOM PERSISTENCE & HONEYPOT EVASION ---
-  if (navigator.webdriver || window.callPhantom || window._phantom) {
-      document.body.innerHTML = '<h1 style="color:red;text-align:center;margin-top:20%;">403 FORBIDDEN - ANALYSIS ENVIRONMENT DETECTED</h1>'; return;
-  }
-  
-  const observer = new MutationObserver((mutations) => {
-    mutations.forEach((mutation) => {
-      if (mutation.removedNodes) {
-        mutation.removedNodes.forEach((node) => {
-          if (node.id === 'v17-ui' || node.id === 'v17-fab') {
-            document.body.appendChild(node);
-            uLog('WARNING: Host attempt to remove UI blocked.');
-          }
-        });
-      }
-    });
-  });
-  observer.observe(document.body, { childList: true, subtree: true });
-
-})();ion.removedNodes.forEach((node) => {
-          if (node.id === 'v17-ui' || node.id === 'v17-fab') {
-            document.body.appendChild(node);
-            uLog('WARNING: Host attempt to remove UI blocked.');
-          }
-        });
-      }
-    });
-  });
-  observer.observe(document.body, { childList: true, subtree: true });
 
 })();
