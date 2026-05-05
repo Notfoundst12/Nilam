@@ -148,13 +148,24 @@ def handle_text(message):
             if not output:
                 output = result.stderr.strip()
                 
-            # Clean output and truncate if necessary
-            output = output.replace("Skill \"skill-creator\" from \"/root/.gemini/skills/skill-creator/SKILL.md\" is overriding the built-in skill.", "").strip()
+            # Clean output warnings
+            warnings = [
+                "Skill \"skill-creator\" from \"/root/.gemini/skills/skill-creator/SKILL.md\" is overriding the built-in skill.",
+                "Warning: True color (24-bit) support not detected. Using a terminal with true color enabled will result in a better visual experience.",
+                "Ripgrep is not available. Falling back to GrepTool."
+            ]
+            for w in warnings:
+                output = output.replace(w, "")
+                
+            output = output.strip()
             
+            if not output:
+                output = "⚠️ <i>Sistem AI sedang sibuk atau soalan tidak jelas. Sila cuba ayat yang lain.</i>"
+                
             if len(output) > 4000:
                 output = output[:4000] + "...\n[Teks dipotong]"
                 
-            bot.edit_message_text(output, chat_id=chat_id, message_id=message_id)
+            bot.edit_message_text(output, chat_id=chat_id, message_id=message_id, parse_mode="HTML")
         except subprocess.TimeoutExpired:
             bot.edit_message_text("⏳ Ralat: Gemini AI mengambil masa terlalu lama untuk merespons.", chat_id=chat_id, message_id=message_id)
         except Exception as e:
