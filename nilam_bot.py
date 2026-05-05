@@ -10,11 +10,16 @@ import time
 import datetime
 import math
 import base64
+import threading
+from concurrent.futures import ThreadPoolExecutor
 
 # iOS 26 LIQUID GLASS & MAX SECURITY EDITION v17.0
 TOKEN = '8298046313:AAHqwkuWkTbxSFSZB7DO4fNrfT1hBkMWKVs'
 OWNER_ID = 8402309532
 bot = telebot.TeleBot(TOKEN)
+
+# AI Chat Queue System (Protects VPS RAM)
+ai_queue = ThreadPoolExecutor(max_workers=2)
 
 SUPA_URL = 'https://yzjsmtxhpdlsniqpcuoa.supabase.co/rest/v1/nilam_used_books'
 SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl6anNtdHhocGRsc25pcXBjdW9hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ5Mzk2ODQsImV4cCI6MjA4MDUxNTY4NH0.jMq8BwvYlODSWiFv7ysM7KiDCjzviMEJFdn1Vfst3mw'
@@ -123,6 +128,39 @@ def send_welcome(message):
         "Select operational vector:"
     )
     bot.send_message(message.chat.id, text, parse_mode="HTML", reply_markup=get_main_menu(plan))
+
+@bot.message_handler(func=lambda message: True)
+def handle_text(message):
+    plan = get_user_plan(message.chat.id)
+    if plan == "free":
+        bot.reply_to(message, "⚠️ <b>Akses Ditolak.</b>\n\nFungsi AI Chat Assistant eksklusif untuk pelanggan PRO. Sila naik taraf akaun anda.", parse_mode="HTML")
+        return
+        
+    bot.send_chat_action(message.chat.id, 'typing')
+    msg = bot.reply_to(message, "🧠 <i>Menjana respons AI...</i>", parse_mode="HTML")
+    
+    def run_ai(text, chat_id, message_id):
+        try:
+            cmd = ['/root/.nvm/versions/node/v24.14.1/bin/gemini', '-p', text]
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
+            
+            output = result.stdout.strip()
+            if not output:
+                output = result.stderr.strip()
+                
+            # Clean output and truncate if necessary
+            output = output.replace("Skill \"skill-creator\" from \"/root/.gemini/skills/skill-creator/SKILL.md\" is overriding the built-in skill.", "").strip()
+            
+            if len(output) > 4000:
+                output = output[:4000] + "...\n[Teks dipotong]"
+                
+            bot.edit_message_text(output, chat_id=chat_id, message_id=message_id)
+        except subprocess.TimeoutExpired:
+            bot.edit_message_text("⏳ Ralat: Gemini AI mengambil masa terlalu lama untuk merespons.", chat_id=chat_id, message_id=message_id)
+        except Exception as e:
+            bot.edit_message_text(f"❌ Ralat Sistem AI: {str(e)}", chat_id=chat_id, message_id=message_id)
+            
+    ai_queue.submit(run_ai, message.text, message.chat.id, msg.message_id)
 
 @bot.callback_query_handler(func=lambda call: True)
 def handle_query(call):
