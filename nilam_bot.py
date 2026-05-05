@@ -21,14 +21,26 @@ SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI
 
 START_TIME = time.time()
 DB_FILE = 'bot_users_db.json'
+_users_cache = None
 
 def load_users():
-    if not os.path.exists(DB_FILE): return {}
+    global _users_cache
+    if _users_cache is not None:
+        return _users_cache
+    if not os.path.exists(DB_FILE): 
+        _users_cache = {}
+        return _users_cache
     try:
-        with open(DB_FILE, 'r') as f: return json.load(f)
-    except: return {}
+        with open(DB_FILE, 'r') as f: 
+            _users_cache = json.load(f)
+            return _users_cache
+    except: 
+        _users_cache = {}
+        return _users_cache
 
 def save_users(users):
+    global _users_cache
+    _users_cache = users
     with open(DB_FILE, 'w') as f: json.dump(users, f, indent=4)
 
 def get_user_plan(user_id):
@@ -236,4 +248,4 @@ def background_gc_worker():
 if __name__ == "__main__":
     print("NILAM COMMAND CENTER v17.0 (MAX SECURITY) ONLINE.")
     threading.Thread(target=background_gc_worker, daemon=True).start()
-    bot.polling(none_stop=True, timeout=60)
+    bot.infinity_polling(timeout=60, long_polling_timeout=60)
