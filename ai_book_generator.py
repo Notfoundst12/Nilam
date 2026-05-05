@@ -27,11 +27,18 @@ def generate_books(count=25):
     Output ONLY a valid raw JSON array. DO NOT include markdown blocks like ```json.
     """
     
-    cmd = ['/root/.nvm/versions/node/v24.14.1/bin/gemini', '-p', prompt]
+    cmd = [
+        '/root/.nvm/versions/node/v24.14.1/bin/node',
+        '/root/.nvm/versions/node/v24.14.1/lib/node_modules/@google/gemini-cli/bundle/gemini.js',
+        '-p', prompt
+    ]
     try:
         logger.info(f"Calling Gemini CLI to synthesize {count} records...")
         env = os.environ.copy()
         env['HOME'] = '/root'
+        env['USER'] = 'root'
+        env['PATH'] = '/root/.nvm/versions/node/v24.14.1/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
+        
         result = subprocess.run(cmd, capture_output=True, text=True, check=True, env=env)
         
         output = result.stdout.strip()

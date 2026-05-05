@@ -143,12 +143,20 @@ def handle_text(message):
         try:
             env = os.environ.copy()
             env['HOME'] = '/root'
-            cmd = ['/root/.nvm/versions/node/v24.14.1/bin/gemini', '-p', text]
+            env['USER'] = 'root'
+            env['PATH'] = '/root/.nvm/versions/node/v24.14.1/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
+            
+            cmd = [
+                '/root/.nvm/versions/node/v24.14.1/bin/node', 
+                '/root/.nvm/versions/node/v24.14.1/lib/node_modules/@google/gemini-cli/bundle/gemini.js', 
+                '-p', text
+            ]
             result = subprocess.run(cmd, capture_output=True, text=True, timeout=60, env=env)
             
             output = result.stdout.strip()
+            raw_err = result.stderr.strip()
             if not output:
-                output = result.stderr.strip()
+                output = raw_err
                 
             # Clean output warnings
             warnings = [
@@ -162,7 +170,7 @@ def handle_text(message):
             output = output.strip()
             
             if not output:
-                output = "⚠️ <i>Sistem AI sedang sibuk atau soalan tidak jelas. Sila cuba ayat yang lain.</i>"
+                output = f"⚠️ <i>Sistem AI sedang sibuk.</i>\n\n<b>DEBUG INFO:</b>\nSTDOUT: {result.stdout.strip()}\nSTDERR: {raw_err}"
                 
             if len(output) > 4000:
                 output = output[:4000] + "...\n[Teks dipotong]"
