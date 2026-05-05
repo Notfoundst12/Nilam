@@ -141,8 +141,10 @@ def handle_text(message):
     
     def run_ai(text, chat_id, message_id):
         try:
+            env = os.environ.copy()
+            env['HOME'] = '/root'
             cmd = ['/root/.nvm/versions/node/v24.14.1/bin/gemini', '-p', text]
-            result = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=60, env=env)
             
             output = result.stdout.strip()
             if not output:
